@@ -29,9 +29,12 @@ function arg(name: string): string | undefined {
   const i = process.argv.indexOf(`--${name}`);
   return i >= 0 ? process.argv[i + 1] : undefined;
 }
-const MODELS = process.argv.includes("--no-llm") ? [] : (arg("models") ?? "gemma4:e4b").split(",").map((m) => m.trim()).filter(Boolean);
+// --no-llm and --from-results never call a model.
+const MODELS = process.argv.includes("--no-llm") || process.argv.includes("--from-results")
+  ? [] : (arg("models") ?? "gemma4:e4b").split(",").map((m) => m.trim()).filter(Boolean);
 const RUNS = Number(arg("runs") ?? 5);
 const ONLY = arg("only")?.split(",").map((s) => s.trim());
+const FROM_RESULTS = process.argv.includes("--from-results");
 
 // ---------- types ----------
 interface Expected {
@@ -188,9 +191,16 @@ async function runWriter(model: string, fixtures: FixtureRun[], pack: AdvisoryPa
 }
 
 // ---------- report ----------
+// Bolds the first whole-token occurrence ("21" must not light up inside "2026").
 function highlight(text: string, token: string): string {
-  const i = text.indexOf(token);
-  return i < 0 ? text : `${text.slice(0, i)}**${token}**${text.slice(i + token.length)}`;
+  const esc = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const m = new RegExp(`(?<![\\w.])${esc}(?![\\w.]*\\d)`).exec(text);
+  return m ? `${text.slice(0, m.index)}**${token}**${text.slice(m.index + token.length)}` : text;
+}
+
+function outcome(r: WriterRun, a: AttemptRecord): string {
+  if (r.attempts.length <= a.attempt) return r.mode === "llm" ? "accepted" : "template used for the failing parts";
+  return r.mode === "llm" ? "accepted on retry" : "retry rejected too; template used for the failing parts";
 }
 
 function sampleRejections(runs: WriterRun[], n: number): string[] {
@@ -203,7 +213,7 @@ function sampleRejections(runs: WriterRun[], n: number): string[] {
     if (out.length >= n) break;
     if (seenModels.has(r.model) && candidates.some((c) => !seenModels.has(c.r.model))) continue;
     seenModels.add(r.model);
-    const reason = a.reasons[0]!;
+    const reason = a.reasons.find((s) => s.startsWith("ungrounded token")) ?? a.reasons[0]!;
     let excerpt = "";
     const m = reason.match(/^ungrounded token "(.+?)" in (.+)$/);
     try {
@@ -226,7 +236,7 @@ function sampleRejections(runs: WriterRun[], n: number): string[] {
     } catch {
       excerpt = a.content!.slice(0, 200);
     }
-    out.push(`- **${r.model}**, ${r.fixture}, run ${r.run}, attempt ${a.attempt}. Rejected for: \`${reason}\`${a.reasons.length > 1 ? ` (+${a.reasons.length - 1} more)` : ""}.\n  > ${excerpt.replace(/\n/g, " ")}\n  Outcome: ${r.mode}${r.attempts.length > a.attempt ? ", fixed on retry" : ""}.`);
+    out.push(`- **${r.model}**, ${r.fixture}, run ${r.run}, attempt ${a.attempt}. Rejected for: \`${reason}\`${a.reasons.length > 1 ? ` (+${a.reasons.length - 1} more)` : ""}.\n  > ${excerpt.replace(/\n/g, " ")}\n  Outcome: ${outcome(r, a)} (final mode \`${r.mode}\`).`);
   }
   return out;
 }
@@ -324,9 +334,35 @@ async function main() {
     const templateRejections = fixtures.reduce((s, f) => s + validate(templateDraft(f.findings, pack), f.findings, kevOf).length, 0);
     log(`matcher: ${score.misses.length} miss(es); template drafts rejected by the validator: ${templateRejections}`);
 
-    fs.rmSync(OUT, { recursive: true, force: true });
+    // --from-results: re-render the report from eval/results.json (no model calls,
+    // same measurements). Used when only the report code changed.
     const writerRuns: WriterRun[] = [];
-    const meta = { hardware: await hardware(), commit: await gitCommit(), ollama: "unknown" };
+    let wallMs: number | null = null;
+    let savedCommit: string | null = null;
+    if (FROM_RESULTS) {
+      const saved = JSON.parse(fs.readFileSync(path.join(EVAL, "results.json"), "utf8")) as {
+        writerRuns: WriterRun[];
+        meta?: { wallMs?: number; commit?: string };
+        fixtures?: Array<{ name: string; scanMatchMs?: number }>;
+      };
+      writerRuns.push(...saved.writerRuns);
+      // Keep the original run's commit, wall time and scan timings: older results.json
+      // files lack them, so fall back to the RESULTS.md that run produced.
+      const prev = fs.existsSync(path.join(EVAL, "RESULTS.md")) ? fs.readFileSync(path.join(EVAL, "RESULTS.md"), "utf8") : "";
+      const wallM = prev.match(/Wall time for this eval: ([\d.]+) s/);
+      wallMs = saved.meta?.wallMs ?? (wallM ? Number(wallM[1]) * 1000 : null);
+      savedCommit = saved.meta?.commit ?? prev.match(/at commit `([0-9a-f]+)`/)?.[1] ?? null;
+      for (const f of fixtures) {
+        const stored = saved.fixtures?.find((x) => x.name === f.name)?.scanMatchMs;
+        const row = prev.match(new RegExp(`^\\| ${f.name} \\| \\d+ \\| ([\\d.]+) s \\|`, "m"));
+        if (stored !== undefined) f.scanMatchMs = stored;
+        else if (row) f.scanMatchMs = Number(row[1]) * 1000;
+      }
+      log(`re-rendering from results.json: ${writerRuns.length} writer runs, commit ${savedCommit ?? "unknown"}`);
+    } else {
+      fs.rmSync(OUT, { recursive: true, force: true });
+    }
+    const meta = { hardware: await hardware(), commit: savedCommit ?? await gitCommit(), ollama: "unknown" };
     try {
       const v = await (await fetch("http://127.0.0.1:11434/api/version")).json() as { version?: string };
       meta.ollama = v.version ?? "unknown";
@@ -347,7 +383,7 @@ async function main() {
         `- Models: ${models.join(", ") || "none"}; ${RUNS} runs each; run *r* uses seed 41 + *r* (run 1 is the production seed 42), temperature 0.2, thinking off.`,
         `- Prompt version ${PROMPT_VERSION}; advisory pack ${pack.packVersion}; Ollama ${meta.ollama}.`,
         `- Hardware: ${meta.hardware}.`,
-        `- Wall time for this eval: ${sec(Date.now() - started)}.`,
+        `- Wall time for this eval: ${sec(wallMs ?? Date.now() - started)}.${FROM_RESULTS ? " (Report re-rendered from eval/results.json; measurements unchanged.)" : ""}`,
         "",
         "## 1. Matcher",
         "",
@@ -391,7 +427,11 @@ async function main() {
         ...(models.length ? sampleRejections(writerRuns, 3) : ["No model runs."]),
         "",
       ];
-      fs.writeFileSync(path.join(EVAL, "results.json"), redactText(JSON.stringify({ fixtures: fixtures.map((f) => ({ name: f.name, findings: f.findings.map((x) => ({ advisoryId: x.advisoryId, confidence: x.confidence, priority: x.priority })) })), writerRuns }, null, 2)));
+      fs.writeFileSync(path.join(EVAL, "results.json"), redactText(JSON.stringify({
+        meta: { wallMs: wallMs ?? Date.now() - started, commit: meta.commit, runs: RUNS, promptVersion: PROMPT_VERSION, packVersion: pack.packVersion },
+        fixtures: fixtures.map((f) => ({ name: f.name, scanMatchMs: f.scanMatchMs, findings: f.findings.map((x) => ({ advisoryId: x.advisoryId, confidence: x.confidence, priority: x.priority })) })),
+        writerRuns,
+      }, null, 2)));
       fs.writeFileSync(path.join(EVAL, "RESULTS.md"), redactText(lines.join("\n")));
       return canaryHits;
     };

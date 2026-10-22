@@ -61,7 +61,7 @@ export class PromptEchoClient implements ModelClient {
   async chat(req: ChatRequest): Promise<ChatResult> {
     this.calls++;
     const items = section(req.user, "FINDINGS (ordered by priority, already verified):\n", "\n\nFYI (awareness only, never actions):");
-    const fyi = section(req.user, "FYI (awareness only, never actions):\n", "\n\nYour previous draft");
+    const fyi = section(req.user, "FYI (awareness only, never actions):\n", "\n\nWRITE:");
     const draft = {
       line1Actions: items.filter((f) => f.confidence === "definite" || f.confidence === "likely").slice(0, 2)
         .map((f) => cut(f.action.charAt(0).toLowerCase() + f.action.slice(1), 60)),

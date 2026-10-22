@@ -1,7 +1,7 @@
 import type { Advisory, AdvisoryPack, Finding } from "@twotoe/core";
-import { templateActions, MAX_CHECKLIST } from "./template";
+import { MAX_CHECKLIST, MAX_WHY, templateActions, truncateWords } from "./template";
 
-export const PROMPT_VERSION = "2026-10-22.1";
+export const PROMPT_VERSION = "2026-10-22.2";
 
 // SPEC 10.2, verbatim.
 const RULES = `You are TwoToe, a calm morning security assistant. You write for a tired developer
@@ -23,18 +23,20 @@ Rules:
 8. fyi: rephrase each FYI finding in one calm sentence, max 160 characters.
 9. Output JSON matching the schema. No markdown. No extra keys.`;
 
-// SPEC 10.4 few-shot (SHOULD), included in the system prompt.
+// SPEC 10.4 few-shot (SHOULD), with made-up findings: the spec version used real
+// Node/OpenCode facts and ids, and models copied them into other briefs (eval, Oct 22).
 const FEW_SHOT = `Example.
-Input: one definite Node finding (24.22.0 -> 24.22.1) and one possible OpenCode finding.
+Input: one definite examplelib finding (2.0.1 -> 2.0.2) and one possible ExampleCloud finding.
+These findings are made up. Never copy the example's ids, versions or wording into your answer.
 Output:
 {
-  "line1Actions": ["bump Node to 24.22.1"],
+  "line1Actions": ["bump examplelib to 2.0.2"],
   "line2Tail": "go back to sleep",
   "checklist": [
-    { "findingId": "nodejs-2026-10-21:a1", "action": "Upgrade Node from 24.22.0 to 24.22.1",
-      "why": "The Oct 21 Node release fixes a Brotli decoder bug and a TLS hostname check bypass." },
-    { "findingId": "opencode-console-2026-10-17:b2", "action": "Confirm whether you linked API keys in OpenCode Console",
-      "why": "OpenCode disclosed that Console provider keys were exposed for some users; revoke them if you linked any." }
+    { "findingId": "EXAMPLE-ID-1", "action": "Upgrade examplelib from 2.0.1 to 2.0.2",
+      "why": "The examplelib release fixes a parser bug that could crash the service." },
+    { "findingId": "EXAMPLE-ID-2", "action": "Confirm whether you linked API keys in ExampleCloud",
+      "why": "ExampleCloud said some saved keys may have been exposed; revoke them if you linked any." }
   ],
   "fyi": []
 }
@@ -73,23 +75,42 @@ export function modelFinding(f: Finding, a: Advisory, roots: string[]) {
     vendor: a.vendor,
     action: templateActions(f, a).action,
     summary: a.summary,
+    // Most pack summaries run past the 140-char "why" cap and models copy them
+    // (eval, Oct 22: 118 rejections). This is the template's word-boundary cut.
+    suggestedWhy: truncateWords(a.summary, MAX_WHY),
     evidence: f.evidence.map((e) => ({ location: relativeLocation(e.location, roots) })),
     allowedTokens: f.allowedTokens,
   };
 }
 
-// SPEC 10.3.
+// How many line-1 actions and FYI lines a correct draft has (the validator expects these).
+export function expectedCounts(findings: Finding[]): { line1: number; fyi: number } {
+  const items = findings.filter((f) => f.confidence !== "fyi").slice(0, MAX_CHECKLIST);
+  return {
+    line1: Math.min(2, items.filter((f) => f.confidence === "definite" || f.confidence === "likely").length),
+    fyi: Math.min(3, findings.filter((f) => f.confidence === "fyi").length),
+  };
+}
+
+// SPEC 10.3, plus an explicit WRITE block with the exact counts (eval fix).
 export function buildUserPrompt(findings: Finding[], pack: AdvisoryPack, date: string, roots: string[], rejected: string[] = []): string {
   const byId = new Map(pack.advisories.map((a) => [a.id, a]));
   const items = findings.filter((f) => f.confidence !== "fyi").slice(0, MAX_CHECKLIST);
   const fyi = findings.filter((f) => f.confidence === "fyi").slice(0, 3);
   const json = (list: Finding[]) => JSON.stringify(list.map((f) => modelFinding(f, byId.get(f.advisoryId)!, roots)), null, 2);
+  const counts = expectedCounts(findings);
   let prompt = `DATE: ${date}
 FINDINGS (ordered by priority, already verified):
 ${json(items)}
 
 FYI (awareness only, never actions):
-${json(fyi)}`;
+${json(fyi)}
+
+WRITE:
+- checklist: exactly ${items.length} item(s), one per finding id above, in the same order.
+- line1Actions: exactly ${counts.line1} item(s), for the highest-priority definite/likely findings.
+- fyi: exactly ${counts.fyi} item(s).
+- why: at most ${MAX_WHY} characters; each finding's suggestedWhy already fits.`;
   if (rejected.length) {
     prompt += `\n\nYour previous draft was rejected for:\n${rejected.map((r) => `- ${r}`).join("\n")}\nFix every item and output the full JSON again.`;
   }

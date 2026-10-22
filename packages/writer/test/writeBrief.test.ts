@@ -101,6 +101,24 @@ describe("writeDraft with a mocked model (SPEC 10.5 retry policy)", () => {
     expect(r.draft.line1Actions[0]).toBe("update Plex to 1.43.3.10861");
   });
 
+  it("drops extra line-1 actions and FYI text the brief does not call for, then validates the rest", async () => {
+    const possibleOnly = findings.filter((f) => f.confidence === "possible");
+    const d = { ...goodDraft(possibleOnly), line1Actions: ["confirm your OpenCode keys"], fyi: ["OpenCode said 1.4% of Console users were affected."] };
+    const r = await writeDraft({ findings: possibleOnly, pack, date: "2026-10-23", roots: ROOTS, client: new FakeClient([JSON.stringify(d)]), model: "gemma4:e4b" });
+    expect([r.mode, r.rejections]).toEqual(["llm", []]);
+    expect(r.draft.line1Actions).toEqual([]);
+    expect(r.draft.fyi).toEqual([]);
+  });
+
+  it("still rejects too few line-1 actions and ungrounded text in the kept ones", async () => {
+    const d = modelDraft();
+    d.line1Actions = ["bump Node to 24.22.1", "and more"];   // Node is not in the top two
+    const tooFew = { ...modelDraft(), line1Actions: [modelDraft().line1Actions[0]!] };
+    const r = await write(new FakeClient([JSON.stringify(d), JSON.stringify(tooFew)]));
+    expect(r.rejections.some((x) => x.includes('ungrounded token "24.22.1" in line1Actions'))).toBe(true);
+    expect(r.rejections.some((x) => x.includes("line1Actions has 1 item(s), expected 2"))).toBe(true);
+  });
+
   it("the JSON schema handed to Ollama describes BriefDraft", () => {
     expect(BRIEF_DRAFT_SCHEMA).toMatchObject({
       type: "object",

@@ -1,12 +1,13 @@
 import pc from "picocolors";
 import {
-  installEgressGuard, Ledger, loadKevSnapshot, loadPack, matchAll, redactText, twotoeHome, type Brief, type Finding,
+  installEgressGuard, Ledger, loadConfig, loadKevSnapshot, loadPack, matchAll, redactText, twotoeHome,
+  type Brief, type Finding, type TwotoeConfig,
 } from "@twotoe/core";
 import {
   buildBrief, evidenceSummary, localDate, OllamaClient, resolveModel, templateDraft, writeDraft,
   type ModelClient, type WriteResult,
 } from "@twotoe/writer";
-import { persistBrief } from "@twotoe/worker";
+import { ingestHostOf, NO_TELEMETRY, persistBrief, startTelemetry, type Telemetry } from "@twotoe/worker";
 import { collect, warnIfSelfUnpatched, type CollectOptions } from "./scan";
 
 export const EXIT_NOTHING = 0;
@@ -20,8 +21,12 @@ export interface BriefCommandOptions extends CollectOptions {
   offline?: boolean;
   model?: string;
   save?: boolean;
+  telemetry?: boolean;          // --telemetry (also needs config.telemetry.dsn)
+  traceContent?: "off" | "demo";
+  forceRejectFirst?: boolean;   // demo trace on fixtures
   now?: Date;
-  client?: ModelClient; // tests inject a fake
+  client?: ModelClient;         // tests inject a fake
+  userConfig?: TwotoeConfig;    // tests inject; default ~/.twotoe/config.json
 }
 
 export interface BriefResult {
@@ -30,51 +35,108 @@ export interface BriefResult {
   exitCode: number;
   run: Omit<WriteResult, "draft"> | null;
   checksRun: number;
+  traceId?: string | null;
+}
+
+export class TelemetryConfigError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "TelemetryConfigError";
+  }
+}
+
+// SPEC 11.4: telemetry is opt-in (config.telemetry.sentry or --telemetry) and
+// needs a DSN in config.json. Content and the forced rejection are demo tools:
+// fixtures only.
+export function resolveTelemetry(t: TwotoeConfig["telemetry"], opts: BriefCommandOptions): { dsn: string; content: boolean } | null {
+  const content = (opts.traceContent ?? t?.traceContent) === "demo";
+  if (opts.forceRejectFirst && !opts.fixture) throw new TelemetryConfigError("--force-reject-first only runs on fixtures (--fixture)");
+  if (content && !opts.fixture) throw new TelemetryConfigError("--trace-content demo only runs on fixtures (--fixture)");
+  const enabled = opts.telemetry ?? t?.sentry === true;
+  if (!enabled) return null;
+  if (!t?.dsn) throw new TelemetryConfigError("telemetry is on but ~/.twotoe/config.json has no telemetry.dsn");
+  return { dsn: t.dsn, content };
 }
 
 export async function makeBrief(rootsArg: string[], opts: BriefCommandOptions): Promise<BriefResult> {
   const started = Date.now();
   const now = opts.now ?? new Date();
+  const tele = resolveTelemetry((opts.userConfig ?? loadConfig()).telemetry, opts);
   const ledger = new Ledger();
   // All network goes through the guard, template mode included (CLAUDE.md rule 4).
-  const uninstall = installEgressGuard({ ledger, offline: opts.offline === true });
+  // The Sentry ingest host is allowed only when telemetry is on.
+  const uninstall = installEgressGuard({ ledger, offline: opts.offline === true, extraHosts: tele ? [ingestHostOf(tele.dsn)] : [] });
+  let telemetry: Pick<Telemetry, "tracer" | "run" | "step" | "flush" | "close"> = NO_TELEMETRY;
   try {
-    const { result, config } = await collect(rootsArg, opts);
-    const pack = loadPack();
-    const findings = matchAll(result.inventory, pack, {
-      region: opts.region ?? config.region ?? null,
-      now,
-      kev: loadKevSnapshot(),
-    });
-
-    let run: BriefResult["run"] = null;
-    let draft = templateDraft(findings, pack);
-    let mode: Brief["meta"]["mode"] = "template";
-    let model: string | null = null;
-    let attempts = 0;
-    let rejections: string[] = [];
-    if (opts.llm !== false) {
-      const w = await writeDraft({
-        findings, pack, date: localDate(now), roots: result.inventory.roots,
-        client: opts.client ?? new OllamaClient(),
-        model: resolveModel({ flag: opts.model, config: config.model }),
+    if (tele) telemetry = await startTelemetry({ dsn: tele.dsn, content: tele.content, environment: tele.content ? "demo" : "cli" });
+    let traceId = "";
+    const out = await telemetry.run(opts.fixture ? "twotoe brief (fixture)" : "twotoe brief", async (id) => {
+      traceId = id;
+      const { result, config } = await telemetry.step("twotoe.scan", "scan", async (s) => {
+        const r = await collect(rootsArg, opts);
+        s.set("twotoe.checks_run", r.result.inventory.checksRun);
+        s.set("twotoe.inventory_items", r.result.inventory.items.length);
+        return r;
       });
-      ({ draft, mode, model, attempts, rejections } = w);
-      const { draft: _d, ...rest } = w;
-      run = rest;
-    }
+      const pack = loadPack();
+      const findings = await telemetry.step("twotoe.match", "match", async (s) => {
+        const f = matchAll(result.inventory, pack, { region: opts.region ?? config.region ?? null, now, kev: loadKevSnapshot() });
+        s.set("twotoe.findings", f.length);
+        return f;
+      });
 
-    const brief = buildBrief({
-      draft, findings, inventory: result.inventory, now,
-      durationMs: Date.now() - started,
-      egress: ledger.entries(),
-      mode, model, attempts, validatorRejections: rejections,
+      let run: BriefResult["run"] = null;
+      let draft = templateDraft(findings, pack);
+      let mode: Brief["meta"]["mode"] = "template";
+      let model: string | null = null;
+      let attempts = 0;
+      let rejections: string[] = [];
+      if (opts.llm !== false) {
+        const w = await writeDraft({
+          findings, pack, date: localDate(now), roots: result.inventory.roots,
+          client: opts.client ?? new OllamaClient(),
+          model: resolveModel({ flag: opts.model, config: config.model }),
+          tracer: telemetry.tracer,
+          traceContent: tele?.content === true,
+          forceRejectFirst: opts.forceRejectFirst === true,
+        });
+        ({ draft, mode, model, attempts, rejections } = w);
+        const { draft: _d, ...rest } = w;
+        run = rest;
+      }
+      const make = () => buildBrief({
+        draft, findings, inventory: result.inventory, now, durationMs: Date.now() - started,
+        egress: ledger.entries(), mode, model, attempts, validatorRejections: rejections,
+      });
+      const brief = await telemetry.step("twotoe.assemble", "assemble and persist", async () => {
+        const b = make();
+        if (opts.save) save(b, findings, run, result.inventory.checksRun);
+        return b;
+      });
+      return { brief, findings, run, checksRun: result.inventory.checksRun, make };
     });
-    const actionable = findings.some((f) => f.confidence === "definite" || f.confidence === "likely");
-    return { brief, findings, run, checksRun: result.inventory.checksRun, exitCode: actionable ? EXIT_ACTIONS : EXIT_NOTHING };
+
+    let brief = out.brief;
+    if (tele) {
+      // Send the trace, then rebuild the brief so its ledger shows what left.
+      await telemetry.flush(10_000);
+      brief = out.make();
+      if (opts.save) save(brief, out.findings, out.run, out.checksRun);
+    }
+    const actionable = out.findings.some((f) => f.confidence === "definite" || f.confidence === "likely");
+    return { brief, findings: out.findings, run: out.run, checksRun: out.checksRun, exitCode: actionable ? EXIT_ACTIONS : EXIT_NOTHING, traceId: tele ? traceId : null };
   } finally {
+    await telemetry.close();
     uninstall();
   }
+}
+
+function save(brief: Brief, findings: Finding[], run: BriefResult["run"], checksRun: number): void {
+  persistBrief(twotoeHome(), brief, findings, {
+    checksRun,
+    promptVersion: run?.promptVersion ?? null,
+    attempts: run?.attemptLog ?? [],
+  });
 }
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -137,19 +199,14 @@ export async function runBrief(rootsArg: string[], opts: BriefCommandOptions): P
   } catch (err) {
     // Only our own config errors carry a safe message; anything else gets a fixed one.
     const name = (err as Error).name;
-    process.stderr.write(`twotoe: ${name === "ModelConfigError" ? (err as Error).message : "brief failed"}\n`);
+    const safe = name === "ModelConfigError" || name === "TelemetryConfigError";
+    process.stderr.write(`twotoe: ${safe ? (err as Error).message : "brief failed"}\n`);
     return EXIT_ERROR;
   }
-  if (opts.save) {
-    persistBrief(twotoeHome(), res.brief, res.findings, {
-      checksRun: res.checksRun,
-      promptVersion: res.run?.promptVersion ?? null,
-      attempts: res.run?.attemptLog ?? [],
-    });
-  }
   const text = opts.json
-    ? JSON.stringify({ brief: res.brief, findings: res.findings, run: res.run }, null, 2)
+    ? JSON.stringify({ brief: res.brief, findings: res.findings, run: res.run, traceId: res.traceId ?? null }, null, 2)
     : renderBrief(res, now, process.stdout.isTTY === true);
   process.stdout.write(redactText(text) + "\n");
+  if (res.traceId && !opts.json) process.stdout.write(`  trace: ${res.traceId} (search it in Sentry, Explore > Traces)\n`);
   return res.exitCode;
 }

@@ -134,6 +134,65 @@ Choices worth a sentence in the post:
 - Hosting on DigitalOcean App Platform as a static site, showing only fixture briefs. The real card never leaves 127.0.0.1.
 - The checklist remembers ticks in the browser only, keyed by brief date and finding.
 
+## Gate 6 (Oct 22): eval (full tables in eval/RESULTS.md)
+
+Setup: 24 synthetic fixtures (SPEC 14.2) with hand-written ground truth, every one carrying the canary in a real `.env`. Three local models, 5 runs each (run *r* uses seed 41 + *r*; run 1 is the production seed), temperature 0.2, thinking off, warmed up before timing. 16 fixtures have findings, so 80 briefs per model, 240 in total. Wall time 64.7 minutes on the RTX 3050 laptop. Egress during the whole eval: 127.0.0.1 only. Canary hits: 0.
+
+Matcher: 20 of 20 expected findings, 0 false positives, 0 misses (precision and recall 100%). Kitchen-sink priority order correct; clean machine says "Nothing needs you today."
+
+Writer:
+
+| Model | Drafts rejected | Drafts with an ungrounded token | Briefs needing the template | Ungrounded tokens in final briefs | Median / p90 writer time | Tokens/s |
+|---|---|---|---|---|---|---|
+| gemma4:e4b | 56 of 129 (43%) | 5 (3.9%) | 7 of 80 | 0 | 15.5 s / 20.1 s | 21.3 |
+| gemma4:e2b | 151 of 157 (96%) | 128 (81.5%) | 74 of 80 | 0 | 6.6 s / 11.4 s | 65.9 |
+| qwen3:4b | 66 of 119 (55%) | 8 (6.7%) | 27 of 80 | 0 | 16.5 s / 45.7 s | 12.2 |
+
+The headline for the post: across 405 model drafts the validator rejected 273. 141 of them contained an ungrounded token: a version, CVE, number or product name that code had not established for that spot. Some are inventions (a fake finding id, a Node version in an OpenCode brief); most of e2b's are real facts in the wrong section (checklist facts restated as FYI). Not one ungrounded token reached a final brief. The template fallback did its job 108 times.
+
+What the numbers say about each model:
+- gemma4:e4b is the default for a reason: most rejections are about length, not invention, and 9 of 10 briefs end up in the model's own words.
+- gemma4:e2b is three times faster but fills the FYI section with restated checklist facts when there is nothing to say (123 drafts). The validator rejects every token in it, so 74 of 80 briefs fall back to the template. Fast, but in practice a template with extra steps.
+- qwen3:4b invented finding ids 5 times and copied the few-shot example's "bump Node to 24.22.1" into a brief about OpenCode. Its p90 latency (45.7 s) is more than twice e4b's.
+
+Root causes found in the drafts (fix proposals, not applied; ground truth untouched):
+1. "Why over 140 chars" (118 rejections): 9 of 11 pack summaries are longer than 140 characters, and models copy them. All 118 come from those 9 advisories. Fix: send the model a 140-character "why" budget and the template's trimmed sentence as a suggestion, or shorten the pack summaries (keeping every fact token).
+2. Wrong number of line-1 actions (131): models add a line-1 action when only "possible" items exist (expected 0), or split one action into two. Fix: put the exact count in the prompt ("line1Actions must have 1 item"), and let code drop extra line-1 actions when the first ones are grounded (formatting, not facts).
+3. FYI filling (123 e2b drafts): code should set `fyi` to `[]` when there are no FYI findings before validating; add "fyi must be [] when the FYI list is empty" to the prompt.
+4. Few-shot leakage (7 drafts mention 24.22.1 outside Node fixtures; 5 reused the example's fake ids `:a1`, `:b2`): the SPEC 10.4 example teaches the model specific facts and ids. Fix: use obviously fake placeholders in the example, or A/B the prompt without it.
+
+Honest limits of this eval:
+- The same person (and agent) wrote the matcher and the ground truth, so 100% matcher scores are weaker evidence than they look. RESEARCH P14 (held-out fixtures written first) is not done.
+- `kev-recent` has no fixture: 0 TP, 0 FP, 0 FN means "not exercised", not "perfect".
+- The validator checks tokens, not meaning. A grounded version used in the wrong direction would pass.
+- Report bug caught before saving: the first RESULTS.md said "llm-fallback, fixed on retry" (a contradiction) and did not highlight tokens. Fixed in the report code and re-rendered from the saved raw results (`--from-results`), with a diff proving sections 1 to 4 and all 240 writer runs unchanged. A first re-render also leaked today's commit hash and re-timed the scans; caught by the diff and fixed so re-renders keep the original commit, wall time and timings.
+
+## Gate 6b (Oct 22): eval after the writer fixes (v1 kept in eval/RESULTS-v1.md)
+
+Same 24 fixtures, same 3 models x 5 runs, prompt version 2026-10-22.2 (v1 was 2026-10-22.1). Wall time 56.1 minutes. Matcher still 20/20, canary 0, egress 127.0.0.1 only. Ran on commit 34fb8d3 plus uncommitted writer changes (the report's commit line alone does not capture that; the prompt version does).
+
+| Model | Drafts with an ungrounded token, v1 -> v2 | Drafts rejected, v1 -> v2 | Briefs needing the template, v1 -> v2 | Median writer time, v1 -> v2 |
+|---|---|---|---|---|
+| gemma4:e4b | 5 -> **0** | 43% -> 48% | 7 -> **14** (worse) | 15.5 s -> 13.5 s |
+| gemma4:e2b | 128 -> **0** | 96% -> 63% | 74 -> 34 | 6.6 s -> 4.7 s |
+| qwen3:4b | 8 -> **0** | 55% -> 61% | 27 -> 29 | 16.5 s -> 16.9 s |
+
+What worked: no model produced a single ungrounded token in 384 drafts. Wrong line-1 counts (131 in v1), FYI filling (123) and few-shot leakage are gone. gemma4:e2b went from "a template with extra steps" (74 of 80 fallbacks) to usable (34).
+
+What did not: length. "Why over 140 chars" rose (e4b 44 -> 58, qwen 58 -> 86) and gemma4:e4b's fallbacks doubled (7 -> 14). Root cause, measured in the drafts: the models copy the advisory `summary` word for word (37 of 58 e4b cases, 76 of 86 qwen cases, 151 to 202 characters) and ignore the trimmed `suggestedWhy` placed right next to it. Adding a field did not help because the long one was still there.
+
+Proposed v3 fix (not applied): send the model only a summary that already fits 140 characters (drop the full one from the model's view; allowedTokens still carry every fact), and consider a word-boundary trim for line-1 actions over 60. Expected effect: most of the remaining rejections disappear. Cost: another ~56-minute eval.
+
+Lesson worth a paragraph: the first round of fixes was right about the cause and wrong about the cure. Measuring the drafts again showed it in minutes.
+
+## Gate 7 (Oct 22): Sentry agent tracing
+
+- One trace per run: `twotoe.brief` -> scan -> match -> `invoke_agent TwoToe` -> `chat gemma4:e4b` (attempt 1) -> `execute_tool groundingValidator` (failed: rejected) -> `chat gemma4:e4b` (attempt 2) -> validator (ok) -> assemble and persist. Ops and `gen_ai.*` attributes per Sentry's current manual-instrumentation docs, including token counts and tokens/s.
+- Demo trace on the kitchen-sink fixture with a forced first-attempt rejection and demo content on: trace `c09da4f7d9c1462b8ac78c72d8048a65`. The brief itself reported it honestly: "data went to o(org id).ingest.us.sentry.io (33776 bytes)" and "validator: 1 rejection, fixed on retry".
+- Opt-in only, configured in `~/.twotoe/config.json` (not env vars). The SDK is not loaded when telemetry is off. The only allowed extra host is the DSN's ingest host. Uploads go through the guarded fetch and land in the brief's own network ledger.
+- Privacy: prompts and responses only with `--trace-content demo` on fixtures; scrub hook strips home paths, env key names and the canary; `serverName: "twotoe"`; `dataCollection` set to collect nothing (SDK 11 replaced `sendDefaultPii`).
+- Surprises: SDK 11 removed `sendDefaultPii`, renamed the content attributes, streams gen_ai spans outside transactions, and ignores `beforeSendTransaction` in its default streaming mode (it warned on the first real run). The scrub lives in `beforeSendSpan`; tests run against real SDK envelopes from a fake loopback ingest server and check no hostname, path or canary leaves.
+
 ## The dogfood moment (aggregate)
 
 - TwoToe's first real run warned that it was itself running on an unpatched Node (24.11.0, fix is 24.22.1).

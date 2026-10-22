@@ -13,4 +13,5 @@ export {
 export { buildUserPrompt, modelFinding, PROMPT_VERSION, relativeLocation, SYSTEM } from "./prompts";
 export { HYPE_WORDS, hypeWordsIn } from "./tokens";
 export { validate, validateDetailed, type Validation } from "./validate";
-export { BRIEF_DRAFT_SCHEMA, writeDraft, type AttemptLog, type WriteOptions, type WriteResult } from "./writeBrief";
+export { BRIEF_DRAFT_SCHEMA, FORCED_REJECTION, writeDraft, type AttemptLog, type WriteOptions, type WriteResult } from "./writeBrief";
+export { NOOP_TRACER, type SpanHandle, type SpanValue, type Tracer } from "./tracer";

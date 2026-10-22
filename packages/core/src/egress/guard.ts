@@ -1,5 +1,6 @@
 import http from "node:http";
 import https from "node:https";
+import { syncBuiltinESMExports } from "node:module";
 import net from "node:net";
 import tls from "node:tls";
 import { LOOPBACK_HOSTS, type EgressEntry, type Ledger } from "./ledger";
@@ -125,6 +126,9 @@ export function installEgressGuard(opts: GuardOptions): () => void {
   net.connect = guardSocket(realNetConnect);
   net.createConnection = guardSocket(realNetCreate);
   tls.connect = guardSocket(realTlsConnect);
+  // Libraries that `import * as https from "node:https"` see the ESM namespace,
+  // which does not follow patches to the CJS object until synced.
+  syncBuiltinESMExports();
 
   const uninstall = () => {
     globalThis.fetch = realFetch;
@@ -133,6 +137,7 @@ export function installEgressGuard(opts: GuardOptions): () => void {
     net.connect = realNetConnect;
     net.createConnection = realNetCreate;
     tls.connect = realTlsConnect;
+    syncBuiltinESMExports();
     if (installed === uninstall) installed = null;
   };
   installed = uninstall;

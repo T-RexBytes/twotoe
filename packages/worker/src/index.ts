@@ -6,4 +6,8 @@ export { persistBrief, readPersisted, type PersistedRun } from "./persist";
 export { ensureSchedule, localTimezone, parseAt, removeSchedule, SCHEDULE_ID, scheduleSpec, withClient, type ScheduleOptions } from "./schedule";
 export { assertLoopbackAddress, devServerArgs, findTemporalExe, isPortOpen, TASK_QUEUE, TEMPORAL_ADDRESS, TEMPORAL_UI } from "./temporal";
 export { runWorker, WORKFLOWS_PATH, type RunWorkerOptions } from "./worker";
+export {
+  ingestHostOf, NO_TELEMETRY, scrubAttributes, scrubEvent, scrubSpan, scrubStreamedSpan, startTelemetry, unsafeValue,
+  type Telemetry, type TelemetrySettings,
+} from "./tracing";
 export type { NightlyInput, NightlyResult } from "./workflows";

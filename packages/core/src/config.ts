@@ -14,6 +14,12 @@ export const TwotoeConfig = z.object({
   // Eval/demo/crash-test only: scan <fixture>/project with <fixture>/probe.json.
   fixture: z.string().optional(),
   notify: z.object({ toast: z.boolean().optional() }).passthrough().optional(),
+  // SPEC 11.4 telemetry, opt-in. Read from this file, never from env vars.
+  telemetry: z.object({
+    sentry: z.boolean().optional(),
+    dsn: z.string().url().optional(),
+    traceContent: z.enum(["off", "demo"]).optional(),
+  }).passthrough().optional(),
 }).passthrough();
 export type TwotoeConfig = z.infer<typeof TwotoeConfig>;
 

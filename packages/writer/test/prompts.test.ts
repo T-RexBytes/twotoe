@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildUserPrompt, modelFinding, relativeLocation, SYSTEM } from "../src/prompts";
+import { buildUserPrompt, expectedCounts, modelFinding, relativeLocation, SYSTEM } from "../src/prompts";
 import { kitchenFindings, pack, ROOTS } from "./fixtures";
 
 describe("prompts", () => {
@@ -28,8 +28,27 @@ describe("prompts", () => {
     const findings = kitchenFindings();
     const railway = findings.find((f) => f.advisoryId === "railway-2026-10-21")!;
     const mf = modelFinding(railway, pack.advisories.find((a) => a.id === railway.advisoryId)!, ROOTS);
-    expect(Object.keys(mf).sort()).toEqual(["action", "advisoryId", "allowedTokens", "confidence", "evidence", "id", "kev", "severity", "summary", "title", "vendor"]);
+    expect(Object.keys(mf).sort()).toEqual(["action", "advisoryId", "allowedTokens", "confidence", "evidence", "id", "kev", "severity", "suggestedWhy", "summary", "title", "vendor"]);
     expect(mf.evidence).toEqual([{ location: "rail\\railway.toml" }, { location: "rail\\.env" }]);
+    expect(mf.summary.length).toBeGreaterThan(140);
+    expect(mf.suggestedWhy.length).toBeLessThanOrEqual(140);
+  });
+
+  it("states the exact counts the validator expects", () => {
+    const findings = kitchenFindings();
+    expect(expectedCounts(findings)).toEqual({ line1: 2, fyi: 1 });
+    const user = buildUserPrompt(findings, pack, "2026-10-23", ROOTS);
+    expect(user).toContain("- checklist: exactly 5 item(s)");
+    expect(user).toContain("- line1Actions: exactly 2 item(s)");
+    expect(user).toContain("- fyi: exactly 1 item(s).");
+    const possibleOnly = findings.filter((f) => f.confidence === "possible");
+    expect(expectedCounts(possibleOnly)).toEqual({ line1: 0, fyi: 0 });
+  });
+
+  it("the few-shot example uses made-up findings, not pack facts", () => {
+    const example = SYSTEM.slice(SYSTEM.indexOf("Example."));
+    expect(example).toContain("EXAMPLE-ID-1");
+    expect(example).not.toMatch(/nodejs-2026|opencode-console|24\.22\.1|CVE-/);
   });
 
   it("user prompt follows SPEC 10.3 and never contains a home path", () => {

@@ -40,8 +40,11 @@ program
   .option("--model <tag>", "local Ollama model tag (default: TWOTOE_MODEL, config, gemma4:e4b)")
   .option("--json", "print the brief and findings as JSON")
   .option("--save", "also write ~/.twotoe/briefs/latest.json (used by the Task Scheduler fallback)")
+  .option("--telemetry", "send a Sentry trace (needs telemetry.dsn in ~/.twotoe/config.json); off by default")
+  .option("--trace-content <mode>", "demo: attach prompts and responses to the trace (fixtures only)")
+  .option("--force-reject-first", "demo trace: reject the first draft so the retry is visible (fixtures only)")
   .option("--no-machine", "skip machine-level Python locations")
-  .action(async (roots: string[], opts: { llm?: boolean; offline?: boolean; fixture?: string; region?: string; model?: string; json?: boolean; save?: boolean; machine?: boolean }) => {
+  .action(async (roots: string[], opts: { llm?: boolean; offline?: boolean; fixture?: string; region?: string; model?: string; json?: boolean; save?: boolean; machine?: boolean; telemetry?: boolean; traceContent?: "off" | "demo"; forceRejectFirst?: boolean }) => {
     process.exitCode = await runBrief(roots, opts);
   });
 

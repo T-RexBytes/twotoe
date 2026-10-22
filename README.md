@@ -23,6 +23,16 @@ pnpm tsx packages/worker/scripts/crash-test.ts          # kill the worker mid-ru
 
 The demo card with example briefs from synthetic fixtures: see [docs/DEPLOY.md](docs/DEPLOY.md).
 
+## Telemetry (off by default)
+
+TwoToe can send one Sentry trace per run: scan, match, each model attempt with token counts, and each validator verdict. It is off unless you turn it on in `~/.twotoe/config.json`:
+
+```json
+{ "telemetry": { "sentry": true, "dsn": "https://<key>@o<org>.ingest.sentry.io/<project>" } }
+```
+
+What is sent: span names, timings, model name, token counts, validator rejection reasons. Not sent: prompts and responses (only with `--trace-content demo` on a `--fixture` run), file paths, env key names, your hostname. The trace upload is the only request besides loopback, and it appears in the brief's network ledger. The Sentry SDK is not even loaded when telemetry is off.
+
 ## What it checks
 
 The bundled pack ([packages/core/src/pack/advisories.json](packages/core/src/pack/advisories.json)) covers the week of Oct 21, 2026: LiteLLM 1.107.0, Railway, OpenCode Console, PHP, Node.js, GitLab, Plex, eMudhra, SBI (FYI for India), plus recent CISA KEV entries. Every entry has source links and a `verifiedAt` date. Open questions are tracked in [docs/VERIFY.md](docs/VERIFY.md).
