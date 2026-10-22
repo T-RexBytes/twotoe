@@ -1,0 +1,14 @@
+{
+  "fixture": "f19-gitlab-docker",
+  "condition": "gitlab/gitlab-ce:19.4.1-ce.0 in docker-compose.yml",
+  "findings": [
+    {
+      "advisoryId": "gitlab-cve-2026-110264",
+      "confidence": "definite"
+    },
+    {
+      "advisoryId": "gitlab-cve-2026-97229",
+      "confidence": "definite"
+    }
+  ]
+}

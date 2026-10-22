@@ -1,0 +1,10 @@
+{
+  "fixture": "f13-node-20",
+  "condition": "probe node 20.x (end-of-life line)",
+  "findings": [
+    {
+      "advisoryId": "nodejs-2026-10-21",
+      "confidence": "likely"
+    }
+  ]
+}

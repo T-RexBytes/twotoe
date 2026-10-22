@@ -1,0 +1,5 @@
+{
+  "fixture": "f11-node-patched",
+  "condition": "probe node 24.22.1",
+  "findings": []
+}

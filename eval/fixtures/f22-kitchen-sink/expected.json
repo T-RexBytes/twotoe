@@ -1,0 +1,23 @@
+{
+  "fixture": "f22-kitchen-sink",
+  "condition": "f01 + f06 + f10 + f17",
+  "findings": [
+    {
+      "advisoryId": "plex2shell-2026",
+      "confidence": "definite"
+    },
+    {
+      "advisoryId": "litellm-1.107.0",
+      "confidence": "definite"
+    },
+    {
+      "advisoryId": "railway-2026-10-21",
+      "confidence": "likely"
+    },
+    {
+      "advisoryId": "nodejs-2026-10-21",
+      "confidence": "definite"
+    }
+  ],
+  "ordered": true
+}

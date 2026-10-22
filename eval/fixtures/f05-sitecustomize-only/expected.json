@@ -1,0 +1,10 @@
+{
+  "fixture": "f05-sitecustomize-only",
+  "condition": "legit-looking sitecustomize.py",
+  "findings": [
+    {
+      "advisoryId": "litellm-1.107.0",
+      "confidence": "possible"
+    }
+  ]
+}

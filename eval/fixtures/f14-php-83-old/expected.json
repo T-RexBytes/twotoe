@@ -1,0 +1,10 @@
+{
+  "fixture": "f14-php-83-old",
+  "condition": "probe php 8.3.35",
+  "findings": [
+    {
+      "advisoryId": "php2shell-2026",
+      "confidence": "definite"
+    }
+  ]
+}

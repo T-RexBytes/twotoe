@@ -1,0 +1,5 @@
+{
+  "fixture": "f04-litellm-safe",
+  "condition": "1.106.2 installed",
+  "findings": []
+}

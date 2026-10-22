@@ -8,6 +8,12 @@ importers:
 
   .:
     devDependencies:
+      '@twotoe/core':
+        specifier: workspace:*
+        version: link:packages/core
+      '@twotoe/writer':
+        specifier: workspace:*
+        version: link:packages/writer
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2

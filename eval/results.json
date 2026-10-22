@@ -1,0 +1,217 @@
+{
+  "fixtures": [
+    {
+      "name": "f01-litellm-bad-venv",
+      "findings": [
+        {
+          "advisoryId": "litellm-1.107.0",
+          "confidence": "definite",
+          "priority": 70
+        }
+      ]
+    },
+    {
+      "name": "f02-litellm-ioc",
+      "findings": [
+        {
+          "advisoryId": "litellm-1.107.0",
+          "confidence": "definite",
+          "priority": 70
+        }
+      ]
+    },
+    {
+      "name": "f03-litellm-pin-only",
+      "findings": [
+        {
+          "advisoryId": "litellm-1.107.0",
+          "confidence": "likely",
+          "priority": 85
+        }
+      ]
+    },
+    {
+      "name": "f04-litellm-safe",
+      "findings": []
+    },
+    {
+      "name": "f05-sitecustomize-only",
+      "findings": [
+        {
+          "advisoryId": "litellm-1.107.0",
+          "confidence": "possible",
+          "priority": 100
+        }
+      ]
+    },
+    {
+      "name": "f06-railway-user",
+      "findings": [
+        {
+          "advisoryId": "railway-2026-10-21",
+          "confidence": "likely",
+          "priority": 85
+        }
+      ]
+    },
+    {
+      "name": "f07-railway-example-only",
+      "findings": []
+    },
+    {
+      "name": "f08-railway-comment",
+      "findings": []
+    },
+    {
+      "name": "f09-opencode-cli",
+      "findings": [
+        {
+          "advisoryId": "opencode-console-2026-10-17",
+          "confidence": "possible",
+          "priority": 200
+        }
+      ]
+    },
+    {
+      "name": "f10-node-old-24",
+      "findings": [
+        {
+          "advisoryId": "nodejs-2026-10-21",
+          "confidence": "definite",
+          "priority": 170
+        }
+      ]
+    },
+    {
+      "name": "f11-node-patched",
+      "findings": []
+    },
+    {
+      "name": "f12-node-docker-floating",
+      "findings": [
+        {
+          "advisoryId": "nodejs-2026-10-21",
+          "confidence": "likely",
+          "priority": 185
+        }
+      ]
+    },
+    {
+      "name": "f13-node-20",
+      "findings": [
+        {
+          "advisoryId": "nodejs-2026-10-21",
+          "confidence": "likely",
+          "priority": 185
+        }
+      ]
+    },
+    {
+      "name": "f14-php-83-old",
+      "findings": [
+        {
+          "advisoryId": "php2shell-2026",
+          "confidence": "definite",
+          "priority": 70
+        }
+      ]
+    },
+    {
+      "name": "f15-php-81",
+      "findings": [
+        {
+          "advisoryId": "php2shell-2026",
+          "confidence": "definite",
+          "priority": 70
+        }
+      ]
+    },
+    {
+      "name": "f16-php-patched",
+      "findings": []
+    },
+    {
+      "name": "f17-plex-old",
+      "findings": [
+        {
+          "advisoryId": "plex2shell-2026",
+          "confidence": "definite",
+          "priority": -5
+        }
+      ]
+    },
+    {
+      "name": "f18-plex-patched",
+      "findings": []
+    },
+    {
+      "name": "f19-gitlab-docker",
+      "findings": [
+        {
+          "advisoryId": "gitlab-cve-2026-110264",
+          "confidence": "definite",
+          "priority": 70
+        },
+        {
+          "advisoryId": "gitlab-cve-2026-97229",
+          "confidence": "definite",
+          "priority": 70
+        }
+      ]
+    },
+    {
+      "name": "f20-emudhra-node-store",
+      "findings": [
+        {
+          "advisoryId": "emudhra-weak-ca-keys",
+          "confidence": "likely",
+          "priority": 185
+        }
+      ]
+    },
+    {
+      "name": "f21-region-in",
+      "findings": [
+        {
+          "advisoryId": "sbi-2026-10-21",
+          "confidence": "fyi",
+          "priority": 1400
+        }
+      ]
+    },
+    {
+      "name": "f22-kitchen-sink",
+      "findings": [
+        {
+          "advisoryId": "plex2shell-2026",
+          "confidence": "definite",
+          "priority": -5
+        },
+        {
+          "advisoryId": "litellm-1.107.0",
+          "confidence": "definite",
+          "priority": 70
+        },
+        {
+          "advisoryId": "railway-2026-10-21",
+          "confidence": "likely",
+          "priority": 85
+        },
+        {
+          "advisoryId": "nodejs-2026-10-21",
+          "confidence": "definite",
+          "priority": 170
+        }
+      ]
+    },
+    {
+      "name": "f23-clean-machine",
+      "findings": []
+    },
+    {
+      "name": "f24-clean-tricky",
+      "findings": []
+    }
+  ],
+  "writerRuns": []
+}

@@ -10,10 +10,12 @@
     "node": "^22.23.4 || ^24.22.1 || >=26.12.1"
   },
   "scripts": {
-    "test": "pnpm -r test",
+    "test": "pnpm -r test && vitest run eval/",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p apps/card/tsconfig.json --noEmit"
   },
   "devDependencies": {
+    "@twotoe/core": "workspace:*",
+    "@twotoe/writer": "workspace:*",
     "@types/node": "24.19.2",
     "tsx": "4.23.15",
     "typescript": "7.0.2",

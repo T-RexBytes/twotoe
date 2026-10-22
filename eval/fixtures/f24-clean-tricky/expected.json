@@ -1,0 +1,5 @@
+{
+  "fixture": "f24-clean-tricky",
+  "condition": "near-misses: 24.22.1, 8.3.36, 1.106.2, .env.sample, CHANGELOG mentioning CVEs",
+  "findings": []
+}

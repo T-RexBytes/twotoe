@@ -1,0 +1,10 @@
+{
+  "fixture": "f06-railway-user",
+  "condition": "railway.toml + .env with RAILWAY_TOKEN",
+  "findings": [
+    {
+      "advisoryId": "railway-2026-10-21",
+      "confidence": "likely"
+    }
+  ]
+}

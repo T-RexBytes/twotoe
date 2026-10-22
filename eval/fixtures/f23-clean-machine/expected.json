@@ -1,0 +1,6 @@
+{
+  "fixture": "f23-clean-machine",
+  "condition": "everything patched",
+  "findings": [],
+  "line1": "Nothing needs you today."
+}

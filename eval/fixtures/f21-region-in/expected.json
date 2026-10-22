@@ -1,0 +1,10 @@
+{
+  "fixture": "f21-region-in",
+  "condition": "config region IN, nothing else",
+  "findings": [
+    {
+      "advisoryId": "sbi-2026-10-21",
+      "confidence": "fyi"
+    }
+  ]
+}

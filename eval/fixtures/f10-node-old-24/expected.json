@@ -1,0 +1,10 @@
+{
+  "fixture": "f10-node-old-24",
+  "condition": "probe node 24.22.0",
+  "findings": [
+    {
+      "advisoryId": "nodejs-2026-10-21",
+      "confidence": "definite"
+    }
+  ]
+}

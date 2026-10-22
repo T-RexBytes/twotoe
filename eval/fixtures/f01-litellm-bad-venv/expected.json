@@ -1,0 +1,10 @@
+{
+  "fixture": "f01-litellm-bad-venv",
+  "condition": ".venv/.../litellm-1.107.0.dist-info",
+  "findings": [
+    {
+      "advisoryId": "litellm-1.107.0",
+      "confidence": "definite"
+    }
+  ]
+}

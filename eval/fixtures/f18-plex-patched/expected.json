@@ -1,0 +1,5 @@
+{
+  "fixture": "f18-plex-patched",
+  "condition": "probe plex 1.43.3.10861",
+  "findings": []
+}

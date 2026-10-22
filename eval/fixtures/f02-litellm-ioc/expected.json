@@ -1,0 +1,10 @@
+{
+  "fixture": "f02-litellm-ioc",
+  "condition": "cook.pth + cook.py in site-packages",
+  "findings": [
+    {
+      "advisoryId": "litellm-1.107.0",
+      "confidence": "definite"
+    }
+  ]
+}

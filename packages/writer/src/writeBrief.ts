@@ -45,6 +45,7 @@ export interface WriteOptions {
   model: string;
   maxAttempts?: number;
   think?: boolean;
+  seed?: number;
 }
 
 // Code-side polish that changes no facts: trim, and lowercase the first word
@@ -119,7 +120,10 @@ export async function writeDraft(opts: WriteOptions): Promise<WriteResult> {
     let reasons: string[];
     const log: AttemptLog = { attempt, wallMs: 0, reasons: [] };
     try {
-      const res = await opts.client.chat({ model: opts.model, system: SYSTEM, user, schema: BRIEF_DRAFT_SCHEMA, think: opts.think ?? false });
+      const res = await opts.client.chat({
+        model: opts.model, system: SYSTEM, user, schema: BRIEF_DRAFT_SCHEMA, think: opts.think ?? false,
+        ...(opts.seed !== undefined ? { seed: opts.seed } : {}),
+      });
       Object.assign(log, {
         wallMs: res.wallMs,
         ...(res.promptEvalCount !== undefined ? { promptEvalCount: res.promptEvalCount } : {}),

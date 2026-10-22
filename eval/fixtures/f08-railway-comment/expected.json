@@ -1,0 +1,5 @@
+{
+  "fixture": "f08-railway-comment",
+  "condition": "# RAILWAY_TOKEN= commented",
+  "findings": []
+}

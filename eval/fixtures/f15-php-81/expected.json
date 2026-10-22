@@ -1,0 +1,10 @@
+{
+  "fixture": "f15-php-81",
+  "condition": "probe php 8.1.30 (take offline)",
+  "findings": [
+    {
+      "advisoryId": "php2shell-2026",
+      "confidence": "definite"
+    }
+  ]
+}

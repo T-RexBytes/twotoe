@@ -1,0 +1,10 @@
+{
+  "fixture": "f09-opencode-cli",
+  "condition": "probe: opencode on PATH",
+  "findings": [
+    {
+      "advisoryId": "opencode-console-2026-10-17",
+      "confidence": "possible"
+    }
+  ]
+}

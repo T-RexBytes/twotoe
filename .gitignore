@@ -9,3 +9,4 @@ coverage/
 .twotoe/
 .DS_Store
 Thumbs.db
+eval/out/

@@ -1,0 +1,5 @@
+{
+  "fixture": "f16-php-patched",
+  "condition": "probe php 8.4.27",
+  "findings": []
+}

@@ -37,6 +37,7 @@ export interface ChatRequest {
   schema: object;
   think?: boolean;
   timeoutMs?: number;
+  seed?: number;            // SPEC 10.1 fixes 42; the eval varies it per run
 }
 
 export interface ChatResult {
@@ -44,6 +45,7 @@ export interface ChatResult {
   wallMs: number;
   promptEvalCount?: number;
   evalCount?: number;
+  evalDurationMs?: number;
   totalDurationMs?: number;
   loadDurationMs?: number;
 }
@@ -72,13 +74,13 @@ export class OllamaClient implements ModelClient {
         stream: false,
         format: req.schema,
         think: req.think ?? false,
-        options: { temperature: 0.2, seed: 42, num_ctx: 8192 },
+        options: { temperature: 0.2, seed: req.seed ?? 42, num_ctx: 8192 },
         messages: [{ role: "system", content: req.system }, { role: "user", content: req.user }],
       }),
     });
     const body = await res.json().catch(() => ({})) as {
       message?: { content?: string }; error?: string;
-      prompt_eval_count?: number; eval_count?: number; total_duration?: number; load_duration?: number;
+      prompt_eval_count?: number; eval_count?: number; eval_duration?: number; total_duration?: number; load_duration?: number;
     };
     if (!res.ok) throw new Error(`ollama HTTP ${res.status}${body.error ? `: ${String(body.error).slice(0, 120)}` : ""}`);
     return {
@@ -86,6 +88,7 @@ export class OllamaClient implements ModelClient {
       wallMs: Date.now() - started,
       ...(body.prompt_eval_count !== undefined ? { promptEvalCount: body.prompt_eval_count } : {}),
       ...(body.eval_count !== undefined ? { evalCount: body.eval_count } : {}),
+      ...(body.eval_duration !== undefined ? { evalDurationMs: Math.round(body.eval_duration / 1e6) } : {}),
       ...(body.total_duration !== undefined ? { totalDurationMs: Math.round(body.total_duration / 1e6) } : {}),
       ...(body.load_duration !== undefined ? { loadDurationMs: Math.round(body.load_duration / 1e6) } : {}),
     };

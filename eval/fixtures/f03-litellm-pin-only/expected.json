@@ -1,0 +1,10 @@
+{
+  "fixture": "f03-litellm-pin-only",
+  "condition": "requirements.txt pins 1.107.0, no venv",
+  "findings": [
+    {
+      "advisoryId": "litellm-1.107.0",
+      "confidence": "likely"
+    }
+  ]
+}

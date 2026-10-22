@@ -1,0 +1,5 @@
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:19.4.1-ce.0
+    ports:
+      - "8929:80"

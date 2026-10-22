@@ -1,0 +1,11 @@
+{
+  "platform": "win32",
+  "trustStores": {
+    "emSign ECC Root CA - G3": [
+      {
+        "store": "node",
+        "present": true
+      }
+    ]
+  }
+}

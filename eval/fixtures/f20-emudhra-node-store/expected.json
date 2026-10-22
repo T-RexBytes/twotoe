@@ -1,0 +1,10 @@
+{
+  "fixture": "f20-emudhra-node-store",
+  "condition": "probe: node trust store contains emSign ECC Root CA - G3",
+  "findings": [
+    {
+      "advisoryId": "emudhra-weak-ca-keys",
+      "confidence": "likely"
+    }
+  ]
+}

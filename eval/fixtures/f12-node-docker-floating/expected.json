@@ -1,0 +1,10 @@
+{
+  "fixture": "f12-node-docker-floating",
+  "condition": "FROM node:24-alpine",
+  "findings": [
+    {
+      "advisoryId": "nodejs-2026-10-21",
+      "confidence": "likely"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "fixture": "f07-railway-example-only",
+  "condition": ".env.example with RAILWAY_TOKEN",
+  "findings": []
+}
