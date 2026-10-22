@@ -1,11 +1,12 @@
 import pc from "picocolors";
 import {
-  installEgressGuard, Ledger, loadKevSnapshot, loadPack, matchAll, redactText, type Brief, type Finding,
+  installEgressGuard, Ledger, loadKevSnapshot, loadPack, matchAll, redactText, twotoeHome, type Brief, type Finding,
 } from "@twotoe/core";
 import {
   buildBrief, evidenceSummary, localDate, OllamaClient, resolveModel, templateDraft, writeDraft,
   type ModelClient, type WriteResult,
 } from "@twotoe/writer";
+import { persistBrief } from "@twotoe/worker";
 import { collect, warnIfSelfUnpatched, type CollectOptions } from "./scan";
 
 export const EXIT_NOTHING = 0;
@@ -18,6 +19,7 @@ export interface BriefCommandOptions extends CollectOptions {
   region?: string;
   offline?: boolean;
   model?: string;
+  save?: boolean;
   now?: Date;
   client?: ModelClient; // tests inject a fake
 }
@@ -137,6 +139,7 @@ export async function runBrief(rootsArg: string[], opts: BriefCommandOptions): P
     process.stderr.write(`twotoe: ${name === "ModelConfigError" ? (err as Error).message : "brief failed"}\n`);
     return EXIT_ERROR;
   }
+  if (opts.save) persistBrief(twotoeHome(), res.brief, res.findings);
   const text = opts.json
     ? JSON.stringify({ brief: res.brief, findings: res.findings, run: res.run }, null, 2)
     : renderBrief(res, now, process.stdout.isTTY === true);

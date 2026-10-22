@@ -1,18 +1,8 @@
-import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import pc from "picocolors";
 import {
-  collectInventory, FixtureProbe, loadConfig, loadPack, RealProbe, redactText,
-  type ScanResult, type TwotoeConfig,
+  collectForConfig, loadConfig, loadPack, redactText, type ScanResult, type TwotoeConfig,
 } from "@twotoe/core";
-
-// SPEC 8.3 default roots on Windows (only those that exist are scanned).
-export function defaultRoots(home: string = os.homedir()): string[] {
-  return [
-    ["code"], ["projects"], ["dev"], ["Documents", "GitHub"], ["source", "repos"], ["Desktop"],
-  ].map((segs) => path.join(home, ...segs)).filter((p) => fs.existsSync(p));
-}
 
 function parseVersion(v: string): number[] {
   return v.replace(/^v/, "").split(".").map((n) => Number.parseInt(n, 10) || 0);
@@ -48,23 +38,13 @@ export interface CollectOptions {
 // Scan this machine or a fixture, plus the config that goes with it
 // (~/.twotoe/config.json, or <fixture>/config.json).
 export async function collect(rootsArg: string[], opts: CollectOptions): Promise<{ result: ScanResult; config: TwotoeConfig }> {
-  if (opts.fixture) {
-    const dir = path.resolve(opts.fixture);
-    const result = await collectInventory({
-      roots: [path.join(dir, "project")],
-      probe: new FixtureProbe(path.join(dir, "probe.json")),
-      machinePython: false,
-    });
-    return { result, config: loadConfig(path.join(dir, "config.json")) };
-  }
-  const config = loadConfig();
-  const roots = rootsArg.length ? rootsArg : config.roots?.length ? config.roots.map(expandHome) : defaultRoots();
-  const result = await collectInventory({ roots, probe: new RealProbe(), machinePython: opts.machine !== false });
+  const config = opts.fixture ? loadConfig(path.join(path.resolve(opts.fixture), "config.json")) : loadConfig();
+  const result = await collectForConfig(config, {
+    roots: rootsArg,
+    ...(opts.fixture ? { fixture: opts.fixture } : {}),
+    ...(opts.machine !== undefined ? { machine: opts.machine } : {}),
+  });
   return { result, config };
-}
-
-function expandHome(p: string): string {
-  return p === "~" || p.startsWith("~/") || p.startsWith("~\\") ? path.join(os.homedir(), p.slice(2)) : p;
 }
 
 export interface ScanCommandOptions extends CollectOptions {

@@ -1,2 +1,2 @@
-// Windows toast: implemented in Phase 4 (docs/SPEC.md 12).
-export {};
+// The toast lives in the worker package because the persistAndNotify activity uses it.
+export { notifyToast, toastScript } from "@twotoe/worker";

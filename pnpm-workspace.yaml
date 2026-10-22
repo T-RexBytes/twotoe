@@ -5,3 +5,5 @@ packages:
 # esbuild's postinstall only re-checks its binary; we run no dependency install scripts.
 allowBuilds:
   esbuild: false
+  '@swc/core': false
+  protobufjs: false

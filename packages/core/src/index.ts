@@ -1,6 +1,10 @@
 export * from "./schemas";
 export { loadKevSnapshot, loadPack } from "./pack/loadPack";
-export { defaultConfigPath, loadConfig, TwotoeConfig } from "./config";
+export {
+  collectForConfig, defaultConfigPath, defaultRoots, expandHome, loadConfig, TwotoeConfig, twotoeHome,
+  type CollectForConfigOptions,
+} from "./config";
+export { KEV_FEED_URL, refreshKev, type KevRefresh } from "./pack/refreshKev";
 export type { SystemProbe } from "./probe/SystemProbe";
 export { RealProbe } from "./probe/RealProbe";
 export { FixtureProbe, ProbeFixture } from "./probe/FixtureProbe";
@@ -15,5 +19,6 @@ export { CREDENTIAL_ADVISORIES, compareFindings, priority } from "./match/priori
 export { belowFixed, cmpDotted, leadingVersion, lineStatus } from "./match/semverUtil";
 export { extractRiskyTokens, KNOWN_VENDORS, normToken, tokenUnion } from "./match/tokens";
 export { redactText, redactPath } from "./util/redact";
+export { emptyDir, runFile, runPowerShell, systemExe, whichAll, type RunResult } from "./util/exec";
 export { EgressBlockedError, installEgressGuard, KEV_HOST, normalizeHost, type GuardOptions } from "./egress/guard";
 export { Ledger, LOOPBACK_HOSTS, type EgressEntry } from "./egress/ledger";

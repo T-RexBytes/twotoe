@@ -86,6 +86,37 @@ Honest observations for "What broke" / "What the check can't see":
 - An invented "CVE-2026-1" passed the spec's CVE regex (it needs 4+ digits after the year). The regex was widened; caught by a unit test, not in the wild.
 - A test fixture bug looked like a model failure: two temp fixture folders gave different finding ids (ids hash evidence paths), and the validator correctly rejected the "model" draft as unknown ids. The validator was right; the test was wrong.
 
+## Gate 4 (Oct 22): Temporal
+
+Numbers:
+- 309 tests green (216 core, 63 writer, 9 worker, 21 CLI). TestWorkflowEnvironment runs the real workflow on the installed Temporal CLI: happy path, an activity that fails after the model answered (retried, the model response reused, nothing computed twice), and the nightly schedule (create, update in place, remove).
+- Crash test, three real runs (real dev server, real gemma4:e4b, `taskkill /PID <pid> /T /F`):
+
+```
+TwoToe crash test summary
+  workflow                           -> llm, 4 checklist items, 88.4s
+  killed                             worker 1, 8s into a 20s delay inside writeBriefWithValidation
+  activities completed before crash  3 (collectInventory, loadPack, matchAdvisories)
+  activities retried                 1 (writeBriefWithValidation (attempt 2))
+  activities executed twice          0   <- must be 0
+  model calls / reused from cache    2 / 2
+  model requests computed twice      0   <- must be 0
+  canary hits in cache, logs, briefs 0
+```
+
+- Run 1 had 1 model call (draft accepted first time). Runs 2 and 3 had 2 (the validator rejected attempt 1: two "why" fields over 140 characters and an FYI line over 160). In every run each request was computed once and reused after the crash.
+- Schedule on a dev server: daily 03:00 Asia/Calcutta, catch-up window 6 h, overlap SKIP, next run 21:30 UTC.
+
+What broke, honestly:
+- Run 2 exited 1. Not a durability failure: the crash-test script required exactly one model call, and that run legitimately needed two (validator retry). The criterion was wrong; it now checks "no model request computed twice" per request key.
+- All three runs finished at 88.4 s despite kill times of 52.5 s, 64.9 s and 63.7 s. Looked like a bug; it is the SDK throttling heartbeats to every 24 s (0.8 x the 30 s timeout). Recovery is "last heartbeat that got through + 30 s + 10 s backoff". The code says "heartbeat every 10 s"; the server sees every 24 s.
+- `twotoe sleep` printed the real home path in its first version (rule 6). Caught by reading the output; now redacted, with a test.
+- The Temporal CLI was missing from the "install before Phase 3/4" list; installed with winget when the phase started.
+
+Design notes for the post:
+- Inventory and pack move between activities as on-disk cache references, so Temporal's history database never contains env key names or file paths.
+- Laziness feature: `catchupWindow` runs a missed 3 a.m. job when the laptop is next awake. Honest caveat (RESEARCH): Temporal cannot wake the laptop; `--no-temporal` with Task Scheduler `WakeToRun` can, if wake timers are allowed.
+
 ## The dogfood moment (aggregate)
 
 - TwoToe's first real run warned that it was itself running on an unpatched Node (24.11.0, fix is 24.22.1).
