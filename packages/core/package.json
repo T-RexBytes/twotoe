@@ -8,6 +8,7 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
+    "fast-glob": "3.3.3",
     "zod": "3.25.76"
   },
   "scripts": {

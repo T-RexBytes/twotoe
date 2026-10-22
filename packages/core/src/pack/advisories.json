@@ -108,7 +108,8 @@
           "detectors": ["opencodePresence"],
           "cli": "opencode",
           "maxConfidence": "possible",
-          "configDirCandidates": "VERIFY"
+          "configDirCandidates": [".config/opencode", ".local/share/opencode", "AppData/Roaming/opencode"],
+          "configDirSource": "https://opencode.ai/docs/config/"
         }
       }
     },

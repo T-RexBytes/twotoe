@@ -23,16 +23,19 @@ The bundled pack ([packages/core/src/pack/advisories.json](packages/core/src/pac
 
 ## Development (Windows first)
 
-Requires Node 24.22.1 or newer patched LTS (see `.nvmrc`) and pnpm via corepack.
+Requires a patched Node (22.23.4, 24.22.1, 26.12.1 or newer in that line; see `.nvmrc`). pnpm refuses to install on anything older. pnpm comes from corepack, pinned by `packageManager`.
 
 ```powershell
-corepack enable          # once, from an admin terminal
+# once: put the pnpm shim in your user npm folder (no admin needed)
+corepack enable --install-directory (npm config get prefix) pnpm
+
 pnpm install
 pnpm typecheck
 pnpm -r test
+pnpm tsx packages/cli/src/index.ts scan $HOME\code --json
 ```
 
-If `corepack enable` is not possible, prefix commands with `corepack`, for example `corepack pnpm install`.
+Note: winget's Node LTS package may lag behind security releases. Check `node -v` after installing.
 
 ## Credits
 

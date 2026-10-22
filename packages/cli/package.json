@@ -8,7 +8,9 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@twotoe/core": "workspace:*"
+    "@twotoe/core": "workspace:*",
+    "commander": "15.0.0",
+    "picocolors": "1.1.1"
   },
   "scripts": {
     "test": "vitest run --passWithNoTests"

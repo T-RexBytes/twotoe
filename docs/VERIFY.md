@@ -10,8 +10,9 @@ These are the literal `"VERIFY"` values in the pack. A test fails if one is miss
 
 | Pack path | Why open | Plan |
 |---|---|---|
-| `opencode-console-2026-10-17.check.params.configDirCandidates` | Windows OpenCode config dir not confirmed (SPEC 8.2.7 candidates: `~\.config\opencode`, `%APPDATA%\opencode`, `~\.local\share\opencode`) | Phase 1: check opencode docs and your machine, existence only |
-| `emudhra-weak-ca-keys.check.params.windowsStoreBehavior` | How Microsoft's block shows up (root removed vs moved to `Disallowed`) and whether it happened on Oct 20 as SPEC 8.2.9 says. No fetched source mentions a Microsoft action. | Phase 1: find a Microsoft source; until then Windows store presence stays `possible` |
+| `emudhra-weak-ca-keys.check.params.windowsStoreBehavior` | How Microsoft's block shows up (root removed vs moved to `Disallowed`) and whether it happened on Oct 20 as SPEC 8.2.9 says. No fetched source mentions a Microsoft action. On the dev machine (2026-10-22) "emSign ECC Root CA - G3" is in neither `Root` nor `Disallowed` (only "emSign Root CA - G1" is in `Root`), which fits "never shipped" or "removed" but proves neither. | Find a Microsoft source; until then Windows store presence stays `possible` |
+
+Resolved in Phase 1: `opencode-console-2026-10-17.check.params.configDirCandidates`. OpenCode docs give `~/.config/opencode` for the global config (https://opencode.ai/docs/config/, no separate Windows path). The dev machine has `~\.config\opencode` and `~\.local\share\opencode`. The detector checks those two plus `%APPDATA%\opencode`, existence only.
 
 ## Advisory facts (SPEC 7.2, 7.3)
 
@@ -51,14 +52,15 @@ These are the literal `"VERIFY"` values in the pack. A test fails if one is miss
 
 | Item | Status | Result | Source |
 |---|---|---|---|
-| Node pin `>= 24.22.1` | confirmed | `.nvmrc` = 24.22.1. **This machine runs v24.11.0, which is below the fix.** | nodejs.org (above) |
+| Node pin `>= 24.22.1` | confirmed | `.nvmrc` = 24.22.1, root `engines` = `^22.23.4 \|\| ^24.22.1 \|\| >=26.12.1`. Dev machine upgraded from v24.11.0 to v24.22.1 on 2026-10-22 via the official MSI (SHA-256 checked against SHASUMS256.txt, OpenJS Authenticode signature valid). winget's `OpenJS.NodeJS.LTS` was still on 24.20.0 (unpatched) at that time. | https://nodejs.org/dist/v24.22.1/SHASUMS256.txt |
 | Gemma 4 E4B Ollama tag | confirmed | `gemma4:e4b` (also `gemma4:e2b`; `gemma4:latest` is E4B). `gemma4:cloud` and `gemma4:31b-cloud` exist: the writer must refuse cloud tags. | https://ollama.com/library/gemma4 |
 | Ollama structured output (`format` takes a JSON schema) | deferred | Phase 3 | Ollama API docs |
 | Temporal CLI on Windows (winget/scoop?) | deferred | Phase 4 | Temporal CLI install page |
 | Temporal TS SDK version | deferred | Phase 4, all `@temporalio/*` same version | npm |
 | Sentry AI agent monitoring docs | deferred | Phase 7 | Sentry docs |
 | Claude Code Windows requirements (Git Bash) | confirmed in practice | This session runs natively on Windows with Git for Windows 2.51.2 | n/a |
-| Microsoft Store Python, pipx, uv tool paths (8.2.3) | deferred | Phase 1, check on your machine | n/a |
-| Plex `ProductVersion` holds full build (8.2.8) | deferred | Phase 1 | n/a |
-| Git for Windows CA bundle path (8.2.9) | deferred | Phase 1 | n/a |
-| Plex macOS plist key (8.2.8) | deferred | Phase 1 (SHOULD) | n/a |
+| Microsoft Store Python, pipx, uv tool paths (8.2.3) | open | None of these exist on the dev machine, so the globs are untested against real installs. python.org installs (`%LOCALAPPDATA%\Programs\Python\Python3*`) and the user site (`%APPDATA%\Python\Python3*`) were found and scanned. | n/a |
+| Plex `ProductVersion` holds full build (8.2.8) | open | Plex is not installed on the dev machine. The PowerShell call itself was tested on `node.exe` (returns the full version). | n/a |
+| Git for Windows CA bundle path (8.2.9) | confirmed | `C:\Program Files\Git\mingw64\etc\ssl\certs\ca-bundle.crt` (Git 2.51.2). Headings use the p11-kit form `# <name>`. It contains "emSign ECC Root CA - G3". | dev machine |
+| Plex macOS plist key (8.2.8) | deferred | SHOULD, no Mac available | n/a |
+| Node root store and eMudhra | confirmed | Node 24.11.0 trusted "emSign ECC Root CA - G3" (146 roots). After upgrading the same machine to 24.22.1, `tls.rootCertificates` no longer contains it, matching the release's "ca-cert (eMudhra Intermediate CA Compromise)" update. | dev machine, nodejs.org release page |
