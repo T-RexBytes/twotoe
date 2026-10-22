@@ -14,4 +14,12 @@ Choices made where the spec was silent, ambiguous, or in tension with CLAUDE.md.
 | 2026-10-22 | `line2Tail` fills "Everything else: {tail}." | SPEC 10.7's line-2 code does not use it; this lets the writer phrase it while code owns the numbers. |
 | 2026-10-22 | `twotoe brief` without `--no-llm` exits 2 until the writer exists | Never pretend a model ran. |
 | 2026-10-22 | **TwoToe reads exactly one of its own env vars: `TWOTOE_MODEL`** | SPEC 10.1 and 5.3 specify it. Allowlisted by name; no other env value is read. Precedence: `--model` > `TWOTOE_MODEL` > `config.json` `model` > `gemma4:e4b`. Model tags containing `cloud` or `-remote` are refused (Ollama has `gemma4:cloud`), so a config typo cannot send findings off the machine. Everything else (region, roots) stays in `config.json` and flags. |
-| 2026-10-22 | Call Ollama with `think: false` (Phase 3, to verify) | gemma4:e4b thinks by default: a tiny structured-output test used 391 output tokens for about 30 visible ones. |
+| 2026-10-22 | Call Ollama with `think: false` | Measured: same request 2.1 s / 21 output tokens with `think: false` vs 14.9 s / 272 tokens with thinking on. |
+| 2026-10-22 | Egress guard allowlist is per install, and also guards `http`/`https` request+get and `net`/`tls` connect | The 15.1 sketch mutates a module-level Set (extra hosts would leak into later installs) and only wraps fetch. Pipes (local IPC) are allowed. |
+| 2026-10-22 | CVE regex in risky-token extraction is `CVE-\d{4}-\d+` instead of `\d{4,}` | Stricter: an invented "CVE-2026-1" slipped past the spec regex in a test. |
+| 2026-10-22 | `allowedTokens` include the advisory's `disclosedAt` date parts | The SPEC 10.4 few-shot says "The Oct 21 Node release"; without this the validator would reject the spec's own example. |
+| 2026-10-22 | The model-facing finding includes `kev` | SPEC 10.2 rule 4 refers to kev, but the SPEC 6 field list omits it. |
+| 2026-10-22 | Code reorders the model checklist to priority order and lowercases a line-1 action's first word (unless a product name); it does not reject for these | Formatting, not facts. Rejecting would burn a 20 s retry on casing. |
+| 2026-10-22 | No model call when there are zero findings (mode `template`) | Nothing to phrase; RESEARCH P10. |
+| 2026-10-22 | Model call errors (Ollama down, timeout, blocked) skip the retry and fall back to the template | Retrying a refused connection only adds 90 s. The reason is recorded. |
+| 2026-10-22 | The line-2 tail must contain no risky token at all (digits, CVEs, versions, vendor names) | SPEC 10.5 item 8 checks digits only; a tail like "Plex is fine now" would be an unverified claim. |

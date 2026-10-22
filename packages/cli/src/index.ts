@@ -34,9 +34,10 @@ program
   .option("--offline", "use the bundled advisory pack and KEV snapshot only")
   .option("--fixture <dir>", "use eval fixture probe.json, project/ and config.json")
   .option("--region <code>", "region for FYI items, e.g. IN")
+  .option("--model <tag>", "local Ollama model tag (default: TWOTOE_MODEL, config, gemma4:e4b)")
   .option("--json", "print the brief and findings as JSON")
   .option("--no-machine", "skip machine-level Python locations")
-  .action(async (roots: string[], opts: { llm?: boolean; offline?: boolean; fixture?: string; region?: string; json?: boolean; machine?: boolean }) => {
+  .action(async (roots: string[], opts: { llm?: boolean; offline?: boolean; fixture?: string; region?: string; model?: string; json?: boolean; machine?: boolean }) => {
     process.exitCode = await runBrief(roots, opts);
   });
 

@@ -7,7 +7,8 @@ export const KNOWN_VENDORS = [
   "Anthropic", "Google", "eMudhra", "SBI", "CISA",
 ];
 
-const CVE_RE = /CVE-\d{4}-\d{4,}/gi;
+// SPEC 10.5 says \d{4,}; any length is stricter, so an invented "CVE-2026-1" is caught too.
+const CVE_RE = /CVE-\d{4}-\d+/gi;
 const VERSION_RE = /\b\d+(?:\.\d+){1,3}\b/g;
 const NUMBER_RE = /\b\d{2,}\b/g;
 const VENDOR_RE = new RegExp(`\\b(?:${KNOWN_VENDORS.map((v) => v.replace(/\./g, "\\.")).join("|")})\\b`, "g");

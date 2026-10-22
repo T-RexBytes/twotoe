@@ -109,6 +109,8 @@ export function buildFinding(advisory: Advisory, hit: Hit, config: MatchConfig):
     hit.fixed,
     advisory.summary,
     kevDueDate,
+    // Not in the SPEC 9.1 list, but the 10.4 few-shot says "The Oct 21 Node release".
+    advisory.disclosedAt,
     ...evidence.map((e) => basename(e.location)),
     ...(hit.tokens ?? []),
   ]);

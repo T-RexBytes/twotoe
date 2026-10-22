@@ -24,7 +24,7 @@ export function assembleLines(
     + (n > k ? `; +${n - k} more in the checklist.` : ".");
   let line1 = "Nothing needs you today.";
   if (n > 0) {
-    line1 = withActions(Math.min(2, draft.line1Actions.length));
+    line1 = withActions(Math.min(2, n, draft.line1Actions.length));
     if (line1.length > MAX_LINE) line1 = withActions(1);
     if (line1.length > MAX_LINE) line1 = `${n} thing${n > 1 ? "s" : ""} need${n > 1 ? "" : "s"} you today; see the checklist.`;
   }

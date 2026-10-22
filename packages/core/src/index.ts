@@ -15,3 +15,5 @@ export { CREDENTIAL_ADVISORIES, compareFindings, priority } from "./match/priori
 export { belowFixed, cmpDotted, leadingVersion, lineStatus } from "./match/semverUtil";
 export { extractRiskyTokens, KNOWN_VENDORS, normToken, tokenUnion } from "./match/tokens";
 export { redactText, redactPath } from "./util/redact";
+export { EgressBlockedError, installEgressGuard, KEV_HOST, normalizeHost, type GuardOptions } from "./egress/guard";
+export { Ledger, LOOPBACK_HOSTS, type EgressEntry } from "./egress/ledger";

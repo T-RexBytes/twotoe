@@ -1,4 +1,6 @@
 import fs from "node:fs";
+import http from "node:http";
+import type { AddressInfo } from "node:net";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
@@ -54,9 +56,33 @@ describe("twotoe brief --no-llm", () => {
     expect(res.exitCode).toBe(EXIT_NOTHING);
   });
 
-  it("refuses to pretend a model ran without --no-llm", async () => {
-    vi.spyOn(process.stderr, "write").mockImplementation((() => true) as typeof process.stderr.write);
-    expect(await runBrief([], { fixture: kitchen() })).toBe(EXIT_ERROR);
+  it("model path: a fake Ollama on loopback, through the guard, offline", async () => {
+    // Echo the template back as the "model" draft, with a different tail.
+    const { templateDraft } = await import("@twotoe/writer");
+    const { loadPack } = await import("@twotoe/core");
+    const fx = kitchen();   // finding ids hash evidence paths, so reuse one fixture dir
+    const pre = await makeBrief([], { fixture: fx, llm: false, now: NOW });
+    const draft = { ...templateDraft(pre.findings, loadPack()), line2Tail: "go back to sleep" };
+    const server = http.createServer((req, res) => {
+      req.resume();
+      req.on("end", () => res.end(JSON.stringify({ message: { content: JSON.stringify(draft) }, eval_count: 1 })));
+    });
+    await new Promise<void>((r) => server.listen(0, "127.0.0.1", () => r()));
+    const { port } = server.address() as AddressInfo;
+    const { OllamaClient } = await import("@twotoe/writer");
+    const res = await makeBrief([], { fixture: fx, now: NOW, offline: true, client: new OllamaClient(`http://127.0.0.1:${port}`) });
+    server.close();
+    expect(res.brief.meta).toMatchObject({ mode: "llm", model: "gemma4:e4b", attempts: 1, validatorRejections: [] });
+    expect(res.brief.line2).toMatch(/^Everything else: go back to sleep\. Checked/);
+    expect(res.brief.meta.egress.map((e) => `${e.host} ${e.method}`)).toEqual(["127.0.0.1 POST"]);
+    expect(renderBrief(res, NOW, false)).toContain("model: gemma4:e4b (llm)   validator: 0 rejections");
+  });
+
+  it("refuses a cloud model tag with a clear message", async () => {
+    let err = "";
+    vi.spyOn(process.stderr, "write").mockImplementation(((s: string) => { err += s; return true; }) as typeof process.stderr.write);
+    expect(await runBrief([], { fixture: kitchen(), model: "gemma4:cloud" })).toBe(EXIT_ERROR);
+    expect(err).toContain('refusing remote model tag "gemma4:cloud"');
   });
 
   it("--json prints a redacted brief and findings with no canary", async () => {

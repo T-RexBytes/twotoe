@@ -71,6 +71,21 @@ Hardware for the post's latency numbers: AMD Ryzen 7 7445HS, 15.3 GB RAM, NVIDIA
 - Surprise: the model "thinks" by default. 391 output tokens for a two-field answer. Turning thinking off is the first latency lever to measure in Phase 3.
 - The test also showed why the validator exists: asked for a calm tail with no numbers, the model wrote "Everything remains stable and reliable." (fine), and lowercased "node" in the action (a vendor-name check will notice).
 
+## Gate 3 (Oct 22): writer, validator, egress guard
+
+Numbers:
+- 293 tests green (216 core, 63 writer, 14 CLI). Validator tests cover unknown and duplicate ids, invented CVEs and versions, a version borrowed from another finding, hype words gated by severity and KEV, the Confirm rule, digits and vendor names in the line-2 tail, coverage, line-1 grounding, length caps, FYI grounding. A property test checks that every template draft passes the validator.
+- Real model, kitchen-sink fixture, 5 runs (gemma4:e4b, RTX 3050 laptop): 5 of 5 ended in mode `llm` with 0 rejections. Brief time 21.3 s, 22.9 s, 23.2 s, 23.2 s, 23.0 s (median 23.0 s). Each run: 2,619 prompt tokens, 438 to 483 output tokens, one POST of 7,905 bytes to 127.0.0.1, nothing else on the egress ledger. Canary absent in all outputs.
+- A run just before the final code (same fixture, slightly different prompt) was rejected once ("why over 140 characters" for Railway) and fixed on retry: 27.2 s + 23.0 s.
+- `think: false` cut a small request from 14.9 s to 2.1 s.
+
+Honest observations for "What broke" / "What the check can't see":
+- With `seed: 42`, runs 2 to 5 were byte-identical. Five runs are not five samples; the eval needs other fixtures or seeds to measure the rejection rate.
+- The model mostly copied the template's actions and summaries, lightly trimmed. On this fixture it added a tail ("you are doing great work") and little else. That makes the template vs model question in the eval a real one.
+- The validator checks tokens, not meaning. It would accept a grounded version used in the wrong direction, a negation ("you are not affected"), or a confident tone on a "possible" finding. These are listed as known gaps, not fixed.
+- An invented "CVE-2026-1" passed the spec's CVE regex (it needs 4+ digits after the year). The regex was widened; caught by a unit test, not in the wild.
+- A test fixture bug looked like a model failure: two temp fixture folders gave different finding ids (ids hash evidence paths), and the validator correctly rejected the "model" draft as unknown ids. The validator was right; the test was wrong.
+
 ## The dogfood moment (aggregate)
 
 - TwoToe's first real run warned that it was itself running on an unpatched Node (24.11.0, fix is 24.22.1).

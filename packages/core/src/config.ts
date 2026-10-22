@@ -7,6 +7,7 @@ import { z } from "zod";
 export const TwotoeConfig = z.object({
   roots: z.array(z.string()).optional(),
   region: z.string().nullable().optional(),
+  model: z.string().optional(),
 }).passthrough();
 export type TwotoeConfig = z.infer<typeof TwotoeConfig>;
 
