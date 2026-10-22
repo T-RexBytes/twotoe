@@ -18,11 +18,9 @@ import { walkRoots, type WalkOptions, type WalkStats } from "./scanners/walk";
 import { redactPath } from "./util/redact";
 import { forEachLine, isDir, readSmallText, SkipCounter } from "./util/safeFs";
 
-// Source prefixes for package items, so the matcher can tell an installed
-// package from a pin that will install next time (SPEC 9.3).
-export const SOURCE_SITE_PACKAGES = "site-packages:";
-export const SOURCE_PIN = "pin:";
-export const SOURCE_LOCKFILE = "lockfile:";
+import { SOURCE_LOCKFILE, SOURCE_PIN, SOURCE_SITE_PACKAGES } from "./sources";
+
+export { SOURCE_LOCKFILE, SOURCE_PIN, SOURCE_SITE_PACKAGES };
 
 // Default trust subjects (SPEC 7.3 emudhra-weak-ca-keys).
 export const DEFAULT_TRUST_SUBJECTS = ["emSign ECC Root CA - G3"];

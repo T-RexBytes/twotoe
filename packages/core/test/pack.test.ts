@@ -55,9 +55,36 @@ describe("bundled advisory pack", () => {
     expect(a.disclosedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     if (a.kevDueDate !== null) expect(a.kevDueDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     for (const cve of a.cves) expect(cve).toMatch(/^CVE-\d{4}-\d{4,}$/);
-    // Advisory actions feed checklist items, which are capped at 90 chars.
-    expect(a.action.length).toBeLessThanOrEqual(90);
     expect(a.check.params.detectors).toContain(a.check.detector);
+  });
+
+  // Long but realistic {found}/{fixed} values each matcher can set.
+  const LONG: Record<string, [string, string]> = {
+    "litellm-1.107.0": ["1.107.0", "1.106.2"],
+    "php2shell-2026": ["8.3-apache-bookworm", "8.2.35"],
+    "nodejs-2026-10-21": ["24.22.0-alpine3.20", "24.22.1"],
+    "gitlab-cve-2026-110264": ["gitlab/gitlab-ee:19.4.1-ee.0", "18.11.13"],
+    "gitlab-cve-2026-97229": ["gitlab/gitlab-ee:19.4.1-ee.0", "19.4.2"],
+    "plex2shell-2026": ["1.43.3.10860-a1b2c3d4", "1.43.3.10861"],
+    "kev-recent": ["Multiple Products", "2026-10-23"],
+  };
+  const POSSIBLE_VARIANTS = /^(confirm|sitecustomize$|dockerWindow$)/;
+
+  it.each(pack.advisories.map((a) => [a.id, a] as const))("%s actions fit the checklist caps when filled", (id, a) => {
+    const [found, fixed] = LONG[id] ?? ["1.0.0", "1.0.1"];
+    const fillLong = (s: string) => s.replace(/\{found\}/g, found).replace(/\{fixed\}/g, fixed);
+    const variants = (a.check.params.variants ?? {}) as Record<string, { action: string; shortAction?: string }>;
+    const actions = [a.action, ...Object.values(variants).map((v) => v.action)];
+    const shorts = [a.shortAction, ...Object.values(variants).map((v) => v.shortAction)].filter((s): s is string => Boolean(s));
+    for (const act of actions) expect(fillLong(act).length).toBeLessThanOrEqual(90);
+    for (const s of shorts) {
+      expect(fillLong(s).length).toBeLessThanOrEqual(60);
+      expect(s.charAt(0)).toBe(s.charAt(0).toLowerCase());
+    }
+    for (const [name, v] of Object.entries(variants)) {
+      if (POSSIBLE_VARIANTS.test(name)) expect(v.action).toMatch(/^Confirm /);
+    }
+    if (!a.check.params.fyiOnly) expect(a.shortAction).toBeDefined();
   });
 
   it("has no em dashes in user-facing text", () => {

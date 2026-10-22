@@ -28,6 +28,9 @@ importers:
       '@twotoe/core':
         specifier: workspace:*
         version: link:../core
+      '@twotoe/writer':
+        specifier: workspace:*
+        version: link:../writer
       commander:
         specifier: 15.0.0
         version: 15.0.0
@@ -40,9 +43,16 @@ importers:
       fast-glob:
         specifier: 3.3.3
         version: 3.3.3
+      semver:
+        specifier: 7.8.5
+        version: 7.8.5
       zod:
         specifier: 3.25.76
         version: 3.25.76
+    devDependencies:
+      '@types/semver':
+        specifier: 7.8.0
+        version: 7.8.0
 
   packages/worker:
     dependencies:
@@ -55,6 +65,9 @@ importers:
       '@twotoe/core':
         specifier: workspace:*
         version: link:../core
+      zod:
+        specifier: 3.25.76
+        version: 3.25.76
 
 packages:
 
@@ -349,6 +362,9 @@ packages:
 
   '@types/node@24.19.2':
     resolution: {integrity: sha512-93d49wCWJkCyN87MxLpNN6KXPCwFw7bVUg79mGUV1OS40JGWwVCr8n61DXCSqz7CV6/VfPkb7xec7uP2M+QHWQ==}
+
+  '@types/semver@7.8.0':
+    resolution: {integrity: sha512-1mAINjtQCXXeLkJ9ehXkwOcBpqtLxiVtKhpUf83DdRNdQKV0iXZpaHYqRr7nj+wvxuJzoAmAwXI+sCNMv1CzLQ==}
 
   '@typescript/typescript-aix-ppc64@7.0.2':
     resolution: {integrity: sha512-MTKKkWB7p/0E9xi1d1tHtZ5PiLkGEMIq88pK2CubZjOsLtYTLqhgIgi6zepFa+9GHZ6h05NMCkQxGKiPXMxXtQ==}
@@ -684,6 +700,11 @@ packages:
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
 
+  semver@7.8.5:
+    resolution: {integrity: sha512-Y7/KDsb8LjooZpwaqGyulO6DQlksgCncchHGk+sZIY4SBvUocMBEFH5Ur1fI4dV+Jvl0w6cjvucaIi40puRioA==}
+    engines: {node: '>=10'}
+    hasBin: true
+
   source-map-js@1.2.2:
     resolution: {integrity: sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw==}
     engines: {node: '>=0.10.0'}
@@ -975,6 +996,8 @@ snapshots:
     dependencies:
       undici-types: 7.24.6
 
+  '@types/semver@7.8.0': {}
+
   '@typescript/typescript-aix-ppc64@7.0.2':
     optional: true
 
@@ -1234,6 +1257,8 @@ snapshots:
   run-parallel@1.2.0:
     dependencies:
       queue-microtask: 1.2.3
+
+  semver@7.8.5: {}
 
   source-map-js@1.2.2: {}
 

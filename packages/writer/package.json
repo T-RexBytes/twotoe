@@ -8,7 +8,8 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@twotoe/core": "workspace:*"
+    "@twotoe/core": "workspace:*",
+    "zod": "3.25.76"
   },
   "scripts": {
     "test": "vitest run --passWithNoTests"

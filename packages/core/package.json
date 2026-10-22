@@ -9,9 +9,13 @@
   },
   "dependencies": {
     "fast-glob": "3.3.3",
+    "semver": "7.8.5",
     "zod": "3.25.76"
   },
   "scripts": {
     "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@types/semver": "7.8.0"
   }
 }

@@ -17,11 +17,19 @@
       ],
       "verifiedAt": "2026-10-22",
       "summary": "LiteLLM 1.107.0 on PyPI and Docker shipped a credential stealer and a remote code loader; 1.106.2 is the last safe release.",
-      "action": "Rebuild the env with litellm 1.106.2 and rotate every key it could read",
+      "action": "Rebuild the env with litellm {fixed} and rotate every key it could read",
+      "shortAction": "rebuild your litellm env on {fixed}",
       "check": {
         "detector": "pypiExactVersion",
         "params": {
           "detectors": ["pypiExactVersion", "iocFiles", "dockerTag"],
+          "tokens": ["LiteLLM", "litellm", "PyPI", "Docker"],
+          "variants": {
+            "compromise": { "action": "Treat this environment as compromised: delete it, rotate keys it could read", "shortAction": "treat your litellm env as compromised" },
+            "pin": { "action": "Change the litellm pin from {found} to {fixed} before the next install", "shortAction": "fix the litellm {found} pin" },
+            "sitecustomize": { "action": "Confirm the unexpected sitecustomize.py is legitimate; inspect it in a sandbox" },
+            "dockerWindow": { "action": "Confirm your litellm image was not pulled in the bad window; if unsure, rebuild" }
+          },
           "ecosystem": "pypi",
           "package": "litellm",
           "badExact": ["1.107.0"],
@@ -75,10 +83,15 @@
       "verifiedAt": "2026-10-22",
       "summary": "Railway said an unauthorized party may have accessed encrypted environment variables and obtained decrypted contents for some; impact may be limited to a subset of users.",
       "action": "Roll every env var, API key, and registry credential stored in Railway",
+      "shortAction": "roll your Railway env vars",
       "check": {
         "detector": "railwayMarkers",
         "params": {
           "detectors": ["railwayMarkers", "envKeys"],
+          "tokens": ["Railway"],
+          "variants": {
+            "confirm": { "action": "Confirm whether you store env vars in Railway; if yes, roll them" }
+          },
           "envKeyPrefixes": ["RAILWAY_"],
           "projectMarkerFiles": ["railway.toml", "railway.json"],
           "homeMarkerDirs": [".railway"],
@@ -102,10 +115,12 @@
       "verifiedAt": "2026-10-22",
       "summary": "OpenCode said a legacy system was accessed and provider API keys saved in Console by 1.4% of Console users may have been exposed; keys kept locally by the CLI and desktop apps were not part of it.",
       "action": "Confirm whether you linked provider keys in OpenCode Console; if yes, revoke them",
+      "shortAction": "check your OpenCode Console keys",
       "check": {
         "detector": "opencodePresence",
         "params": {
           "detectors": ["opencodePresence"],
+          "tokens": ["OpenCode", "Console", "OpenAI", "Anthropic", "Google"],
           "cli": "opencode",
           "maxConfidence": "possible",
           "configDirCandidates": [".config/opencode", ".local/share/opencode", "AppData/Roaming/opencode"],
@@ -128,11 +143,18 @@
       ],
       "verifiedAt": "2026-10-22",
       "summary": "PHP 8.5.12, 8.4.27, 8.3.36 and 8.2.35 fix CVE-2026-109618 and CVE-2026-109619, unauthenticated RCE rated CVSS v4.0 9.2; PHP 8.1 and older get no fixes.",
-      "action": "Upgrade PHP to the fixed patch for your line; take 8.1 or older offline",
+      "action": "Upgrade PHP from {found} to {fixed}",
+      "shortAction": "upgrade PHP to {fixed}",
       "check": {
         "detector": "runtimeVersion",
         "params": {
           "detectors": ["runtimeVersion", "dockerTag"],
+          "tokens": ["PHP"],
+          "variants": {
+            "offline": { "action": "Take PHP {found} offline or move to {fixed}; 8.1 and older get no fixes", "shortAction": "take PHP {found} offline or upgrade" },
+            "floating": { "action": "Rebuild images based on php:{found} to pull the patched PHP", "shortAction": "rebuild your php images" },
+            "confirmImage": { "action": "Confirm which PHP your php:{found} image runs; rebuild it if unsure" }
+          },
           "runtime": "php",
           "dockerImages": ["php"],
           "fixed": { "8.5": "8.5.12", "8.4": "8.4.27", "8.3": "8.3.36", "8.2": "8.2.35" },
@@ -167,11 +189,19 @@
       ],
       "verifiedAt": "2026-10-22",
       "summary": "Node.js 22.23.4, 24.22.1 and 26.12.1 fix 10 CVEs, 4 rated High, including a Brotli decoder out-of-bounds write (CVE-2026-111497) and TLS hostname validation bypasses.",
-      "action": "Upgrade Node to the fixed release for your line",
+      "action": "Upgrade Node from {found} to {fixed}",
+      "shortAction": "bump Node to {fixed}",
       "check": {
         "detector": "runtimeVersion",
         "params": {
           "detectors": ["runtimeVersion", "dockerTag", "nvmrc"],
+          "tokens": ["Node", "Node.js", "Brotli", "TLS"],
+          "variants": {
+            "floating": { "action": "Rebuild images based on node:{found} to pull the patched Node", "shortAction": "rebuild your node images" },
+            "unsupported": { "action": "Move off Node {found}: its line is end-of-life; install {fixed}", "shortAction": "move off end-of-life Node {found}" },
+            "confirmImage": { "action": "Confirm which Node your node:{found} image runs; rebuild it if unsure" }
+          },
+          "eolSource": "https://nodejs.org/en/about/previous-releases",
           "runtime": "node",
           "dockerImages": ["node"],
           "fixed": { "22": "22.23.4", "24": "24.22.1", "26": "26.12.1" },
@@ -194,11 +224,17 @@
       ],
       "verifiedAt": "2026-10-22",
       "summary": "GitLab CE/EE from 7.0 lets an unauthenticated user run code via a crafted regular expression (CVSS 10.0); fixed in 19.5.1, 19.4.3, 19.3.6, 19.2.9, 19.1.9, 19.0.10 and 18.11.13.",
-      "action": "Upgrade self-managed GitLab to the patched release for your line",
+      "action": "Upgrade self-managed GitLab from {found} to {fixed}",
+      "shortAction": "upgrade GitLab to {fixed}",
       "check": {
         "detector": "appVersion",
         "params": {
           "detectors": ["appVersion", "dockerTag"],
+          "tokens": ["GitLab", "CE", "EE"],
+          "variants": {
+            "noLine": { "action": "Move GitLab {found} to {fixed} or newer: its line has no fix", "shortAction": "move GitLab {found} to a patched line" },
+            "confirmImage": { "action": "Confirm which GitLab your {found} image runs; pull and recreate it" }
+          },
           "app": "gitlab",
           "dockerImages": ["gitlab/gitlab-ce", "gitlab/gitlab-ee"],
           "fixed": {
@@ -230,11 +266,16 @@
       ],
       "verifiedAt": "2026-10-22",
       "summary": "GitLab CE/EE 19.2 to 19.4 lets an unauthenticated user run code via a crafted regular expression in CI/CD configuration (CVSS 10.0); fixed in 19.4.2, 19.3.5 and 19.2.8.",
-      "action": "Upgrade self-managed GitLab to the patched release for your line",
+      "action": "Upgrade self-managed GitLab from {found} to {fixed}",
+      "shortAction": "upgrade GitLab to {fixed}",
       "check": {
         "detector": "appVersion",
         "params": {
           "detectors": ["appVersion", "dockerTag"],
+          "tokens": ["GitLab", "CE", "EE", "CI/CD"],
+          "variants": {
+            "confirmImage": { "action": "Confirm which GitLab your {found} image runs; pull and recreate it" }
+          },
           "app": "gitlab",
           "dockerImages": ["gitlab/gitlab-ce", "gitlab/gitlab-ee"],
           "fixed": { "19.4": "19.4.2", "19.3": "19.3.5", "19.2": "19.2.8" },
@@ -260,11 +301,16 @@
       ],
       "verifiedAt": "2026-10-22",
       "summary": "Plex Media Server before 1.43.3.10861 has four actively exploited flaws (CVE-2026-96652, CVE-2026-96654, CVE-2026-96655, CVE-2026-96656) listed in CISA KEV.",
-      "action": "Update Plex Media Server to 1.43.3.10861 or newer",
+      "action": "Update Plex Media Server from {found} to {fixed} or newer",
+      "shortAction": "update Plex to {fixed}",
       "check": {
         "detector": "appVersion",
         "params": {
           "detectors": ["appVersion", "dockerTag"],
+          "tokens": ["Plex", "Plex Media Server", "CISA", "KEV"],
+          "variants": {
+            "confirmImage": { "action": "Confirm your Plex container runs {fixed} or newer; pull and recreate it" }
+          },
           "app": "plex",
           "dockerImages": ["plexinc/pms-docker"],
           "fixedAtLeast": "1.43.3.10861",
@@ -295,10 +341,21 @@
       "verifiedAt": "2026-10-22",
       "summary": "Eight eMudhra intermediate CA private keys were trivially recoverable; Mozilla distrusted emSign ECC Root CA - G3, but curl, Python and Node may still trust the chain until their CA bundles are updated.",
       "action": "Upgrade Node, update certifi in each venv, and update your OS",
+      "shortAction": "update the CA bundles that still trust eMudhra",
       "check": {
         "detector": "trustStores",
         "params": {
           "detectors": ["trustStores"],
+          "tokens": ["eMudhra", "emSign", "Mozilla", "Node", "certifi", "Python", "curl", "Git", "Windows"],
+          "actionParts": {
+            "node": "Node",
+            "certifi": "certifi",
+            "git": "Git for Windows",
+            "os": "your OS"
+          },
+          "variants": {
+            "confirmOs": { "action": "Confirm Windows Update has removed the eMudhra root from your store" }
+          },
           "subjects": ["emSign ECC Root CA - G3"],
           "certifiFixedAtLeast": "2026.10.18",
           "nodeFixed": { "22": "22.23.4", "24": "24.22.1", "26": "26.12.1" },
@@ -325,6 +382,8 @@
         "detector": "region",
         "params": {
           "detectors": ["region"],
+          "tokens": ["SBI", "State Bank of India", "OTP", "PIN"],
+          "fyi": "SBI disclosed that records of 3,897 customers were found on the dark web; expect phishing, SBI never asks for OTP or PIN.",
           "region": "IN",
           "fyiOnly": true
         }
@@ -345,11 +404,16 @@
       ],
       "verifiedAt": "2026-10-22",
       "summary": "CISA Known Exploited Vulnerabilities entries added recently whose vendor or product matches something found on this machine.",
-      "action": "Patch per the CISA due date",
+      "action": "Patch {found} by the CISA due date, {fixed}",
+      "shortAction": "patch {found}",
       "check": {
         "detector": "kevProductMatch",
         "params": {
           "detectors": ["kevProductMatch"],
+          "tokens": ["CISA", "KEV"],
+          "variants": {
+            "confirm": { "action": "Confirm whether your {found} is affected by the new CISA KEV entry" }
+          },
           "feedUrl": "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
           "feedFields": ["cveID", "vendorProject", "product", "vulnerabilityName", "dateAdded", "shortDescription", "requiredAction", "dueDate", "knownRansomwareCampaignUse", "notes", "cwes"],
           "windowDays": 14,

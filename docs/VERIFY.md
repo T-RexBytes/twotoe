@@ -20,7 +20,7 @@ Resolved in Phase 1: `opencode-console-2026-10-17.check.params.configDirCandidat
 |---|---|---|---|
 | Node fixed versions 22.23.4 / 24.22.1 / 26.12.1 | confirmed | No other lines released | https://nodejs.org/en/blog/vulnerability/october-2026-security-releases |
 | Node CVE count and Brotli / TLS CVEs | confirmed | 10 CVEs (4 High, 3 Medium, 3 Low). Brotli OOB write is CVE-2026-111497 (High). TLS hostname issues are CVE-2026-105483, -106069 (High) and -106072 (Medium). Release also updates the CA store for the eMudhra compromise. | same |
-| Node 20 EOL wording (SPEC 9.2) | deferred | The release page only says EOL lines are always affected; it does not name Node 20. | Phase 2: check the Node release schedule before shipping the "out of support" string |
+| Node 20 EOL wording (SPEC 9.2) | confirmed | Node 20, 23 and 25 are listed as End-of-life; 22 and 24 are LTS, 26 is Current. The matcher says "its line is end-of-life" and gives no date (the page's date column is "last updated", not an EOL date). | https://nodejs.org/en/about/previous-releases |
 | PHP fixed versions 8.5.12 / 8.4.27 / 8.3.36 / 8.2.35 | confirmed | | https://www.php.net/ |
 | PHP CVEs and CVSS v4 9.2 | confirmed | CVE-2026-109618, CVE-2026-109619, both CVSS v4.0 9.2 (php.net Oct 20 notice). CISA alert gives no score. RESEARCH.md mentions NVD CVSS 3.1 9.8; not fetched, not in pack. | https://www.php.net/ |
 | PHP 8.1 and older: take offline | confirmed | CISA: orgs still on 8.1 or earlier unsupported versions should take PHP systems offline | https://www.cisa.gov/news-events/alerts/2026/10/21/critical-vulnerabilities-php-require-immediate-patching |
@@ -54,7 +54,8 @@ Resolved in Phase 1: `opencode-console-2026-10-17.check.params.configDirCandidat
 |---|---|---|---|
 | Node pin `>= 24.22.1` | confirmed | `.nvmrc` = 24.22.1, root `engines` = `^22.23.4 \|\| ^24.22.1 \|\| >=26.12.1`. Dev machine upgraded from v24.11.0 to v24.22.1 on 2026-10-22 via the official MSI (SHA-256 checked against SHASUMS256.txt, OpenJS Authenticode signature valid). winget's `OpenJS.NodeJS.LTS` was still on 24.20.0 (unpatched) at that time. | https://nodejs.org/dist/v24.22.1/SHASUMS256.txt |
 | Gemma 4 E4B Ollama tag | confirmed | `gemma4:e4b` (also `gemma4:e2b`; `gemma4:latest` is E4B). `gemma4:cloud` and `gemma4:31b-cloud` exist: the writer must refuse cloud tags. | https://ollama.com/library/gemma4 |
-| Ollama structured output (`format` takes a JSON schema) | deferred | Phase 3 | Ollama API docs |
+| Ollama structured output (`format` takes a JSON schema) | confirmed in practice | Ollama 0.40.8 on the dev machine: `/api/chat` with a JSON schema in `format` returned schema-valid JSON from `gemma4:e4b`. The model also returns a `thinking` field by default (to be turned off in Phase 3). | dev machine, 2026-10-22 |
+| Ollama runs on GPU | confirmed | `ollama ps`: gemma4:e4b, 100% GPU, context 8192 (RTX 3050 Laptop, 4 GB). Full eval plan applies, not the CPU-only fallback in SPEC 5.4. | dev machine |
 | Temporal CLI on Windows (winget/scoop?) | deferred | Phase 4 | Temporal CLI install page |
 | Temporal TS SDK version | deferred | Phase 4, all `@temporalio/*` same version | npm |
 | Sentry AI agent monitoring docs | deferred | Phase 7 | Sentry docs |

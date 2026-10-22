@@ -50,6 +50,7 @@ export const Advisory = z.object({
   verifiedAt: z.string(),              // when a human/Claude last checked the source
   summary: z.string(),                 // one factual sentence, used by template + allowed tokens
   action: z.string(),                  // canonical imperative action
+  shortAction: z.string().optional(),  // lowercase line-1 form (SPEC 10.6 "add it to the pack")
   check: z.object({
     detector: z.string(),              // name of matcher
     params: z.record(z.any()),
@@ -85,6 +86,13 @@ export const Finding = z.object({
   priority: z.number(),                // lower = more urgent, see 7.4
   evidence: z.array(z.object({ detector: z.string(), location: z.string(), detail: z.string() })),
   allowedTokens: z.array(z.string()),  // every number/CVE/vendor/version the writer may mention
+  // Not in SPEC section 6: the {found}/{fixed} values and wording variant the
+  // template writer (10.6) substitutes. Set by code, never by the model.
+  vars: z.object({
+    found: z.string().optional(),
+    fixed: z.string().optional(),
+    variant: z.string().optional(),
+  }).optional(),
 });
 export type Finding = z.infer<typeof Finding>;
 

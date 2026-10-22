@@ -1,4 +1,5 @@
 import { Command } from "commander";
+import { EXIT_ERROR, runBrief } from "./commands/brief";
 import { runScan } from "./commands/scan";
 
 // `| Select-Object -First 50` closes the pipe early; that is not an error.
@@ -25,8 +26,22 @@ program
     await runScan(roots, opts);
   });
 
+program
+  .command("brief")
+  .description("Scan, match, write, and print the two lines plus the checklist")
+  .argument("[roots...]", "project roots to walk (default: config roots, then ~\\code, ...)")
+  .option("--no-llm", "template writer only, zero model calls")
+  .option("--offline", "use the bundled advisory pack and KEV snapshot only")
+  .option("--fixture <dir>", "use eval fixture probe.json, project/ and config.json")
+  .option("--region <code>", "region for FYI items, e.g. IN")
+  .option("--json", "print the brief and findings as JSON")
+  .option("--no-machine", "skip machine-level Python locations")
+  .action(async (roots: string[], opts: { llm?: boolean; offline?: boolean; fixture?: string; region?: string; json?: boolean; machine?: boolean }) => {
+    process.exitCode = await runBrief(roots, opts);
+  });
+
 program.parseAsync(process.argv).catch(() => {
   // Error text can carry paths; print a fixed message only.
-  process.stderr.write("twotoe: scan failed\n");
-  process.exitCode = 1;
+  process.stderr.write("twotoe: command failed\n");
+  process.exitCode = EXIT_ERROR;
 });

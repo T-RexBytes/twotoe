@@ -46,6 +46,31 @@ Privacy design decisions worth explaining:
 - TwoToe never reads env values, even its own: paths come from the home directory and fixed defaults. Every tool it spawns runs with an empty environment from an empty temp folder, so `NODE_OPTIONS=--require` cannot inject code and a planted `node.exe` in a project folder never runs.
 - IOC files are hashed as raw bytes; a test spies on every file-reading function to prove they are never opened as text.
 
+## Gate 2 (Oct 22): matcher and `brief --no-llm`
+
+Numbers:
+- 236 tests green (209 core, 14 writer, 13 CLI). All 20 rows of the SPEC 9.3 truth table, each run through the real pipeline (synthetic files, scan, match), not hand-built inventories.
+- Kitchen-sink fixture (f01 + f06 + f10 + f17): 4 findings in the expected order (Plex first because of the KEV due date, then LiteLLM, Railway, Node), canary absent, about 0.02 s.
+- Real machine, template mode: 1 thing needs attention (two CA bundles still trust the eMudhra root), 1 "possible" (OpenCode installed), 16 checks, 0.7 s, zero model calls.
+
+Design notes worth a paragraph:
+- The model is not needed to decide anything. `--no-llm` produces the full brief from the pack and the findings; the model in Phase 3 only gets to rephrase it, and the validator checks it against the same token extractor the matcher used to build `allowedTokens`.
+- Priority is plain arithmetic (SPEC 7.4): severity, minus KEV and due-date bonuses, minus confidence. Ties go to credential leaks, because a leaked key is being used now and a patch gap is only being scanned for.
+- "0 secrets left this machine" is computed from the egress ledger, not written.
+
+Small catches:
+- The spec's terminal mockup says "Thu Oct 23". Oct 23, 2026 is a Friday; the test caught it because the code computes the weekday.
+- First real-machine wording read "update certifi and update Git for Windows". Fixed to "update certifi and Git for Windows". Reading real output beats reading templates.
+
+## Before Gate 3 (Oct 22): the local model
+
+Hardware for the post's latency numbers: AMD Ryzen 7 7445HS, 15.3 GB RAM, NVIDIA GeForce RTX 3050 Laptop GPU (4 GB) plus Radeon 740M. Windows 11.
+
+- Ollama 0.40.8, `gemma4:e4b` (Q4_K_M, 7.5B parameters as reported), `ollama ps`: 100% GPU.
+- First structured-output call: HTTP 200, schema-valid JSON, about 35 s wall time including a 15.4 s cold model load, 20.9 tokens/s.
+- Surprise: the model "thinks" by default. 391 output tokens for a two-field answer. Turning thinking off is the first latency lever to measure in Phase 3.
+- The test also showed why the validator exists: asked for a calm tail with no numbers, the model wrote "Everything remains stable and reliable." (fine), and lowercased "node" in the action (a vendor-name check will notice).
+
 ## The dogfood moment (aggregate)
 
 - TwoToe's first real run warned that it was itself running on an unpatched Node (24.11.0, fix is 24.22.1).

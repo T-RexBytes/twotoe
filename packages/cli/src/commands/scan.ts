@@ -3,7 +3,8 @@ import os from "node:os";
 import path from "node:path";
 import pc from "picocolors";
 import {
-  collectInventory, FixtureProbe, loadPack, RealProbe, redactText, type ScanResult,
+  collectInventory, FixtureProbe, loadConfig, loadPack, RealProbe, redactText,
+  type ScanResult, type TwotoeConfig,
 } from "@twotoe/core";
 
 // SPEC 8.3 default roots on Windows (only those that exist are scanned).
@@ -29,33 +30,50 @@ export function selfNodeStatus(version: string = process.version): { version: st
   return { version: version.replace(/^v/, ""), patched, fixed: target };
 }
 
-export interface ScanCommandOptions {
-  json?: boolean;
-  fixture?: string;
-  machine?: boolean;
-}
-
-export async function runScan(rootsArg: string[], opts: ScanCommandOptions): Promise<ScanResult> {
+export function warnIfSelfUnpatched(): ReturnType<typeof selfNodeStatus> {
   const self = selfNodeStatus();
   if (self.patched === false) {
     process.stderr.write(pc.red(pc.bold(
       `WARNING: TwoToe is running on Node ${self.version}, which is missing the Oct 21 security fixes. Upgrade to ${self.fixed} or newer.\n`,
     )));
   }
+  return self;
+}
 
-  let result: ScanResult;
+export interface CollectOptions {
+  fixture?: string;
+  machine?: boolean;
+}
+
+// Scan this machine or a fixture, plus the config that goes with it
+// (~/.twotoe/config.json, or <fixture>/config.json).
+export async function collect(rootsArg: string[], opts: CollectOptions): Promise<{ result: ScanResult; config: TwotoeConfig }> {
   if (opts.fixture) {
     const dir = path.resolve(opts.fixture);
-    result = await collectInventory({
+    const result = await collectInventory({
       roots: [path.join(dir, "project")],
       probe: new FixtureProbe(path.join(dir, "probe.json")),
       machinePython: false,
     });
-  } else {
-    const roots = rootsArg.length ? rootsArg : defaultRoots();
-    result = await collectInventory({ roots, probe: new RealProbe(), machinePython: opts.machine !== false });
+    return { result, config: loadConfig(path.join(dir, "config.json")) };
   }
+  const config = loadConfig();
+  const roots = rootsArg.length ? rootsArg : config.roots?.length ? config.roots.map(expandHome) : defaultRoots();
+  const result = await collectInventory({ roots, probe: new RealProbe(), machinePython: opts.machine !== false });
+  return { result, config };
+}
 
+function expandHome(p: string): string {
+  return p === "~" || p.startsWith("~/") || p.startsWith("~\\") ? path.join(os.homedir(), p.slice(2)) : p;
+}
+
+export interface ScanCommandOptions extends CollectOptions {
+  json?: boolean;
+}
+
+export async function runScan(rootsArg: string[], opts: ScanCommandOptions): Promise<ScanResult> {
+  const self = warnIfSelfUnpatched();
+  const { result } = await collect(rootsArg, opts);
   // Redact again on the way out: defense in depth for anything a scanner missed.
   if (opts.json) {
     process.stdout.write(redactText(JSON.stringify({ ...result, selfNode: self }, null, 2)) + "\n");
