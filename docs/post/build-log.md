@@ -117,6 +117,23 @@ Design notes for the post:
 - Inventory and pack move between activities as on-disk cache references, so Temporal's history database never contains env key names or file paths.
 - Laziness feature: `catchupWindow` runs a missed 3 a.m. job when the laptop is next awake. Honest caveat (RESEARCH): Temporal cannot wake the laptop; `--no-temporal` with Task Scheduler `WakeToRun` can, if wake timers are allowed.
 
+## Gate 5 (Oct 22): the morning card
+
+Numbers:
+- 328 tests green (216 core, 63 writer, 9 worker, 25 CLI, 15 card). Card tests render each example brief, check checkbox persistence (and that the card still works with storage blocked), run axe-core on every example, and assert the bundled examples contain no real path and no canary.
+- Lighthouse accessibility: 100 on all three examples in light mode, 100 in dark. No horizontal overflow at 360 px in either theme.
+- Example briefs are real runs of the full pipeline on synthetic fixtures with the local model: kitchen sink (4 items, accepted first try, 40.9 s), Railway user (1 item, 2 validator rejections then accepted, 15.8 s), clean night (no model call).
+- Hosted page: one JS file (76 KB gzipped), one CSS file, self-hosted fonts, zero third-party requests.
+
+What broke, honestly:
+- The spec palette fails WCAG AA for small text on paper (clay 4.48, moss 4.10, amber 2.65 against the 4.5 needed). Kept the spec colors where large text allows them and added deeper shades of the same hues for chips and small text.
+- My first 360 px screenshot looked broken (text cut off on the right). It was headless Chrome's minimum window width on Windows, not the card; an emulated 360 px viewport showed the page fitting.
+- My first "light mode" Lighthouse run was actually dark: headless Chrome inherited Windows dark mode. Re-ran with light forced.
+
+Choices worth a sentence in the post:
+- Hosting on DigitalOcean App Platform as a static site, showing only fixture briefs. The real card never leaves 127.0.0.1.
+- The checklist remembers ticks in the browser only, keyed by brief date and finding.
+
 ## The dogfood moment (aggregate)
 
 - TwoToe's first real run warned that it was itself running on an unpatched Node (24.11.0, fix is 24.22.1).

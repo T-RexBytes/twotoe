@@ -72,7 +72,7 @@ export async function runSleep(opts: SleepOptions): Promise<number> {
   const result = await withClient((c) => ensureSchedule(c, {
     configPath: defaultConfigPath(), at, ...(opts.catchup ? { catchupWindow: opts.catchup } : {}),
   }));
-  out(`Schedule twotoe-nightly ${result}: every day at ${at} ${localTimezone()}, catch-up window ${opts.catchup ?? "6h"}.`);
+  out(`Schedule twotoe-nightly ${result}: every day at ${at} ${localTimezone()}, catch-up window ${opts.catchup ?? "18h"}.`);
   out(`Keep a worker running (\`twotoe worker\`), or use \`twotoe sleep --taskscheduler\`. Timeline: ${TEMPORAL_UI}`);
   return 0;
 }

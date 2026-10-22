@@ -1,0 +1,273 @@
+{
+  "source": "example",
+  "label": "Kitchen sink (fixture f22)",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "4 things need you today: update Plex Media Server to 1.43.3.10861 or newer; rebuild env with litellm 1.106.2 and rotate keys; +2 more in the checklist.",
+    "line2": "Everything else: you are doing great work. Checked 15 things in 40.9s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "plex2shell-2026:651fd9b0",
+        "action": "Update Plex Media Server to 1.43.3.10861 or newer",
+        "why": "Plex Media Server before 1.43.3.10861 has four actively exploited flaws listed in CISA KEV."
+      },
+      {
+        "findingId": "litellm-1.107.0:ec43a342",
+        "action": "Rebuild the env with litellm 1.106.2 and rotate every key it could read",
+        "why": "LiteLLM 1.107.0 shipped a credential stealer and a remote code loader; 1.106.2 is the last safe release."
+      },
+      {
+        "findingId": "railway-2026-10-21:dc4f30c8",
+        "action": "Roll every env var, API key, and registry credential stored in Railway",
+        "why": "An unauthorized party may have accessed encrypted environment variables and obtained decrypted contents for some."
+      },
+      {
+        "findingId": "nodejs-2026-10-21:22619b27",
+        "action": "Upgrade Node from 24.22.0 to 24.22.1",
+        "why": "Node.js releases fix several CVEs, including a Brotli decoder out-of-bounds write and TLS hostname validation bypasses."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "gemma4:e4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 40859,
+      "egress": [
+        {
+          "host": "127.0.0.1",
+          "method": "POST",
+          "bytesOut": 8016
+        }
+      ]
+    }
+  },
+  "findings": [
+    {
+      "id": "plex2shell-2026:651fd9b0",
+      "advisoryId": "plex2shell-2026",
+      "confidence": "definite",
+      "severity": "critical",
+      "priority": -5,
+      "evidence": [
+        {
+          "detector": "appVersion",
+          "location": "Plex Media Server",
+          "detail": "Plex Media Server 1.43.3.10860 installed"
+        }
+      ],
+      "allowedTokens": [
+        "CVE-2026-96652",
+        "2026",
+        "96652",
+        "CVE-2026-96654",
+        "96654",
+        "CVE-2026-96655",
+        "96655",
+        "CVE-2026-96656",
+        "96656",
+        "Plex",
+        "Plex Media Server",
+        "CISA",
+        "KEV",
+        "1.43.3.10861",
+        "43",
+        "10861",
+        "1.43.3.10860",
+        "10860",
+        "Plex Media Server before 1.43.3.10861 has four actively exploited flaws (CVE-2026-96652, CVE-2026-96654, CVE-2026-96655, CVE-2026-96656) listed in CISA KEV.",
+        "2026-10-23",
+        "10",
+        "23",
+        "2026-10-19",
+        "19"
+      ],
+      "vars": {
+        "found": "1.43.3.10860",
+        "fixed": "1.43.3.10861"
+      }
+    },
+    {
+      "id": "litellm-1.107.0:ec43a342",
+      "advisoryId": "litellm-1.107.0",
+      "confidence": "definite",
+      "severity": "critical",
+      "priority": 70,
+      "evidence": [
+        {
+          "detector": "pypiExactVersion",
+          "location": "~\\code\\ai-notes\\.venv\\Lib\\site-packages",
+          "detail": "litellm 1.107.0 installed"
+        },
+        {
+          "detector": "pypiPin",
+          "location": "~\\code\\ai-notes\\requirements.txt:1",
+          "detail": "pins litellm==1.107.0"
+        }
+      ],
+      "allowedTokens": [
+        "LiteLLM",
+        "PyPI",
+        "Docker",
+        "1.106.2",
+        "106",
+        "1.107.0",
+        "107",
+        "LiteLLM 1.107.0 on PyPI and Docker shipped a credential stealer and a remote code loader; 1.106.2 is the last safe release.",
+        "2026-10-21",
+        "2026",
+        "10",
+        "21",
+        "site-packages",
+        "requirements.txt"
+      ],
+      "vars": {
+        "found": "1.107.0",
+        "fixed": "1.106.2"
+      }
+    },
+    {
+      "id": "railway-2026-10-21:dc4f30c8",
+      "advisoryId": "railway-2026-10-21",
+      "confidence": "likely",
+      "severity": "critical",
+      "priority": 85,
+      "evidence": [
+        {
+          "detector": "railwayMarkers",
+          "location": "~\\code\\side-hustle-api\\railway.toml",
+          "detail": "railway.toml"
+        },
+        {
+          "detector": "envKeys",
+          "location": "~\\code\\side-hustle-api\\.env",
+          "detail": "RAILWAY_TOKEN"
+        }
+      ],
+      "allowedTokens": [
+        "Railway",
+        "Railway said an unauthorized party may have accessed encrypted environment variables and obtained decrypted contents for some; impact may be limited to a subset of users.",
+        "2026-10-21",
+        "2026",
+        "10",
+        "21",
+        "railway.toml",
+        ".env",
+        "RAILWAY_TOKEN"
+      ],
+      "vars": {}
+    },
+    {
+      "id": "nodejs-2026-10-21:22619b27",
+      "advisoryId": "nodejs-2026-10-21",
+      "confidence": "definite",
+      "severity": "high",
+      "priority": 170,
+      "evidence": [
+        {
+          "detector": "runtimeVersion",
+          "location": "node --version",
+          "detail": "node 24.22.0 installed"
+        }
+      ],
+      "allowedTokens": [
+        "CVE-2026-105481",
+        "2026",
+        "105481",
+        "CVE-2026-105482",
+        "105482",
+        "CVE-2026-105483",
+        "105483",
+        "CVE-2026-106069",
+        "106069",
+        "CVE-2026-106070",
+        "106070",
+        "CVE-2026-106071",
+        "106071",
+        "CVE-2026-106072",
+        "106072",
+        "CVE-2026-106073",
+        "106073",
+        "CVE-2026-106074",
+        "106074",
+        "CVE-2026-111497",
+        "111497",
+        "Node.js",
+        "Node",
+        "Brotli",
+        "TLS",
+        "22.23.4",
+        "22",
+        "23",
+        "24.22.1",
+        "24",
+        "26.12.1",
+        "26",
+        "12",
+        "24.22.0",
+        "Node.js 22.23.4, 24.22.1 and 26.12.1 fix 10 CVEs, 4 rated High, including a Brotli decoder out-of-bounds write (CVE-2026-111497) and TLS hostname validation bypasses.",
+        "10",
+        "2026-10-21",
+        "21",
+        "node --version"
+      ],
+      "vars": {
+        "found": "24.22.0",
+        "fixed": "24.22.1"
+      }
+    }
+  ],
+  "advisories": [
+    {
+      "id": "litellm-1.107.0",
+      "title": "Malicious LiteLLM 1.107.0 release on PyPI and Docker",
+      "vendor": "LiteLLM",
+      "sourceUrls": [
+        "https://docs.litellm.ai/blog/security-incident-oct-21-2026",
+        "https://www.wiz.io/blog/litellm-compromised-steals-credentials"
+      ],
+      "verifiedAt": "2026-10-22"
+    },
+    {
+      "id": "railway-2026-10-21",
+      "title": "Railway environment variable exposure",
+      "vendor": "Railway",
+      "sourceUrls": [
+        "https://blog.railway.com/p/security-disclosure-wednesday-october-21st"
+      ],
+      "verifiedAt": "2026-10-22"
+    },
+    {
+      "id": "nodejs-2026-10-21",
+      "title": "Node.js October 2026 security releases",
+      "vendor": "Node.js",
+      "sourceUrls": [
+        "https://nodejs.org/en/blog/vulnerability/october-2026-security-releases"
+      ],
+      "verifiedAt": "2026-10-22"
+    },
+    {
+      "id": "plex2shell-2026",
+      "title": "Plex Media Server actively exploited flaws (Plex2Shell)",
+      "vendor": "Plex",
+      "sourceUrls": [
+        "https://forums.plex.tv/t/important-security-update-for-plex-media-server-v1-43-2-and-earlier/942319",
+        "https://www.cisa.gov/known-exploited-vulnerabilities-catalog"
+      ],
+      "verifiedAt": "2026-10-22"
+    }
+  ],
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 40833,
+      "reasons": [],
+      "promptEvalCount": 2650,
+      "evalCount": 462,
+      "loadDurationMs": 14386
+    }
+  ],
+  "promptVersion": "2026-10-22.1",
+  "checksRun": 15
+}

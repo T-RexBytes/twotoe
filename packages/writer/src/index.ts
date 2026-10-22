@@ -5,6 +5,7 @@ export {
 } from "./template";
 export { assembleLines, buildBrief, localDate, type BuildBriefInput, type EgressRecord } from "./assemble";
 export { evidenceSummary } from "./evidence";
+export { buildCardData, type CardAdvisory, type CardAttempt, type CardData } from "./card";
 export {
   DEFAULT_MODEL, DEFAULT_OLLAMA_URL, isRemoteModelTag, ModelConfigError, OllamaClient, resolveModel,
   type ChatRequest, type ChatResult, type ModelClient,

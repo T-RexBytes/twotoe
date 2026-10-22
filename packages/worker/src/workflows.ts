@@ -31,6 +31,9 @@ export async function nightlyTriage(input: NightlyInput): Promise<NightlyResult>
   const findings = await fast.matchAdvisories(collected, pack);
   const write = await model.writeBriefWithValidation({ findings, collected, pack });   // includes retry + fallback
   const brief = await fast.assembleBrief({ collected, findings, write, startedAt, egress: [...pack.egress, ...write.egress] });
-  await fast.persistAndNotify({ brief, findings, notify: collected.notify });
+  await fast.persistAndNotify({
+    brief, findings, notify: collected.notify,
+    run: { checksRun: collected.checksRun, promptVersion: write.promptVersion, attempts: write.attemptLog },
+  });
   return { date: brief.date, actions: brief.checklist.length, mode: brief.meta.mode };
 }

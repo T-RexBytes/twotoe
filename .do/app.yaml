@@ -1,0 +1,28 @@
+# DigitalOcean App Platform spec for the TwoToe demo card (SPEC 11.6).
+# Static site only: the hosted card shows the bundled example briefs from
+# synthetic fixtures and makes no network request beyond its own files.
+#
+# Create:  doctl apps create --spec .do/app.yaml
+# Update:  doctl apps create --spec .do/app.yaml --upsert --update-sources
+# Steps and DNS for twotoe.tech: docs/DEPLOY.md
+name: twotoe
+static_sites:
+  - name: card
+    github:
+      repo: T-RexBytes/twotoe
+      branch: main
+      deploy_on_push: true
+    # The pnpm workspace (lockfile, packageManager) lives at the repo root, so
+    # the build runs from the root and targets the card package.
+    source_dir: /
+    environment_slug: node-js
+    build_command: pnpm --filter @twotoe/card build
+    output_dir: apps/card/dist
+    index_document: index.html
+domains:
+  - domain: twotoe.tech
+    type: PRIMARY
+    minimum_tls_version: "1.2"
+  - domain: www.twotoe.tech
+    type: ALIAS
+    minimum_tls_version: "1.2"

@@ -100,7 +100,7 @@ describe("nightly schedule (SPEC 11.3)", () => {
     expect(d.spec.timezone).toBe("Asia/Kolkata");
     expect(JSON.stringify(d.spec.calendars)).toContain("\"start\":4");
     expect(JSON.stringify(d.spec.calendars)).toContain("\"start\":30");
-    expect(d.policies.catchupWindow).toBe(6 * 60 * 60 * 1000);
+    expect(d.policies.catchupWindow).toBe(18 * 60 * 60 * 1000);
     expect(d.policies.overlap).toBe("SKIP");
     expect(d.action).toMatchObject({ type: "startWorkflow", workflowType: "nightlyTriage", taskQueue: "twotoe" });
     expect(await removeSchedule(env.client)).toBe(true);

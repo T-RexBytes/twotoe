@@ -11,7 +11,7 @@
   },
   "scripts": {
     "test": "pnpm -r test",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p apps/card/tsconfig.json --noEmit"
   },
   "devDependencies": {
     "@types/node": "24.19.2",

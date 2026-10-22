@@ -1,5 +1,6 @@
 import { Command } from "commander";
 import { EXIT_ERROR, runBrief } from "./commands/brief";
+import { runCard } from "./commands/card";
 import { runScan } from "./commands/scan";
 import { runSleep } from "./commands/sleep";
 import { runWorkerCommand } from "./commands/worker";
@@ -51,10 +52,20 @@ program
   .option("--taskscheduler", "start the Temporal dev server and worker at every log on")
   .option("--no-temporal", "plain Task Scheduler: one daily `twotoe brief --save` with WakeToRun and StartWhenAvailable")
   .option("--uninstall", "remove every TwoToe-* task and the Temporal schedule")
-  .option("--catchup <duration>", "Temporal catchupWindow for missed runs", "6h")
+  .option("--catchup <duration>", "Temporal catchupWindow for missed runs", "18h")
   .option("--dry-run", "show what would be registered and change nothing")
   .action(async (opts: { at?: string; taskscheduler?: boolean; temporal?: boolean; uninstall?: boolean; catchup?: string; dryRun?: boolean }) => {
     process.exitCode = await runSleep(opts);
+  });
+
+program
+  .command("card")
+  .description("Serve the latest brief as the morning card on 127.0.0.1:4777")
+  .option("--port <n>", "port on 127.0.0.1", "4777")
+  .option("--no-open", "do not open the browser")
+  .option("--state-dir <dir>", "where briefs are saved (default ~/.twotoe)")
+  .action(async (opts: { port?: string; open?: boolean; stateDir?: string }) => {
+    process.exitCode = await runCard(opts);
   });
 
 program

@@ -1,0 +1,24 @@
+{
+  "source": "example",
+  "label": "Clean night (fixture f23)",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "Nothing needs you today.",
+    "line2": "Everything else: you're fine. Checked 13 things in 0.01s, 0 secrets left this machine.",
+    "checklist": [],
+    "fyi": [],
+    "meta": {
+      "mode": "template",
+      "model": null,
+      "attempts": 0,
+      "validatorRejections": [],
+      "durationMs": 8,
+      "egress": []
+    }
+  },
+  "findings": [],
+  "advisories": [],
+  "attempts": [],
+  "promptVersion": "2026-10-22.1",
+  "checksRun": 13
+}

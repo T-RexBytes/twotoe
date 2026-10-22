@@ -7,7 +7,7 @@ import {
 import { buildBrief, localDate, resolveModel, writeDraft, type ModelClient, type WriteResult } from "@twotoe/writer";
 import { inputHash, RunStore } from "./cache";
 import { CachingModelClient } from "./cachingClient";
-import { persistBrief } from "./persist";
+import { persistBrief, type PersistedRun } from "./persist";
 
 // SPEC 11.3 activities. Each one is idempotent: its output is cached on disk
 // keyed by a hash of its input, per workflow run. Large data (inventory, pack)
@@ -184,9 +184,9 @@ export function createActivities(deps: ActivityDeps) {
     },
 
     // Cached too, so a retry never shows the toast twice.
-    async persistAndNotify(input: { brief: Brief; findings: Finding[]; notify: boolean }): Promise<{ latestPath: string; notified: boolean }> {
+    async persistAndNotify(input: { brief: Brief; findings: Finding[]; notify: boolean; run?: PersistedRun }): Promise<{ latestPath: string; notified: boolean }> {
       return cached("persistAndNotify", { date: input.brief.date, line1: input.brief.line1, n: input.findings.length }, async () => {
-        const { latestPath } = persistBrief(deps.stateDir, input.brief, input.findings);
+        const { latestPath } = persistBrief(deps.stateDir, input.brief, input.findings, input.run);
         let notified = false;
         if (input.notify && deps.notify) notified = Boolean(await deps.notify(input.brief).catch(() => false));
         return { latestPath, notified };

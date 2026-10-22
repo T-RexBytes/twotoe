@@ -17,7 +17,7 @@ export interface ScheduleOptions {
   configPath: string;
   at?: string;              // "HH:MM" local time
   timezone?: string;        // IANA; defaults to this machine's zone
-  catchupWindow?: string;   // SPEC 11.3: "6h"
+  catchupWindow?: string;   // SPEC 11.3 says "6h"; 18h chosen (docs/DECISIONS.md)
   offline?: boolean;
   taskQueue?: string;
 }
@@ -45,7 +45,7 @@ export function scheduleSpec(opts: ScheduleOptions) {
       taskQueue: opts.taskQueue ?? TASK_QUEUE,
       args: [{ configPath: opts.configPath, offline: opts.offline === true }],
     },
-    policies: { overlap: ScheduleOverlapPolicy.SKIP, catchupWindow: opts.catchupWindow ?? "6h" },
+    policies: { overlap: ScheduleOverlapPolicy.SKIP, catchupWindow: opts.catchupWindow ?? "18h" },
   };
 }
 

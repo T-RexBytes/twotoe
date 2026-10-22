@@ -29,6 +29,7 @@ export interface BriefResult {
   findings: Finding[];
   exitCode: number;
   run: Omit<WriteResult, "draft"> | null;
+  checksRun: number;
 }
 
 export async function makeBrief(rootsArg: string[], opts: BriefCommandOptions): Promise<BriefResult> {
@@ -70,7 +71,7 @@ export async function makeBrief(rootsArg: string[], opts: BriefCommandOptions): 
       mode, model, attempts, validatorRejections: rejections,
     });
     const actionable = findings.some((f) => f.confidence === "definite" || f.confidence === "likely");
-    return { brief, findings, run, exitCode: actionable ? EXIT_ACTIONS : EXIT_NOTHING };
+    return { brief, findings, run, checksRun: result.inventory.checksRun, exitCode: actionable ? EXIT_ACTIONS : EXIT_NOTHING };
   } finally {
     uninstall();
   }
@@ -139,7 +140,13 @@ export async function runBrief(rootsArg: string[], opts: BriefCommandOptions): P
     process.stderr.write(`twotoe: ${name === "ModelConfigError" ? (err as Error).message : "brief failed"}\n`);
     return EXIT_ERROR;
   }
-  if (opts.save) persistBrief(twotoeHome(), res.brief, res.findings);
+  if (opts.save) {
+    persistBrief(twotoeHome(), res.brief, res.findings, {
+      checksRun: res.checksRun,
+      promptVersion: res.run?.promptVersion ?? null,
+      attempts: res.run?.attemptLog ?? [],
+    });
+  }
   const text = opts.json
     ? JSON.stringify({ brief: res.brief, findings: res.findings, run: res.run }, null, 2)
     : renderBrief(res, now, process.stdout.isTTY === true);

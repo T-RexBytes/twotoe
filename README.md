@@ -8,7 +8,20 @@ Code owns the facts. A local open-weight model (Gemma via Ollama) only phrases t
 
 ## Status
 
-Phase 0 of the build plan in [docs/SPEC.md](docs/SPEC.md): monorepo scaffold, data contracts, and the dated advisory pack. Nothing scans yet.
+Phases 0 to 5 of the build plan in [docs/SPEC.md](docs/SPEC.md): scanners, matcher, local-model writer with a grounding validator, egress guard, Temporal nightly workflow, and the morning card. Eval and the write-up come next.
+
+## Commands
+
+```powershell
+pnpm tsx packages/cli/src/index.ts scan --json          # facts only: what is on this machine
+pnpm tsx packages/cli/src/index.ts brief --no-llm       # the two lines + checklist, no model
+pnpm tsx packages/cli/src/index.ts brief --save         # local model (Ollama), saved for the card
+pnpm tsx packages/cli/src/index.ts card                 # the morning card on http://127.0.0.1:4777
+pnpm tsx packages/cli/src/index.ts sleep --dry-run      # what the nightly install would register
+pnpm tsx packages/worker/scripts/crash-test.ts          # kill the worker mid-run, prove nothing ran twice
+```
+
+The demo card with example briefs from synthetic fixtures: see [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ## What it checks
 

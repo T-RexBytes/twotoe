@@ -1,0 +1,182 @@
+@import "tailwindcss";
+
+/* Layout: one centered 640px column, a note left on the kitchen counter.
+   The two lines come first in a soft serif; the checklist, ledger and run
+   details follow in a plain, very legible sans. */
+:root {
+  /* SPEC 13.1 palette */
+  --paper: #f7f3ea;
+  --ink: #1f1d1a;
+  --moss: #5b7f5a;
+  --amber: #c98a2b;
+  --clay: #b5523b;
+  /* supporting neutrals, warm like the paper */
+  --muted: #5e584f;
+  --line: #ddd5c5;
+  --raised: #fffdf8;
+  /* small text and chips: same hues, deep enough for WCAG AA on paper */
+  --moss-text: #46684a;
+  --amber-text: #8a5a12;
+  --clay-text: #9a4230;
+  --on-accent: #f7f3ea;
+  --on-amber: #1f1d1a;
+  /* the sloth */
+  --fur: #8b7a66;
+  --fur-shadow: #6f604f;
+  --face: #ece0cb;
+  --branch: #6b5a43;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #16161a;
+    --ink: #ece7dc;
+    --moss: #8db38b;
+    --amber: #e0a84f;
+    --clay: #e58a6f;
+    --muted: #aba597;
+    --line: #34333a;
+    --raised: #1e1e23;
+    --moss-text: #8db38b;
+    --amber-text: #e0a84f;
+    --clay-text: #e58a6f;
+    --on-accent: #16161a;
+    --on-amber: #16161a;
+    --fur: #6e6253;
+    --fur-shadow: #574d41;
+    --face: #cdbfa8;
+    --branch: #8a775e;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #16161a;
+  --ink: #ece7dc;
+  --moss: #8db38b;
+  --amber: #e0a84f;
+  --clay: #e58a6f;
+  --muted: #aba597;
+  --line: #34333a;
+  --raised: #1e1e23;
+  --moss-text: #8db38b;
+  --amber-text: #e0a84f;
+  --clay-text: #e58a6f;
+  --on-accent: #16161a;
+  --on-amber: #16161a;
+  --fur: #6e6253;
+  --fur-shadow: #574d41;
+  --face: #cdbfa8;
+  --branch: #8a775e;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-moss: var(--moss);
+  --color-amber: var(--amber);
+  --color-clay: var(--clay);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-raised: var(--raised);
+  --color-moss-text: var(--moss-text);
+  --color-amber-text: var(--amber-text);
+  --color-clay-text: var(--clay-text);
+  --color-on-accent: var(--on-accent);
+  --color-on-amber: var(--on-amber);
+  --font-display: "Fraunces Variable", Georgia, "Times New Roman", serif;
+  --font-sans: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", Consolas, ui-monospace, monospace;
+}
+
+html {
+  background: var(--paper);
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Fraunces' SOFT axis rounds the serifs: a sleepy, friendly display face. */
+.display {
+  font-family: var(--font-display);
+  font-variation-settings: "SOFT" 100, "WONK" 0;
+  text-wrap: balance;
+}
+
+/* Side gutter that also clears a phone's side system bar. */
+.gutter {
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.label {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+:focus-visible {
+  outline: 3px solid var(--clay);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+input[type="checkbox"] {
+  accent-color: var(--moss);
+}
+
+/* The sloth sways a little on its branch. Still for people who ask for less motion. */
+.sloth-sway {
+  transform-origin: 50% 8%;
+  animation: sway 7s ease-in-out infinite;
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sloth-sway {
+    animation: none;
+  }
+}
+
+details > summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+details > summary .chevron {
+  display: inline-block;
+  transition: transform 150ms ease;
+}
+
+details[open] > summary .chevron {
+  transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  details > summary .chevron {
+    transition: none;
+  }
+}

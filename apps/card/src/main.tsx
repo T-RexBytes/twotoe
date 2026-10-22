@@ -1,2 +1,14 @@
-// Card entry: implemented in Phase 5 (docs/SPEC.md 13).
-export {};
+import "@fontsource-variable/fraunces/soft.css";
+import "@fontsource/atkinson-hyperlegible/400.css";
+import "@fontsource/atkinson-hyperlegible/700.css";
+import "@fontsource/ibm-plex-mono/400.css";
+import "./styles.css";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { App } from "./App";
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);

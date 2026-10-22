@@ -1,0 +1,106 @@
+{
+  "source": "example",
+  "label": "Railway user (fixture f06)",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: roll every env var in Railway.",
+    "line2": "Everything else: take a deep breath, things will settle. Checked 11 things in 15.8s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "railway-2026-10-21:dc4f30c8",
+        "action": "Roll every env var, API key, and registry credential stored in Railway",
+        "why": "An unauthorized party may have accessed encrypted environment variables and obtained decrypted contents for some."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "gemma4:e4b",
+      "attempts": 2,
+      "validatorRejections": [
+        "attempt 1: why over 140 characters in railway-2026-10-21:dc4f30c8",
+        "attempt 1: line1 action over 60 characters"
+      ],
+      "durationMs": 15755,
+      "egress": [
+        {
+          "host": "127.0.0.1",
+          "method": "POST",
+          "bytesOut": 3934
+        },
+        {
+          "host": "127.0.0.1",
+          "method": "POST",
+          "bytesOut": 4116
+        }
+      ]
+    }
+  },
+  "findings": [
+    {
+      "id": "railway-2026-10-21:dc4f30c8",
+      "advisoryId": "railway-2026-10-21",
+      "confidence": "likely",
+      "severity": "critical",
+      "priority": 85,
+      "evidence": [
+        {
+          "detector": "railwayMarkers",
+          "location": "~\\code\\side-hustle-api\\railway.toml",
+          "detail": "railway.toml"
+        },
+        {
+          "detector": "envKeys",
+          "location": "~\\code\\side-hustle-api\\.env",
+          "detail": "RAILWAY_TOKEN"
+        }
+      ],
+      "allowedTokens": [
+        "Railway",
+        "Railway said an unauthorized party may have accessed encrypted environment variables and obtained decrypted contents for some; impact may be limited to a subset of users.",
+        "2026-10-21",
+        "2026",
+        "10",
+        "21",
+        "railway.toml",
+        ".env",
+        "RAILWAY_TOKEN"
+      ],
+      "vars": {}
+    }
+  ],
+  "advisories": [
+    {
+      "id": "railway-2026-10-21",
+      "title": "Railway environment variable exposure",
+      "vendor": "Railway",
+      "sourceUrls": [
+        "https://blog.railway.com/p/security-disclosure-wednesday-october-21st"
+      ],
+      "verifiedAt": "2026-10-22"
+    }
+  ],
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 8567,
+      "reasons": [
+        "why over 140 characters in railway-2026-10-21:dc4f30c8",
+        "line1 action over 60 characters"
+      ],
+      "promptEvalCount": 932,
+      "evalCount": 155,
+      "loadDurationMs": 7
+    },
+    {
+      "attempt": 2,
+      "wallMs": 7179,
+      "reasons": [],
+      "promptEvalCount": 991,
+      "evalCount": 136,
+      "loadDurationMs": 4
+    }
+  ],
+  "promptVersion": "2026-10-22.1",
+  "checksRun": 11
+}
