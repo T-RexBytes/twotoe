@@ -36,13 +36,20 @@ export interface WalkOptions {
   maxDepth?: number;      // SPEC 8.3: 6
   maxFiles?: number;      // SPEC 8.3: 200k
   concurrency?: number;
+  exclude?: string[];     // absolute folders never walked (config.json `exclude`)
 }
+
+// A folder holding this file is skipped with everything under it. TwoToe's own
+// eval/fixtures carries one, so a real scan never "finds" the planted test data.
+export const IGNORE_MARKER = ".twotoe-ignore";
 
 export interface WalkStats {
   filesVisited: number;
   dirsVisited: number;
   symlinksSkipped: number;
   oneDriveSkipped: number;
+  excludedDirs: number;
+  ignoredDirs: number;
   truncated: boolean;
 }
 
@@ -95,10 +102,16 @@ export async function walkRoots(roots: string[], skips: SkipCounter, opts: WalkO
   const concurrency = opts.concurrency ?? 16;
   const files = emptyFiles();
   const sitePackages: string[] = [];
-  const stats: WalkStats = { filesVisited: 0, dirsVisited: 0, symlinksSkipped: 0, oneDriveSkipped: 0, truncated: false };
+  const stats: WalkStats = { filesVisited: 0, dirsVisited: 0, symlinksSkipped: 0, oneDriveSkipped: 0, excludedDirs: 0, ignoredDirs: 0, truncated: false };
+  const norm = (p: string) => (process.platform === "win32" ? path.resolve(p).toLowerCase() : path.resolve(p));
+  const excludes = (opts.exclude ?? []).map(norm);
+  const excluded = (dir: string) => {
+    const n = norm(dir);
+    return excludes.some((x) => n === x || n.startsWith(x + path.sep));
+  };
 
   type Job = { dir: string; rel: string[] };
-  let queue: Job[] = dedupeRoots(roots).map((dir) => ({ dir, rel: [] }));
+  let queue: Job[] = dedupeRoots(roots).filter((r) => !excluded(r)).map((dir) => ({ dir, rel: [] }));
 
   const visit = async (job: Job, next: Job[]) => {
     let entries: fs.Dirent[];
@@ -106,6 +119,11 @@ export async function walkRoots(roots: string[], skips: SkipCounter, opts: WalkO
       entries = await fs.promises.readdir(job.dir, { withFileTypes: true });
     } catch (err) {
       skips.note(classifyError(err));
+      return;
+    }
+    // Below a root, a folder that carries the marker is skipped whole.
+    if (job.rel.length > 0 && entries.some((e) => e.isFile() && e.name === IGNORE_MARKER)) {
+      stats.ignoredDirs++;
       return;
     }
     stats.dirsVisited++;
@@ -129,6 +147,10 @@ export async function walkRoots(roots: string[], skips: SkipCounter, opts: WalkO
         const skip = shouldSkipDir(rel);
         if (skip === "onedrive") stats.oneDriveSkipped++;
         if (skip) continue;
+        if (excluded(full)) {
+          stats.excludedDirs++;
+          continue;
+        }
         next.push({ dir: full, rel });
       } else if (e.isFile()) {
         stats.filesVisited++;

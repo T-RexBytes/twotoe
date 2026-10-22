@@ -185,6 +185,22 @@ Proposed v3 fix (not applied): send the model only a summary that already fits 1
 
 Lesson worth a paragraph: the first round of fixes was right about the cause and wrong about the cure. Measuring the drafts again showed it in minutes.
 
+## Gate 6c (Oct 22): eval v3 (eval/RESULTS-v3.md)
+
+Prompt 2026-10-22.3: the model sees only a summary that fits 140 chars and a `shortAction` that fits 60. The run was stopped by Claude Code for low system memory (2.3 GB free of 15.3 GB; Ollama's model server held about 6 GB) after 239 of 240 briefs, before its final save. The report was rebuilt from the per-brief artifacts; the missing brief is qwen3:4b run 5 on f22-kitchen-sink, and the report names it.
+
+| Model | Drafts rejected v1 / v2 / v3 | Briefs needing the template v1 / v2 / v3 | Median writer time v3 |
+|---|---|---|---|
+| gemma4:e4b | 43% / 48% / **26%** | 7 / 14 / **10** | 8.3 s |
+| gemma4:e2b | 96% / 63% / **37%** | 74 / 34 / **16** | 2.7 s |
+| qwen3:4b | 55% / 61% / 63% | 27 / 29 / 35 (of 79) | 17.1 s |
+
+Ungrounded tokens before the validator: 0 for every model in v2 and v3 (v1: 141 drafts). Matcher 20/20, canary 0.
+
+The surprise: in v3 the model never sees the full summary, yet 87 drafts still contained it word for word (13 e4b, 7 e2b, 67 qwen). The leak was in `allowedTokens`: the token builder added every input string whole, so each finding's allowed-token list carried the full 150 to 200 character summary sentence, and the models copied it from there. Fixed after v3 (only the summary's extracted tokens go in; a test checks no allowed token is longer than 40 chars). Validation is unchanged because the validator only ever matched extracted tokens. Measuring the fix needs another eval (v4).
+
+Three rounds, one lesson: each fix was right about the symptom; the drafts themselves pointed to the real source every time.
+
 ## Gate 7 (Oct 22): Sentry agent tracing
 
 - One trace per run: `twotoe.brief` -> scan -> match -> `invoke_agent TwoToe` -> `chat gemma4:e4b` (attempt 1) -> `execute_tool groundingValidator` (failed: rejected) -> `chat gemma4:e4b` (attempt 2) -> validator (ok) -> assemble and persist. Ops and `gen_ai.*` attributes per Sentry's current manual-instrumentation docs, including token counts and tokens/s.

@@ -30,11 +30,15 @@ function arg(name: string): string | undefined {
   return i >= 0 ? process.argv[i + 1] : undefined;
 }
 // --no-llm and --from-results never call a model.
-const MODELS = process.argv.includes("--no-llm") || process.argv.includes("--from-results")
+const MODELS = process.argv.includes("--no-llm") || process.argv.includes("--from-results") || process.argv.includes("--from-out")
   ? [] : (arg("models") ?? "gemma4:e4b").split(",").map((m) => m.trim()).filter(Boolean);
 const RUNS = Number(arg("runs") ?? 5);
 const ONLY = arg("only")?.split(",").map((s) => s.trim());
 const FROM_RESULTS = process.argv.includes("--from-results");
+// --from-out: rebuild from the per-brief artifacts in eval/out (written after
+// every brief), e.g. when the host stopped the run before the final save.
+const FROM_OUT = process.argv.includes("--from-out");
+const MODEL_ORDER = (arg("models") ?? "gemma4:e4b,gemma4:e2b,qwen3:4b").split(",").map((m) => m.trim());
 
 // ---------- types ----------
 interface Expected {
@@ -337,6 +341,7 @@ async function main() {
     // --from-results: re-render the report from eval/results.json (no model calls,
     // same measurements). Used when only the report code changed.
     const writerRuns: WriterRun[] = [];
+    const missingBriefs: string[] = [];
     let wallMs: number | null = null;
     let savedCommit: string | null = null;
     if (FROM_RESULTS) {
@@ -359,6 +364,29 @@ async function main() {
         else if (row) f.scanMatchMs = Number(row[1]) * 1000;
       }
       log(`re-rendering from results.json: ${writerRuns.length} writer runs, commit ${savedCommit ?? "unknown"}`);
+    } else if (FROM_OUT) {
+      const order = (m: string) => { const i = MODEL_ORDER.indexOf(m); return i < 0 ? 99 : i; };
+      for (const modelDir of fs.readdirSync(OUT)) {
+        for (const fx of fs.readdirSync(path.join(OUT, modelDir))) {
+          for (const file of fs.readdirSync(path.join(OUT, modelDir, fx)).filter((f) => /^run\d+\.json$/.test(f))) {
+            const { brief: _brief, ...run } = JSON.parse(fs.readFileSync(path.join(OUT, modelDir, fx, file), "utf8")) as WriterRun & { brief: unknown };
+            writerRuns.push(run);
+          }
+        }
+      }
+      writerRuns.sort((a, b) => order(a.model) - order(b.model) || a.run - b.run || a.fixture.localeCompare(b.fixture));
+      const have = new Set(writerRuns.map((r) => `${r.model}|${r.run}|${r.fixture}`));
+      for (const m of [...new Set(writerRuns.map((r) => r.model))]) {
+        for (let run = 1; run <= RUNS; run++) {
+          for (const f of fixtures.filter((x) => x.findings.length > 0)) {
+            if (!have.has(`${m}|${run}|${f.name}`)) missingBriefs.push(`${m} run ${run} ${f.name}`);
+          }
+        }
+      }
+      try {
+        savedCommit = (JSON.parse(fs.readFileSync(path.join(EVAL, "results.json"), "utf8")) as { meta?: { commit?: string } }).meta?.commit ?? null;
+      } catch { /* no results.json */ }
+      log(`rebuilt from eval/out: ${writerRuns.length} writer runs, ${missingBriefs.length} missing`);
     } else {
       fs.rmSync(OUT, { recursive: true, force: true });
     }
@@ -383,7 +411,9 @@ async function main() {
         `- Models: ${models.join(", ") || "none"}; ${RUNS} runs each; run *r* uses seed 41 + *r* (run 1 is the production seed 42), temperature 0.2, thinking off.`,
         `- Prompt version ${PROMPT_VERSION}; advisory pack ${pack.packVersion}; Ollama ${meta.ollama}.`,
         `- Hardware: ${meta.hardware}.`,
-        `- Wall time for this eval: ${sec(wallMs ?? Date.now() - started)}.${FROM_RESULTS ? " (Report re-rendered from eval/results.json; measurements unchanged.)" : ""}`,
+        FROM_OUT
+          ? `- Wall time for this eval: not recorded. The run was stopped by the host for low memory before its final save; this report was rebuilt from the per-brief artifacts in \`eval/out\` (${writerRuns.length} briefs, ${missingBriefs.length} missing). The scan + match column was re-measured at rebuild time.`
+          : `- Wall time for this eval: ${sec(wallMs ?? Date.now() - started)}.${FROM_RESULTS ? " (Report re-rendered from eval/results.json; measurements unchanged.)" : ""}`,
         "",
         "## 1. Matcher",
         "",
@@ -405,6 +435,7 @@ async function main() {
         `Template baseline (no model): ${fixtures.length} briefs, ${templateRejections} validator rejections, about 0 s of writer time.`,
         "",
         models.length ? writerTable(models, writerRuns) : "No model runs.",
+        ...(missingBriefs.length ? ["", `Missing briefs (not run before the stop): ${missingBriefs.join("; ")}.`] : []),
         "",
         "A *draft* is one model response; a brief takes one draft, or two when the validator rejects the first. \"Ungrounded tokens after validator\" counts tokens in the final brief that code did not establish; it must be 0.",
         "",
@@ -440,6 +471,11 @@ async function main() {
     for (const model of MODELS) {
       log(`writer: ${model}`);
       writerRuns.push(...await runWriter(model, fixtures, pack, log));
+      // Unload before the next model: Ollama otherwise keeps both in RAM, and the
+      // Oct 22 v3 run was stopped by the host for low memory on a 15 GB laptop.
+      try {
+        await fetch("http://127.0.0.1:11434/api/generate", { method: "POST", body: JSON.stringify({ model, keep_alive: 0 }) });
+      } catch { /* Ollama gone: nothing to unload */ }
       const hits = report();   // keep partial results if a later model fails
       log(`  saved RESULTS.md after ${model} (canary hits ${hits})`);
     }

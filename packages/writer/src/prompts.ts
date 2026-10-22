@@ -1,7 +1,7 @@
 import type { Advisory, AdvisoryPack, Finding } from "@twotoe/core";
 import { MAX_CHECKLIST, MAX_WHY, templateActions, truncateWords } from "./template";
 
-export const PROMPT_VERSION = "2026-10-22.2";
+export const PROMPT_VERSION = "2026-10-22.3";
 
 // SPEC 10.2, verbatim.
 const RULES = `You are TwoToe, a calm morning security assistant. You write for a tired developer
@@ -64,7 +64,19 @@ export function relativeLocation(location: string, roots: string[]): string {
 // SPEC 6 rule: the model sees only these fields. No raw file contents, no
 // home paths, no env key lists beyond the matched ones (which are in
 // allowedTokens). `kev` is added because rule 4 refers to it.
+// Shortens a summary to fit `max`: at the last clause break ("; " or ", ") when
+// that keeps most of it, else at a word boundary with "...".
+export function fitSummary(text: string, max: number): string {
+  const t = text.trim();
+  if (t.length <= max) return t;
+  const head = t.slice(0, max - 1);
+  const cut = Math.max(head.lastIndexOf("; "), head.lastIndexOf(", "));
+  if (cut >= max * 0.6) return `${head.slice(0, cut).replace(/[\s,;:]+$/, "")}.`;
+  return truncateWords(t, max);
+}
+
 export function modelFinding(f: Finding, a: Advisory, roots: string[]) {
+  const actions = templateActions(f, a);
   return {
     id: f.id,
     advisoryId: f.advisoryId,
@@ -73,11 +85,13 @@ export function modelFinding(f: Finding, a: Advisory, roots: string[]) {
     kev: a.kev,
     title: a.title,
     vendor: a.vendor,
-    action: templateActions(f, a).action,
-    summary: a.summary,
-    // Most pack summaries run past the 140-char "why" cap and models copy them
-    // (eval, Oct 22: 118 rejections). This is the template's word-boundary cut.
-    suggestedWhy: truncateWords(a.summary, MAX_WHY),
+    action: actions.action,
+    // Models copy `summary` word for word, and 9 of 11 pack summaries run past
+    // the 140-char "why" cap (eval v1/v2, Oct 22). Send only a version that fits.
+    // Every fact token is still listed in allowedTokens.
+    summary: fitSummary(a.summary, MAX_WHY),
+    // Same idea for line 1 (60-char cap): the template's short form.
+    shortAction: actions.shortAction,
     evidence: f.evidence.map((e) => ({ location: relativeLocation(e.location, roots) })),
     allowedTokens: f.allowedTokens,
   };
@@ -108,9 +122,9 @@ ${json(fyi)}
 
 WRITE:
 - checklist: exactly ${items.length} item(s), one per finding id above, in the same order.
-- line1Actions: exactly ${counts.line1} item(s), for the highest-priority definite/likely findings.
+- line1Actions: exactly ${counts.line1} item(s), for the highest-priority definite/likely findings; each at most 60 characters (each finding's shortAction already fits).
 - fyi: exactly ${counts.fyi} item(s).
-- why: at most ${MAX_WHY} characters; each finding's suggestedWhy already fits.`;
+- why: at most ${MAX_WHY} characters (each finding's summary already fits).`;
   if (rejected.length) {
     prompt += `\n\nYour previous draft was rejected for:\n${rejected.map((r) => `- ${r}`).join("\n")}\nFix every item and output the full JSON again.`;
   }

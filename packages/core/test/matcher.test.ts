@@ -188,6 +188,15 @@ describe("matchAll", () => {
     }
     expect(t.has("24.22.1")).toBe(false);
   });
+
+  it("allowedTokens are tokens, never whole sentences the model could copy", async () => {
+    const findings = await findingsFor({ "a/railway.toml": "", "a/.env": "RAILWAY_TOKEN=x\n" }, { nodeVersion: "24.22.0", plexVersion: "1.43.3.10860" });
+    for (const f of findings) {
+      const summary = pack.advisories.find((a) => a.id === f.advisoryId)!.summary;
+      expect(f.allowedTokens).not.toContain(summary);
+      for (const tok of f.allowedTokens) expect(tok.length).toBeLessThanOrEqual(40);
+    }
+  });
 });
 
 describe("kev-recent", () => {

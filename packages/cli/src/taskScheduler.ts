@@ -13,6 +13,7 @@ export interface LaunchSpec {
   exe: string;
   args: string[];
   cwd: string;
+  log?: string;   // hidden tasks have no console; stdout goes here, stderr to .err.log (rewritten each start)
 }
 
 export interface TaskPlan {
@@ -27,7 +28,16 @@ const LAUNCHER = [
   "$ErrorActionPreference = 'Stop'",
   "$c = Get-Content -LiteralPath (Join-Path $PSScriptRoot ($MyInvocation.MyCommand.Name -replace '\\.ps1$', '.json')) -Raw | ConvertFrom-Json",
   "Set-Location -LiteralPath $c.cwd",
-  "& $c.exe @($c.args)",
+  // Windows PowerShell 5.1 turns a native program's stderr into errors when it is
+  // redirected, and with ErrorActionPreference Stop the first stderr line ends the
+  // script (the Temporal SDK logs INFO to stderr). Start-Process redirects at the
+  // OS level instead: stdout to <task>.log, stderr to <task>.err.log.
+  "if ($c.log) {",
+  "  New-Item -ItemType Directory -Force -Path (Split-Path -Parent $c.log) | Out-Null",
+  "  $argLine = ($c.args | ForEach-Object { '\"' + ($_ -replace '\"', '\\\"') + '\"' }) -join ' '",
+  "  $p = Start-Process -FilePath $c.exe -ArgumentList $argLine -WorkingDirectory $c.cwd -RedirectStandardOutput $c.log -RedirectStandardError ($c.log -replace '\\.log$', '.err.log') -WindowStyle Hidden -PassThru -Wait",
+  "  exit $p.ExitCode",
+  "} else { & $c.exe @($c.args) }",
 ].join("\r\n");
 
 export function launcherScript(): string {
@@ -84,14 +94,15 @@ export interface PlanContext {
 
 // --taskscheduler: dev server + worker at logon. --no-temporal: one daily brief.
 export function plans(kind: "temporal" | "no-temporal", ctx: PlanContext): TaskPlan[] {
-  const node = (args: string[]): LaunchSpec => ({ exe: ctx.node, args: ["--import", "tsx", ctx.cliEntry, ...args], cwd: ctx.repo });
+  const logOf = (name: string) => path.join(ctx.stateDir, "logs", `${name}.log`);
+  const node = (name: string, args: string[]): LaunchSpec => ({ exe: ctx.node, args: ["--import", "tsx", ctx.cliEntry, ...args], cwd: ctx.repo, log: logOf(name) });
   if (kind === "no-temporal") {
     return [{
       name: `${TASK_PREFIX}Nightly`,
       description: "TwoToe nightly brief (no Temporal). StartWhenAvailable catches up a missed run; WakeToRun wakes the laptop if wake timers are allowed.",
       trigger: { type: "daily", at: ctx.at },
       wakeToRun: true,
-      launch: node(["brief", "--save"]),
+      launch: node(`${TASK_PREFIX}Nightly`, ["brief", "--save"]),
     }];
   }
   if (!ctx.temporalExe) throw new Error("temporal.exe not found: install it with `winget install Temporal.TemporalCLI`");
@@ -105,6 +116,7 @@ export function plans(kind: "temporal" | "no-temporal", ctx: PlanContext): TaskP
         exe: ctx.temporalExe,
         args: ["server", "start-dev", "--ip", "127.0.0.1", "--port", "7233", "--ui-port", "8233", "--db-filename", path.join(ctx.stateDir, "temporal.db")],
         cwd: ctx.stateDir,
+        log: logOf(`${TASK_PREFIX}TemporalServer`),
       },
     },
     {
@@ -112,7 +124,7 @@ export function plans(kind: "temporal" | "no-temporal", ctx: PlanContext): TaskP
       description: "TwoToe Temporal worker. Creates or updates the nightly schedule on start.",
       trigger: { type: "logon" },
       wakeToRun: false,
-      launch: node(["worker", "--ensure-schedule", "--at", ctx.at]),
+      launch: node(`${TASK_PREFIX}Worker`, ["worker", "--ensure-schedule", "--at", ctx.at]),
     },
   ];
 }

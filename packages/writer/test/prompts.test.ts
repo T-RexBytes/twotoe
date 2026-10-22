@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildUserPrompt, expectedCounts, modelFinding, relativeLocation, SYSTEM } from "../src/prompts";
+import { buildUserPrompt, expectedCounts, fitSummary, modelFinding, relativeLocation, SYSTEM } from "../src/prompts";
 import { kitchenFindings, pack, ROOTS } from "./fixtures";
 
 describe("prompts", () => {
@@ -28,10 +28,22 @@ describe("prompts", () => {
     const findings = kitchenFindings();
     const railway = findings.find((f) => f.advisoryId === "railway-2026-10-21")!;
     const mf = modelFinding(railway, pack.advisories.find((a) => a.id === railway.advisoryId)!, ROOTS);
-    expect(Object.keys(mf).sort()).toEqual(["action", "advisoryId", "allowedTokens", "confidence", "evidence", "id", "kev", "severity", "suggestedWhy", "summary", "title", "vendor"]);
+    expect(Object.keys(mf).sort()).toEqual(["action", "advisoryId", "allowedTokens", "confidence", "evidence", "id", "kev", "severity", "shortAction", "summary", "title", "vendor"]);
     expect(mf.evidence).toEqual([{ location: "rail\\railway.toml" }, { location: "rail\\.env" }]);
-    expect(mf.summary.length).toBeGreaterThan(140);
-    expect(mf.suggestedWhy.length).toBeLessThanOrEqual(140);
+    // The pack summary is 170 chars; the model only ever sees a version that fits.
+    expect(mf.summary.length).toBeLessThanOrEqual(140);
+    expect(mf.shortAction.length).toBeLessThanOrEqual(60);
+    for (const f of findings.filter((x) => x.confidence !== "fyi")) {
+      const m = modelFinding(f, pack.advisories.find((a) => a.id === f.advisoryId)!, ROOTS);
+      expect(m.summary.length).toBeLessThanOrEqual(140);
+    }
+  });
+
+  it("fitSummary cuts at a clause break when it can", () => {
+    expect(fitSummary("short one", 140)).toBe("short one");
+    const s = "Railway said an unauthorized party may have accessed encrypted environment variables and obtained decrypted contents for some; impact may be limited to a subset of users.";
+    expect(fitSummary(s, 140)).toBe("Railway said an unauthorized party may have accessed encrypted environment variables and obtained decrypted contents for some.");
+    expect(fitSummary("x".repeat(200), 140).length).toBeLessThanOrEqual(140);
   });
 
   it("states the exact counts the validator expects", () => {

@@ -1,6 +1,7 @@
+import path from "node:path";
 import pc from "picocolors";
 import {
-  installEgressGuard, Ledger, loadConfig, loadKevSnapshot, loadPack, matchAll, redactText, twotoeHome,
+  installEgressGuard, Ledger, loadConfig, loadKevSnapshot, loadPack, matchAll, redactText, refreshKev, twotoeHome,
   type Brief, type Finding, type TwotoeConfig,
 } from "@twotoe/core";
 import {
@@ -79,8 +80,18 @@ export async function makeBrief(rootsArg: string[], opts: BriefCommandOptions): 
         return r;
       });
       const pack = loadPack();
+      // SPEC 7.5 / 12: refresh the CISA KEV feed unless --offline. Fixture runs use
+      // the bundled snapshot so demos, tests and the eval stay reproducible.
+      const kev = await telemetry.step("twotoe.kev", "refresh CISA KEV", async (s) => {
+        const r = opts.fixture
+          ? { entries: loadKevSnapshot(), source: "bundled" as const }
+          : await refreshKev({ now, snapshotPath: path.join(twotoeHome(), "kev-snapshot.json"), offline: opts.offline === true });
+        s.set("twotoe.kev.source", r.source);
+        s.set("twotoe.kev.entries", r.entries.length);
+        return r;
+      });
       const findings = await telemetry.step("twotoe.match", "match", async (s) => {
-        const f = matchAll(result.inventory, pack, { region: opts.region ?? config.region ?? null, now, kev: loadKevSnapshot() });
+        const f = matchAll(result.inventory, pack, { region: opts.region ?? config.region ?? null, now, kev: kev.entries });
         s.set("twotoe.findings", f.length);
         return f;
       });
@@ -186,7 +197,7 @@ export function renderBrief({ brief, findings, run }: Omit<BriefResult, "exitCod
   if (brief.fyi.length) out.push("");
   const m = brief.meta;
   const model = m.model ? `model: ${m.model} (${m.mode})` : "model: none (template)";
-  out.push(c.dim(`  card: twotoe card (not built yet)   ${model}   ${validatorSummary(brief, run)}`));
+  out.push(c.dim(`  card: twotoe card   ${model}   ${validatorSummary(brief, run)}`));
   return out.join("\n");
 }
 

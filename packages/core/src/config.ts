@@ -9,6 +9,8 @@ import { collectInventory, type ScanResult } from "./scan";
 // ~/.twotoe/config.json (SPEC 12). Unknown keys pass through.
 export const TwotoeConfig = z.object({
   roots: z.array(z.string()).optional(),
+  // Folders never walked (e.g. a repo with synthetic test data); "~" allowed.
+  exclude: z.array(z.string()).optional(),
   region: z.string().nullable().optional(),
   model: z.string().optional(),
   // Eval/demo/crash-test only: scan <fixture>/project with <fixture>/probe.json.
@@ -74,5 +76,8 @@ export async function collectForConfig(config: TwotoeConfig, opts: CollectForCon
     });
   }
   const roots = opts.roots?.length ? opts.roots : config.roots?.length ? config.roots.map((r) => expandHome(r)) : defaultRoots();
-  return collectInventory({ roots, probe: new RealProbe(), machinePython: opts.machine !== false });
+  return collectInventory({
+    roots, probe: new RealProbe(), machinePython: opts.machine !== false,
+    walk: { exclude: (config.exclude ?? []).map((p) => expandHome(p)) },
+  });
 }

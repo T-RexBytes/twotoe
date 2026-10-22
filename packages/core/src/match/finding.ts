@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import type { Advisory, Confidence, Finding, Inventory, InventoryItem, Severity } from "../schemas";
 import { priority } from "./priority";
-import { tokenUnion } from "./tokens";
+import { extractRiskyTokens, tokenUnion } from "./tokens";
 
 export type Evidence = Finding["evidence"][number];
 
@@ -107,7 +107,9 @@ export function buildFinding(advisory: Advisory, hit: Hit, config: MatchConfig):
     ...fixedVersions,
     ...(hit.found ? hit.found.split(", ") : []),
     hit.fixed,
-    advisory.summary,
+    // Only the summary's tokens, never the sentence itself: models copied the
+    // whole 150-200 char summary out of allowedTokens (eval v3, Oct 22).
+    ...extractRiskyTokens(advisory.summary),
     kevDueDate,
     // Not in the SPEC 9.1 list, but the 10.4 few-shot says "The Oct 21 Node release".
     advisory.disclosedAt,

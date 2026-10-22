@@ -154,6 +154,8 @@ function writeFile(full: string, content: string): void {
 
 export function generate(root: string = ROOT): string[] {
   const done: string[] = [];
+  // Real scans skip folders holding this marker, so the planted data never counts.
+  writeFile(path.join(root, ".twotoe-ignore"), "TwoToe skips any folder that contains this file during a real scan.\nThese fixtures plant synthetic findings (litellm 1.107.0, cook.pth, RAILWAY_TOKEN)\non purpose; they must never be counted as findings on a real machine.\nFixture runs (--fixture <dir>) start below this folder and are not affected.\n");
   for (const f of FIXTURES) {
     const dir = path.join(root, f.name);
     const expected: Expected = {

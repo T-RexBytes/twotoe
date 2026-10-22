@@ -23,7 +23,7 @@ describe("Task Scheduler plans (SPEC 11.3)", () => {
     const [p, ...rest] = plans("no-temporal", ctx);
     expect(rest).toEqual([]);
     expect(p).toMatchObject({ name: "TwoToe-Nightly", trigger: { type: "daily", at: "03:00" }, wakeToRun: true });
-    expect(p!.launch).toEqual({ exe: ctx.node, args: ["--import", "tsx", ctx.cliEntry, "brief", "--save"], cwd: ctx.repo });
+    expect(p!.launch).toEqual({ exe: ctx.node, args: ["--import", "tsx", ctx.cliEntry, "brief", "--save"], cwd: ctx.repo, log: path.join(ctx.stateDir, "logs", "TwoToe-Nightly.log") });
     expect(p!.description).toContain("StartWhenAvailable");
   });
 
@@ -51,6 +51,16 @@ describe("Task Scheduler plans (SPEC 11.3)", () => {
     expect(reg).toContain("-WindowStyle Hidden");
     expect(reg).toContain("-StartWhenAvailable");
     expect(launcherScript()).not.toMatch(/node\.exe|temporal\.exe|\\Users\\/);
+  });
+
+  it("launcher redirects at the OS level, so stderr logging cannot end the task", () => {
+    // PowerShell 5.1 + ErrorActionPreference Stop + `*>>` killed the worker on its
+    // first stderr line (Temporal SDK INFO logs). Start-Process redirection avoids that.
+    const s = launcherScript();
+    expect(s).not.toContain("*>>");
+    expect(s).toContain("-RedirectStandardOutput $c.log");
+    expect(s).toContain("-RedirectStandardError");
+    expect(s).toContain("exit $p.ExitCode");
   });
 
   it("writes a static launcher plus a JSON spec per task", () => {

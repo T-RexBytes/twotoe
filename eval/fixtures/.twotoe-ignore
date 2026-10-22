@@ -1,0 +1,4 @@
+TwoToe skips any folder that contains this file during a real scan.
+These fixtures plant synthetic findings (litellm 1.107.0, cook.pth, RAILWAY_TOKEN)
+on purpose; they must never be counted as findings on a real machine.
+Fixture runs (--fixture <dir>) start below this folder and are not affected.

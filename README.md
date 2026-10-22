@@ -8,7 +8,53 @@ Code owns the facts. A local open-weight model (Gemma via Ollama) only phrases t
 
 ## Status
 
-Phases 0 to 5 of the build plan in [docs/SPEC.md](docs/SPEC.md): scanners, matcher, local-model writer with a grounding validator, egress guard, Temporal nightly workflow, and the morning card. Eval and the write-up come next.
+Phases 0 to 7 of the build plan in [docs/SPEC.md](docs/SPEC.md) are built: scanners, matcher, local-model writer with a grounding validator, egress guard, Temporal nightly workflow, morning card, eval harness ([eval/RESULTS.md](eval/RESULTS.md)) and opt-in Sentry tracing. The write-up is next.
+
+## Running TwoToe
+
+No `.env` and no API keys are needed. Everything TwoToe talks to runs on your machine:
+
+| Part | How it is reached | Configuration |
+|---|---|---|
+| Local model | Ollama on `127.0.0.1:11434` | none; optional `TWOTOE_MODEL` (default `gemma4:e4b`), the only env var TwoToe reads |
+| Temporal (nightly workflow only) | dev server on `127.0.0.1:7233` | none; no account, no key |
+| Sentry (optional) | your project's ingest host | `telemetry` in `~/.twotoe/config.json`, off by default |
+
+Install once:
+
+1. Node 24.22.1 or newer (or 22.23.4 / 26.12.1), then `corepack enable --install-directory (npm config get prefix) pnpm`
+2. [Ollama](https://ollama.com), then `ollama pull gemma4:e4b`
+3. Only for the nightly run and the crash test: `winget install Temporal.TemporalCLI`
+
+Then in the repo:
+
+```powershell
+pnpm install
+pnpm tsx packages/cli/src/index.ts brief --no-llm --fixture eval/fixtures/f22-kitchen-sink   # no model needed
+pnpm tsx packages/cli/src/index.ts brief --fixture eval/fixtures/f22-kitchen-sink            # with the local model
+pnpm tsx packages/cli/src/index.ts brief --save                                              # your machine, saved for the card
+```
+
+Optional `~/.twotoe/config.json`:
+
+```json
+{
+  "roots": ["~/code", "D:/work"],
+  "exclude": ["D:/work/some-repo-with-test-data"],
+  "region": "IN"
+}
+```
+
+`roots` are the folders to scan (default: `~\code`, `~\projects`, `~\dev`, `~\Documents\GitHub`, `~\source\repos`, `~\Desktop`, whichever exist). Any folder holding a `.twotoe-ignore` file is skipped; TwoToe's own `eval/fixtures` has one, so its planted test findings never count on a real scan.
+
+## The nightly run, honestly
+
+TwoToe cannot wake a computer that is off, and neither can Temporal.
+
+- **PC asleep or off at 3 a.m. (Temporal):** the schedule's 18-hour catch-up window runs the missed brief as soon as the Temporal dev server is back, which `twotoe sleep --taskscheduler` arranges at your next log on. You get the brief a minute after you log in, not at 7 a.m.
+- **PC asleep at 3 a.m. (Task Scheduler, `twotoe sleep --no-temporal`):** the task has `WakeToRun`, so Windows wakes the laptop from sleep if wake timers are allowed in your power plan, and `StartWhenAvailable`, so a missed run starts at your next log on (the task runs as you, interactively).
+- **PC shut down:** nothing runs until you turn it on and log on; then either option runs the missed brief.
+- **Simplest:** run `twotoe brief --save` when you sit down, then `twotoe card`.
 
 ## Commands
 

@@ -44,6 +44,24 @@ describe("walkRoots", () => {
     expect(res.stats.oneDriveSkipped).toBe(1);
   });
 
+  it("skips folders holding .twotoe-ignore and folders in the exclude list", async () => {
+    const root = makeTree(tempDir(), {
+      "real/.env": "A=1",
+      "repo/eval/fixtures/.twotoe-ignore": "skip me",
+      "repo/eval/fixtures/f06/project/app/.env": "RAILWAY_TOKEN=x",
+      "private/.env": "B=1",
+      "marker-at-root/.env": "C=1",
+    });
+    fs.writeFileSync(path.join(root, "marker-at-root", ".twotoe-ignore"), "");
+    const res = await walkRoots([root], new SkipCounter(), { exclude: [path.join(root, "private")] });
+    expect(res.files.env.map((f) => path.relative(root, f).split(path.sep).join("/")).sort()).toEqual(["real/.env"]);
+    expect(res.stats.ignoredDirs).toBe(2);
+    expect(res.stats.excludedDirs).toBe(1);
+    // A fixture run starts below the marker, so it still scans.
+    const fx = await walkRoots([path.join(root, "repo", "eval", "fixtures", "f06", "project")], new SkipCounter());
+    expect(fx.files.env).toHaveLength(1);
+  });
+
   it("stops at maxFiles and says so", async () => {
     const files: Record<string, string> = {};
     for (let i = 0; i < 30; i++) files[`f${i}.txt`] = "";
