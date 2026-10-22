@@ -1,0 +1,64 @@
+# VERIFY log
+
+Every VERIFY item from SPEC sections 0 to 7 (plus later-phase items seen while reading), what was checked, and against which URL. Checked on 2026-10-22 unless noted. Re-check everything before tagging `v1.0-submission` and again on publish day.
+
+Status key: **confirmed** (value fetched and matches), **corrected** (fetched, the spec was wrong, the pack uses the source value), **open** (could not confirm; placeholder or caveat in the pack), **deferred** (belongs to a later phase; checked then).
+
+## Open placeholders in advisories.json
+
+These are the literal `"VERIFY"` values in the pack. A test fails if one is missing from this list.
+
+| Pack path | Why open | Plan |
+|---|---|---|
+| `opencode-console-2026-10-17.check.params.configDirCandidates` | Windows OpenCode config dir not confirmed (SPEC 8.2.7 candidates: `~\.config\opencode`, `%APPDATA%\opencode`, `~\.local\share\opencode`) | Phase 1: check opencode docs and your machine, existence only |
+| `emudhra-weak-ca-keys.check.params.windowsStoreBehavior` | How Microsoft's block shows up (root removed vs moved to `Disallowed`) and whether it happened on Oct 20 as SPEC 8.2.9 says. No fetched source mentions a Microsoft action. | Phase 1: find a Microsoft source; until then Windows store presence stays `possible` |
+
+## Advisory facts (SPEC 7.2, 7.3)
+
+| Item | Status | Result | Source fetched |
+|---|---|---|---|
+| Node fixed versions 22.23.4 / 24.22.1 / 26.12.1 | confirmed | No other lines released | https://nodejs.org/en/blog/vulnerability/october-2026-security-releases |
+| Node CVE count and Brotli / TLS CVEs | confirmed | 10 CVEs (4 High, 3 Medium, 3 Low). Brotli OOB write is CVE-2026-111497 (High). TLS hostname issues are CVE-2026-105483, -106069 (High) and -106072 (Medium). Release also updates the CA store for the eMudhra compromise. | same |
+| Node 20 EOL wording (SPEC 9.2) | deferred | The release page only says EOL lines are always affected; it does not name Node 20. | Phase 2: check the Node release schedule before shipping the "out of support" string |
+| PHP fixed versions 8.5.12 / 8.4.27 / 8.3.36 / 8.2.35 | confirmed | | https://www.php.net/ |
+| PHP CVEs and CVSS v4 9.2 | confirmed | CVE-2026-109618, CVE-2026-109619, both CVSS v4.0 9.2 (php.net Oct 20 notice). CISA alert gives no score. RESEARCH.md mentions NVD CVSS 3.1 9.8; not fetched, not in pack. | https://www.php.net/ |
+| PHP 8.1 and older: take offline | confirmed | CISA: orgs still on 8.1 or earlier unsupported versions should take PHP systems offline | https://www.cisa.gov/news-events/alerts/2026/10/21/critical-vulnerabilities-php-require-immediate-patching |
+| PHP in KEV | corrected to `kev: false` | Not in KEV catalog 2026.10.21 (newest entries dated 2026-10-20) | https://www.cisa.gov/known-exploited-vulnerabilities-catalog and the JSON feed |
+| GitLab CVE-2026-110264 fixed versions | corrected | Fixed in 19.5.1, 19.4.3, 19.3.6, 19.2.9, 19.1.9, 19.0.10, 18.11.13 (released Oct 21). CVSS 3.1 10.0, unauthenticated, affects all versions from 7.0. Versions below 18.11 have no fix line: treat as "upgrade". | https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-5-1-released/ |
+| GitLab CVE-2026-110264 in KEV | confirmed `kev: false` | Not in catalog 2026.10.21 | KEV catalog |
+| GitLab CVE-2026-97229 | corrected | Released Oct 12. Fixed in 19.4.2, 19.3.5, 19.2.8. Affects only 19.2 to 19.4. CVSS 3.1 10.0. | https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-4-2-released/ |
+| GitLab CVE-2026-97229 precondition "needs ability to commit CI config to a public project" | open (dropped from pack) | GitLab's post only says "under certain conditions" via a crafted regex in CI/CD config. The precondition comes from the Rapid7 analysis, which I did not fetch. | Rapid7 analysis (not fetched) |
+| GitLab CVE-2026-97229 in KEV | confirmed `kev: false` | | KEV catalog |
+| Plex fixed version 1.43.3.10861 | confirmed | | https://forums.plex.tv/t/important-security-update-for-plex-media-server-v1-43-2-and-earlier/942319 |
+| Plex KEV and due dates | confirmed | Added 2026-10-20. Due 2026-10-23: CVE-2026-96654, -96656. Due 2026-11-03: CVE-2026-96652, -96655. Pack `kevDueDate` uses the earliest (2026-10-23); per-CVE dates are in `check.params.kevDueDates`. | https://www.cisa.gov/known-exploited-vulnerabilities-catalog |
+| LiteLLM bad version, last safe, window | confirmed | 1.107.0 bad, 1.106.2 last safe, PyPI 11:39:51 to about 13:23 UTC Oct 21 | https://docs.litellm.ai/blog/security-incident-oct-21-2026 |
+| LiteLLM Docker exposure | confirmed, added | Docker Hub and GHCR tags `v1.107.0`, `latest`, `main-latest`, `main-stable` (Docker Hub until 14:20 UTC, GHCR until about 13:51 UTC) | same |
+| LiteLLM IOC filenames | confirmed, extended | `cook.pth`, `cook.py`, `sitecustomize.py`, matching `__pycache__` files, `litellm-1.107.0.dist-info` | same |
+| LiteLLM IOC hashes (SPEC 8.2.4) | confirmed, added | Wiz publishes Windows and Linux/macOS SHA-256 for `cook.pth`, `cook.py`, `sitecustomize.py`; stored in `check.params.iocSha256` | https://www.wiz.io/blog/litellm-compromised-steals-credentials |
+| LiteLLM "hourly backdoor" wording (SPEC 7.2) | open (dropped from pack) | Wiz lists Windows variants of `sitecustomize.py` but its text says that script "will only run on Linux & MacOS". Not resolved, so the pack summary says "remote code loader" and makes no hourly or per-OS claim. | Wiz (same) |
+| LiteLLM CVE / OSV `MAL-` id | open | No CVE in any fetched source; pack `cves` is empty | not checked |
+| Railway facts | confirmed | Encrypted env vars may have been accessed, some decrypted; roll env vars, API keys, private registry credentials; possibly a subset of users | https://blog.railway.com/p/security-disclosure-wednesday-october-21st |
+| OpenCode facts | confirmed from secondary sources | Legacy system accessed, disclosed Oct 17, 1.4% of Console users, provider keys saved in Console may be exposed; CLI and desktop keys are local and not affected. OpenCode's own X post was not fetched. | https://thehackernews.com/2026/10/opencode-console-breach-may-have.html, https://www.infosecurity-magazine.com/news/opencode-breach-openai-anthropic/ |
+| eMudhra root name | open, partly resolved | Mozilla's emergency distrust targets **emSign ECC Root CA - G3**; the pack matches that subject. Bugzilla comment 0 files the compromised intermediates under "emSign Root TLS CA - G3" (TLS) and "emSign Root CS CA - G3" (code signing). Should the matcher also look for those two subjects? Your call. | https://bugzilla.mozilla.org/show_bug.cgi?id=2083449 |
+| eMudhra cert counts | confirmed | About 30,000 certs to migrate (eMudhra estimate, Bugzilla comment 19). The "60M" figure appears in no fetched source. No forged certs reported. | same |
+| eMudhra "root distrusted by browsers" | corrected | Firefox: distrusted Oct 20. Chrome: CRLSet blocks the intermediates (Oct 17); root removal is due in Chrome Root Store v43 (expected Oct 27). Pack summary only claims the Mozilla distrust. | Bugzilla, https://scotthelme.co.uk/eight-bits-of-trust-emudhras-ca-keys-cracked-in-milliseconds/ |
+| Non-browser clients still trust it | confirmed | curl, Python and Node accepted the chain by default in Scott Helme's tests | Scott Helme (same) |
+| certifi fixed version | corrected | 2026.10.18 removes the emSign roots (RESEARCH.md guessed 2026.10.19) | https://github.com/certifi/python-certifi/security/advisories/GHSA-6q48-6c7w-9gw2 |
+| SBI facts | confirmed from a secondary source | Regulation 30 filing on Oct 21, 3,897 customers, contact details plus loan and lead metadata; SBI never asks for OTP, user ID, password or PIN. The BSE PDF returned HTTP 403, so the primary filing was not read. | https://internetfreedom.in/sbi-told-investors-its-data-breach-doesnt-matter-what-about-the-3-897-customers-it-affected/ |
+| CISA KEV feed URL and field names (SPEC 7.5) | confirmed | URL works. Top level: `title`, `catalogVersion`, `dateReleased`, `count`, `vulnerabilities`. Entry fields: `cveID`, `vendorProject`, `product`, `vulnerabilityName`, `dateAdded`, `shortDescription`, `requiredAction`, `dueDate`, `knownRansomwareCampaignUse`, `forensicTriage`, `notes`, `cwes` | https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json |
+
+## Tooling and environment (SPEC 5.3, 5.4, 8)
+
+| Item | Status | Result | Source |
+|---|---|---|---|
+| Node pin `>= 24.22.1` | confirmed | `.nvmrc` = 24.22.1. **This machine runs v24.11.0, which is below the fix.** | nodejs.org (above) |
+| Gemma 4 E4B Ollama tag | confirmed | `gemma4:e4b` (also `gemma4:e2b`; `gemma4:latest` is E4B). `gemma4:cloud` and `gemma4:31b-cloud` exist: the writer must refuse cloud tags. | https://ollama.com/library/gemma4 |
+| Ollama structured output (`format` takes a JSON schema) | deferred | Phase 3 | Ollama API docs |
+| Temporal CLI on Windows (winget/scoop?) | deferred | Phase 4 | Temporal CLI install page |
+| Temporal TS SDK version | deferred | Phase 4, all `@temporalio/*` same version | npm |
+| Sentry AI agent monitoring docs | deferred | Phase 7 | Sentry docs |
+| Claude Code Windows requirements (Git Bash) | confirmed in practice | This session runs natively on Windows with Git for Windows 2.51.2 | n/a |
+| Microsoft Store Python, pipx, uv tool paths (8.2.3) | deferred | Phase 1, check on your machine | n/a |
+| Plex `ProductVersion` holds full build (8.2.8) | deferred | Phase 1 | n/a |
+| Git for Windows CA bundle path (8.2.9) | deferred | Phase 1 | n/a |
+| Plex macOS plist key (8.2.8) | deferred | Phase 1 (SHOULD) | n/a |

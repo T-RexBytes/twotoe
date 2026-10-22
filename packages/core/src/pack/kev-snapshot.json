@@ -1,0 +1,6 @@
+{
+  "catalogVersion": null,
+  "fetchedAt": null,
+  "note": "Empty until refreshKev() runs through the egress guard (SPEC 7.5).",
+  "vulnerabilities": []
+}

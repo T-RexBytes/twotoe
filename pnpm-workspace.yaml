@@ -1,0 +1,7 @@
+packages:
+  - "packages/*"
+  - "apps/*"
+
+# esbuild's postinstall only re-checks its binary; we run no dependency install scripts.
+allowBuilds:
+  esbuild: false

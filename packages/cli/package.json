@@ -1,0 +1,16 @@
+{
+  "name": "@twotoe/cli",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@twotoe/core": "workspace:*"
+  },
+  "scripts": {
+    "test": "vitest run --passWithNoTests"
+  }
+}
