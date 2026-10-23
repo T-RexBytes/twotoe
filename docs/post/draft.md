@@ -135,9 +135,19 @@ I killed the worker mid-thought. It finished anyway, and nothing ran twice:
 - **Temporal:** nightly workflow, schedule with a catch-up window, crash test with 0 duplicate executions.
 - **Sentry Agent Tracing:** one trace per run, each model attempt and validator verdict as spans.
 
-![Sentry trace: scan, match, two model attempts each checked by the validator, assemble](docs/post/images/sentry-trace-waterfall.png)
+![Sentry Agent Activity: the first groundingValidator call is red, the retry passes](docs/post/images/sentry-agent-activity-rejected.png)
 
-*The first draft in this demo trace was rejected on purpose (`--force-reject-first`, labelled as forced in the brief itself) so the retry shows. Prompts and responses were attached only because it ran on a fixture in demo mode.* {{Optional: replace with a trace of a natural rejection, see docs/post/recording-plan.md; and/or add a second screenshot with the first groundingValidator span selected, so its rejection is visible.}}
+The whole run as one trace: scan, match, then the agent. Attempt 1 (`chat gemma4:e4b`, 42 s) goes to the validator, which turns red and records why; attempt 2 (25 s) passes. The rejection is data on the span (`twotoe.validator.rejections: 1`), not just a log line:
+
+![The waterfall with the rejected validator span selected](docs/post/images/sentry-validator-output.png)
+
+![Span attributes: twotoe.attempt 1, twotoe.validator.rejections 1](docs/post/images/sentry-validator-attributes.png)
+
+Each model call carries the `gen_ai.*` fields Sentry's agent view reads: model, tokens in and out, and (in demo mode on fixtures only) the draft itself:
+
+![chat gemma4:e4b span: 2.9K tokens in, 472 out, and the draft](docs/post/images/sentry-chat-output.png)
+
+*Honesty note: the first draft in this demo trace was rejected on purpose (`--force-reject-first`), and the validator's own output says so: "forced rejection for the demo trace (draft was otherwise checked as usual)". Prompts and responses are attached only in demo mode on fixtures; normal traces carry counts and timings.* {{Optional: a natural rejection trace, see docs/post/recording-plan.md.}}
 - {{.tech domain / DigitalOcean only if deployed}}
 
 ## Sources
