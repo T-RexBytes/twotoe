@@ -37,20 +37,25 @@ function bodyBytes(body: unknown): number {
   return 0; // streams and FormData: size unknown up front
 }
 
-let installed: (() => void) | null = null;
+interface Installed { active: boolean; restore: () => void }
+const stack: Installed[] = [];
 
 // Installs the guard process-wide and returns an uninstall function.
-// Installing twice replaces the previous guard.
+// Guards nest: an inner guard wraps the outer one, so a request must pass both
+// allowlists (an inner guard can only narrow) and lands in both ledgers.
+// Uninstalling restores the outer guard. (Before Oct 23 a second install
+// replaced the first, and uninstalling it left the process unguarded.)
 export function installEgressGuard(opts: GuardOptions): () => void {
-  installed?.();
+  const self: Installed = { active: true, restore: () => {} };
   const allow = new Set([...LOOPBACK_HOSTS]);
   if (!opts.offline) allow.add(KEV_HOST);
   for (const h of opts.extraHosts ?? []) allow.add(normalizeHost(h));
   const check = (rawHost: string) => {
     const host = normalizeHost(rawHost);
-    if (!allow.has(host)) throw new EgressBlockedError(host);
+    if (self.active && !allow.has(host)) throw new EgressBlockedError(host);
     return host;
   };
+  const record = (e: EgressEntry): EgressEntry => (self.active ? opts.ledger.record(e) : e);
 
   // ---- fetch (Ollama client, KEV refresh) ----
   const realFetch = globalThis.fetch;
@@ -59,7 +64,7 @@ export function installEgressGuard(opts: GuardOptions): () => void {
     const host = check(new URL(href).hostname);
     const method = (init?.method ?? (input instanceof Request ? input.method : "GET")).toUpperCase();
     const declared = input instanceof Request ? Number(input.headers.get("content-length") ?? 0) : 0;
-    opts.ledger.record({ host, method, bytesOut: init?.body !== undefined ? bodyBytes(init.body) : declared });
+    record({ host, method, bytesOut: init?.body !== undefined ? bodyBytes(init.body) : declared });
     return realFetch(input, init);
   }) as typeof fetch;
 
@@ -83,7 +88,7 @@ export function installEgressGuard(opts: GuardOptions): () => void {
     const guarded = (real: typeof http.request) => ((...args: unknown[]) => {
       const { host: raw, method } = hostOf(args);
       const host = check(raw);
-      const entry: EgressEntry = opts.ledger.record({ host, method, bytesOut: 0 });
+      const entry: EgressEntry = record({ host, method, bytesOut: 0 });
       const req = (real as (...a: unknown[]) => http.ClientRequest)(...args);
       const write = req.write.bind(req);
       const end = req.end.bind(req);
@@ -130,7 +135,7 @@ export function installEgressGuard(opts: GuardOptions): () => void {
   // which does not follow patches to the CJS object until synced.
   syncBuiltinESMExports();
 
-  const uninstall = () => {
+  self.restore = () => {
     globalThis.fetch = realFetch;
     undoHttp();
     undoHttps();
@@ -138,8 +143,14 @@ export function installEgressGuard(opts: GuardOptions): () => void {
     net.createConnection = realNetCreate;
     tls.connect = realTlsConnect;
     syncBuiltinESMExports();
-    if (installed === uninstall) installed = null;
   };
-  installed = uninstall;
-  return uninstall;
+  stack.push(self);
+  // An inactive guard passes calls straight through. Globals are restored only
+  // from the top of the stack down to the nearest active guard, so uninstalling
+  // out of order never drops a guard that is still installed.
+  return () => {
+    if (!self.active) return;
+    self.active = false;
+    while (stack.length && !stack.at(-1)!.active) stack.pop()!.restore();
+  };
 }

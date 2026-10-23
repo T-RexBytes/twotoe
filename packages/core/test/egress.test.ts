@@ -62,6 +62,42 @@ describe("egress guard (SPEC 15.1)", () => {
     expect(fake).toHaveBeenCalledTimes(1);
   });
 
+  it("nested guards: the inner one can only narrow, both record, uninstall restores the outer one", async () => {
+    const fake = vi.fn(async () => new Response(""));
+    vi.stubGlobal("fetch", fake);
+    const outer = new Ledger();
+    const inner = new Ledger();
+    const undoOuter = installEgressGuard({ ledger: outer, extraHosts: ["o1.ingest.sentry.io"] });
+    const undoInner = installEgressGuard({ ledger: inner, offline: true });
+    await expect(fetch("https://www.cisa.gov/x")).rejects.toBeInstanceOf(EgressBlockedError);       // inner is offline
+    await expect(fetch("https://o1.ingest.sentry.io/e")).rejects.toBeInstanceOf(EgressBlockedError); // not in inner
+    await fetch("http://127.0.0.1:9/x");
+    expect(inner.entries()).toEqual([{ host: "127.0.0.1", method: "GET", bytesOut: 0 }]);
+    expect(outer.entries()).toEqual([{ host: "127.0.0.1", method: "GET", bytesOut: 0 }]);
+    undoInner();
+    // The outer guard is still there, with its own allowlist and ledger.
+    await expect(fetch("https://example.com/")).rejects.toBeInstanceOf(EgressBlockedError);
+    await fetch("https://o1.ingest.sentry.io/e");
+    expect(outer.entries().map((e) => e.host)).toEqual(["127.0.0.1", "o1.ingest.sentry.io"]);
+    expect(inner.entries()).toHaveLength(1);
+    undoOuter();
+    await fetch("https://example.com/");   // fully uninstalled: the stub answers
+    expect(fake).toHaveBeenCalledTimes(3);
+  });
+
+  it("out-of-order uninstall never leaves a still-installed guard without effect", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("")));
+    const undoOuter = installEgressGuard({ ledger: new Ledger() });
+    const inner = new Ledger();
+    const undoInner = installEgressGuard({ ledger: inner, offline: true });
+    undoOuter();                                  // outer first: inner must keep working
+    await expect(fetch("https://www.cisa.gov/x")).rejects.toBeInstanceOf(EgressBlockedError);
+    await fetch("http://127.0.0.1:9/x");
+    expect(inner.entries()).toHaveLength(1);
+    undoInner();
+    await fetch("https://www.cisa.gov/x");        // both gone
+  });
+
   it("allows an extra host (opted-in Sentry) and nothing else new", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => new Response("")));
     const ledger = new Ledger();
