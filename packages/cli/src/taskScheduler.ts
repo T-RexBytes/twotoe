@@ -35,7 +35,7 @@ const LAUNCHER = [
   "if ($c.log) {",
   "  New-Item -ItemType Directory -Force -Path (Split-Path -Parent $c.log) | Out-Null",
   "  $argLine = ($c.args | ForEach-Object { '\"' + ($_ -replace '\"', '\\\"') + '\"' }) -join ' '",
-  "  $p = Start-Process -FilePath $c.exe -ArgumentList $argLine -WorkingDirectory $c.cwd -RedirectStandardOutput $c.log -RedirectStandardError ($c.log -replace '\\.log$', '.err.log') -WindowStyle Hidden -PassThru -Wait",
+  "  $p = Start-Process -FilePath $c.exe -ArgumentList $argLine -WorkingDirectory $c.cwd -RedirectStandardOutput $c.log -RedirectStandardError ($c.log -replace '\\.log$', '.err.log') -NoNewWindow -PassThru -Wait",
   "  exit $p.ExitCode",
   "} else { & $c.exe @($c.args) }",
 ].join("\r\n");
@@ -48,7 +48,9 @@ export function launcherScript(): string {
 const REGISTER = [
   "$ErrorActionPreference = 'Stop'",
   "$arg = '-NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -File \"' + $env:TWOTOE_TASK_LAUNCHER + '\"'",
-  "$action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument $arg",
+  // With Windows Terminal as the default console, -WindowStyle Hidden is ignored and
+  // a terminal window opens at log on. `conhost.exe --headless` never creates one.
+  "$action = New-ScheduledTaskAction -Execute 'conhost.exe' -Argument ('--headless powershell.exe ' + $arg)",
   "$user = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name",
   "if ($env:TWOTOE_TASK_TRIGGER -eq 'logon') { $trigger = New-ScheduledTaskTrigger -AtLogOn -User $user }",
   "else { $trigger = New-ScheduledTaskTrigger -Daily -At $env:TWOTOE_TASK_AT }",

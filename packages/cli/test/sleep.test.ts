@@ -49,6 +49,10 @@ describe("Task Scheduler plans (SPEC 11.3)", () => {
     }
     expect(reg).toContain("$env:TWOTOE_TASK_NAME");
     expect(reg).toContain("-WindowStyle Hidden");
+    // Windows Terminal ignores -WindowStyle Hidden; a headless conhost shows no window at all.
+    expect(reg).toContain("-Execute 'conhost.exe' -Argument ('--headless powershell.exe '");
+    expect(launcherScript()).toContain("-NoNewWindow");
+    expect(launcherScript()).not.toContain("-WindowStyle");
     expect(reg).toContain("-StartWhenAvailable");
     expect(launcherScript()).not.toMatch(/node\.exe|temporal\.exe|\\Users\\/);
   });
