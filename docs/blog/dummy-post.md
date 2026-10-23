@@ -113,7 +113,7 @@ Local model, local facts. It works offline, it works when your cloud keys are re
 
 ## My Agent Session
 
-I built TwoToe with Claude Code running natively on Windows, one phase at a time, with a hard stop at every gate. [DUMMY: embed or link the redacted session; pick one moment, for example the validator catching the spec's own example leaking into briefs.]
+I built TwoToe with Claude Code running natively on Windows, one phase at a time, with a hard stop at every gate: 37 of my messages, 1,060 tool calls, over two days. The whole session is in the repo, redacted: [the conversation](https://github.com/T-RexBytes/twotoe/blob/main/docs/blog/agent-session.md) and [the full log with every command](https://github.com/T-RexBytes/twotoe/blob/main/docs/blog/agent-session-full.md). [DUMMY: pick one moment to quote, for example the validator catching the spec's own example leaking into briefs.]
 
 ## The Lazy Payoff
 

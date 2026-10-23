@@ -37,7 +37,7 @@ Category texts are quoted from the challenge page in [`docs/research/research-ch
 | **Gemma** ($200, featured) | Yes | The writer model is Gemma 4 E4B, run locally. The post has a 3-model bake-off and 4 eval rounds. |
 | **Temporal** ($100) | Yes | The category is about durability, not scheduling. TwoToe has the nightly workflow plus a crash test: the worker is killed mid model-activity, restarted, and finishes with 0 activities executed twice. UI timeline screenshot and clip exist. |
 | **Sentry Agent Tracing** ($100) | Yes, with care | The text asks to "show your agent's work ... what you found, and how you debugged it. Include traces or screenshots". We have the trace screenshots (section 8). Weakness: the demo rejection was forced, and we did not find a bug *through* a Sentry trace (the bugs were found through Temporal UI screenshots and tests). Be honest about it. |
-| Entire ($100) | Maybe | "Share the agent sessions behind your project in the write-up." The Claude Code session transcript exists only on the original machine (section 9). |
+| Entire ($100) | Maybe | "Share the agent sessions behind your project in the write-up." The redacted session is committed: `docs/blog/agent-session.md` and `agent-session-full.md`. Link it from My Agent Session. |
 | .tech Domain ($100) | Only if deployed | Needs the card live on a claimed `.tech` domain (e.g. twotoe.tech). Not done. |
 | DigitalOcean ($200, featured) | Only if deployed | Deploy guide ready in [`docs/DEPLOY.md`](../DEPLOY.md) (App Platform static site). Not done. |
 | Mastra | **No** | `twotoe ask` was built without Mastra on purpose: `@mastra/core` sends usage telemetry to PostHog by default, which breaks the project's network rule. Say so in the post if you like; it is a nice honesty beat. |
@@ -168,7 +168,7 @@ These are gitignored, live on the original machine, or sit in someone's account.
 
 | Item | Where it lives | Needed for | What to do |
 |---|---|---|---|
-| Claude Code session transcript ("My Agent Session", possibly the Entire category) | Original machine: `~\.claude\projects\D--work-hacktoberfest-twotoe\*.jsonl` | The optional My Agent Session section | The original owner exports it. **It contains real machine paths: redact before sharing or embedding.** The build log has the key moments in prose. |
+| Raw Claude Code session file | Original machine (`~\.claude\projects\<project-id>\*.jsonl`) | Nothing: a redacted export is committed | **Committed:** `docs/blog/agent-session.md` (conversation) and `docs/blog/agent-session-full.md` (every tool call, results trimmed), made by `scripts/blog/export-session.ts` with home paths, user and host names, emails, DSNs and keys redacted. Only the owner can re-export (the raw file stays on their machine). |
 | `~/.twotoe/config.json` (Sentry DSN, telemetry switch, scan roots) | Original machine, user home | New Sentry traces | Not needed for the post: the Sentry screenshots are committed. For new traces, create your own Sentry project and put `{"telemetry": {"sentry": true, "dsn": "<your DSN>"}}` in your own `~/.twotoe/config.json`. Never commit a DSN. |
 | Sentry account and org `none-0un` | Owner's Sentry login | Opening the trace link | Ask the owner for access, or use the committed `sentry-*.png`. |
 | GitHub repo admin | Owner | Making the repo public, CI logs | The repo was **private** on Oct 23 (404 when signed out). It must be public before submitting. |
@@ -214,6 +214,7 @@ These are gitignored, live on the original machine, or sit in someone's account.
 | Fact verification log | `docs/VERIFY.md` |
 | Build log (all post raw material, per gate) | `docs/post/build-log.md` |
 | Structured draft | `docs/post/draft.md` |
+| Agent session (redacted) | `docs/blog/agent-session.md`, `docs/blog/agent-session-full.md` |
 | Sample full post | `docs/blog/dummy-post.md` |
 | Recording plan (video, re-recording) | `docs/post/recording-plan.md` |
 | Research (challenge rules, incidents, competition, red team) | `docs/research/` |

@@ -116,7 +116,7 @@ Local model, local facts. It works offline, it works when your cloud keys are re
 
 ## My Agent Session
 
-Built with Claude Code running natively on Windows, one phase at a time with a stop at every gate. {{Pick the moment: the spec's own few-shot example leaking into briefs, or the v3 allowed-token leak. The raw transcript contains real machine paths: redact before embedding.}}
+Built with Claude Code running natively on Windows, one phase at a time with a stop at every gate. The redacted session is committed: docs/blog/agent-session.md (conversation) and docs/blog/agent-session-full.md (every tool call). {{Pick one moment to quote: the spec's own few-shot example leaking into briefs, or the v3 allowed-token leak.}}
 
 ## The Lazy Payoff
 
