@@ -1,11 +1,12 @@
 import { Client, Connection, ScheduleAlreadyRunning, ScheduleNotFoundError, ScheduleOverlapPolicy } from "@temporalio/client";
+import { redactPath } from "@twotoe/core";
 import { assertLoopbackAddress, TASK_QUEUE, TEMPORAL_ADDRESS } from "./temporal";
 
 export async function withClient<T>(fn: (client: Client) => Promise<T>, address: string = TEMPORAL_ADDRESS): Promise<T> {
   assertLoopbackAddress(address);
   const connection = await Connection.connect({ address });
   try {
-    return await fn(new Client({ connection }));
+    return await fn(new Client({ connection, identity: "twotoe" }));
   } finally {
     await connection.close();
   }
@@ -43,7 +44,9 @@ export function scheduleSpec(opts: ScheduleOptions) {
       workflowType: "nightlyTriage",
       workflowId: "twotoe-nightly-run",
       taskQueue: opts.taskQueue ?? TASK_QUEUE,
-      args: [{ configPath: opts.configPath, offline: opts.offline === true }],
+      // "~" form: the schedule action and every run's input are stored in Temporal's
+      // history and shown in its UI. The activity expands it again.
+      args: [{ configPath: redactPath(opts.configPath), offline: opts.offline === true }],
     },
     policies: { overlap: ScheduleOverlapPolicy.SKIP, catchupWindow: opts.catchupWindow ?? "18h" },
   };

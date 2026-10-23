@@ -35,6 +35,11 @@ export async function waitForServer(address: string, timeoutMs: number, log: (l:
   }
 }
 
+// The SDK default identity is pid@hostname, which lands in history and the UI.
+export function workerIdentity(): string {
+  return `twotoe-worker-${process.pid}`;
+}
+
 export async function runWorker(opts: RunWorkerOptions = {}): Promise<void> {
   const address = opts.address ?? TEMPORAL_ADDRESS;
   const namespace = opts.namespace ?? "default";
@@ -48,7 +53,7 @@ export async function runWorker(opts: RunWorkerOptions = {}): Promise<void> {
   if (opts.ensureSchedule) {
     const connection = await Connection.connect({ address });
     try {
-      const r = await ensureSchedule(new Client({ connection, namespace }), { ...opts.ensureSchedule, taskQueue });
+      const r = await ensureSchedule(new Client({ connection, namespace, identity: "twotoe" }), { ...opts.ensureSchedule, taskQueue });
       log(`schedule ${r}`);
     } finally {
       await connection.close();
@@ -60,6 +65,7 @@ export async function runWorker(opts: RunWorkerOptions = {}): Promise<void> {
     connection,
     namespace,
     taskQueue,
+    identity: workerIdentity(),
     workflowsPath: WORKFLOWS_PATH,
     activities: createActivities({
       stateDir: opts.stateDir ?? twotoeHome(),

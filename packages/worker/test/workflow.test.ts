@@ -1,13 +1,15 @@
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
+import { Client } from "@temporalio/client";
 import { TestWorkflowEnvironment } from "@temporalio/testing";
 import { Worker } from "@temporalio/worker";
 import { Ledger } from "@twotoe/core";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createActivities } from "../src/activities";
 import { readJournal } from "../src/cache";
-import { ensureSchedule, removeSchedule, SCHEDULE_ID } from "../src/schedule";
-import { WORKFLOWS_PATH } from "../src/worker";
+import { ensureSchedule, removeSchedule, SCHEDULE_ID, scheduleSpec } from "../src/schedule";
+import { workerIdentity, WORKFLOWS_PATH } from "../src/worker";
 import type { NightlyResult } from "../src/workflows";
 import { CANARY, kitchenSinkConfig, PromptEchoClient, temporalExeOrNull } from "./helpers";
 
@@ -30,15 +32,32 @@ async function runNightly(opts: { failFirstModelAttempt?: boolean } = {}) {
   const worker = await Worker.create({
     connection: env.nativeConnection,
     taskQueue,
+    identity: workerIdentity(),
     workflowsPath: WORKFLOWS_PATH,
     activities: createActivities({ stateDir, modelClient: model, ledger: new Ledger(), ...opts }),
   });
+  // Started the way production starts it: a client with TwoToe's identity, not the SDK's pid@hostname.
+  const client = new Client({ connection: env.connection, identity: "twotoe" });
   const workflowId = `nightly-${taskQueue}`;
-  const result = await worker.runUntil(env.client.workflow.execute("nightlyTriage", {
-    taskQueue, workflowId, args: [{ configPath, offline: true }],
+  const result = await worker.runUntil(client.workflow.execute("nightlyTriage", {
+    // Pass the config path the way the schedule does (scheduleSpec redacts it to ~).
+    taskQueue, workflowId, args: [{ configPath: scheduleSpec({ configPath }).action.args[0]!.configPath, offline: true }],
   })) as NightlyResult;
   const history = await env.client.workflow.getHandle(workflowId).fetchHistory();
   return { result, stateDir, model, workflowId, history, journal: readJournal(path.join(stateDir, "cache", workflowId)) };
+}
+
+// All history text: event fields plus every payload's bytes decoded as UTF-8.
+function historyText(history: unknown): string {
+  const parts: string[] = [];
+  const walk = (v: unknown): void => {
+    if (v instanceof Uint8Array) { parts.push(Buffer.from(v).toString("utf8")); return; }
+    if (Array.isArray(v)) { v.forEach(walk); return; }
+    if (v && typeof v === "object") { for (const x of Object.values(v)) walk(x); return; }
+    if (typeof v === "string") parts.push(v);
+  };
+  walk(history);
+  return parts.join("\n");
 }
 
 // activityType name -> attempts reported by ActivityTaskStarted events.
@@ -72,8 +91,17 @@ describe("nightlyTriage workflow", () => {
     // Nothing the activities wrote (cache, journal, briefs) contains the canary.
     const files = fs.readdirSync(r.stateDir, { recursive: true, withFileTypes: true }).filter((d) => d.isFile());
     for (const f of files) expect(fs.readFileSync(path.join(f.parentPath, f.name), "utf8")).not.toContain(CANARY);
-    // The workflow history carries refs and findings, not the inventory.
-    expect(JSON.stringify(r.history)).not.toContain("RAILWAY_TOKEN\",\"file");
+    // The workflow history carries refs and findings, not the inventory, and no
+    // home path or host name (the Temporal UI shows all of it). Payloads are
+    // bytes, so decode them; a plain JSON.stringify of the history never sees them.
+    const text = historyText(r.history);
+    expect(text).toContain("nightlyTriage");
+    expect(text).toContain("4 things need you today");          // proves payloads were decoded
+    expect(text).not.toContain("RAILWAY_TOKEN\",\"file");
+    expect(text).not.toContain(CANARY);
+    const home = os.homedir();
+    for (const v of [home, home.replace(/\\/g, "\\\\"), home.replace(/\\/g, "/")]) expect(text.toLowerCase()).not.toContain(v.toLowerCase());
+    expect(text.toLowerCase()).not.toContain(`@${os.hostname().toLowerCase()}`);
   }, 120_000);
 
   it("activity failure: retried, finished model response reused, nothing computed twice", async () => {
@@ -106,4 +134,13 @@ describe("nightly schedule (SPEC 11.3)", () => {
     expect(await removeSchedule(env.client)).toBe(true);
     expect(await removeSchedule(env.client)).toBe(false);
   }, 60_000);
+});
+
+describe("schedule input", () => {
+  it("never stores the home path: the config path goes in as ~ and the activity expands it", () => {
+    const spec = scheduleSpec({ configPath: path.join(os.homedir(), ".twotoe", "config.json") });
+    expect(spec.action.args[0]!.configPath).toBe(path.join("~", ".twotoe", "config.json").replace(/^~[\\/]/, (m) => m));
+    expect(spec.action.args[0]!.configPath.startsWith("~")).toBe(true);
+    expect(spec.action.args[0]!.configPath.toLowerCase()).not.toContain(os.homedir().toLowerCase());
+  });
 });

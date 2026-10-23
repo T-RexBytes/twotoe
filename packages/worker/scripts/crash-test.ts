@@ -7,7 +7,6 @@
 //   5. read the history (`temporal workflow show`) and the activity journal, print the summary
 import { spawn, type ChildProcess } from "node:child_process";
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Client, Connection } from "@temporalio/client";
@@ -83,8 +82,16 @@ interface HistoryEvent {
 const isType = (e: HistoryEvent, t: string) => e.eventType === t || e.eventType === `EVENT_TYPE_${t.replace(/([a-z])([A-Z])/g, "$1_$2").toUpperCase()}`;
 
 async function main(): Promise<number> {
-  const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "twotoe-crash-"));
-  const configPath = writeFixture(stateDir);
+  // State lives in <repo>/.twotoe-demo, not %TEMP%: the Temporal UI shows the
+  // workflow input and activity results on screen, and a temp path carries the
+  // Windows user name. The workflow gets a path relative to the worker's cwd
+  // (the repo). `.twotoe-ignore` keeps real scans of a parent folder from
+  // counting the planted fixture (litellm 1.107.0, RAILWAY_TOKEN) as findings.
+  const demoRoot = path.join(REPO, ".twotoe-demo");
+  fs.mkdirSync(demoRoot, { recursive: true });
+  fs.writeFileSync(path.join(demoRoot, ".twotoe-ignore"), "Synthetic crash-test fixtures. TwoToe scans skip this folder.\n");
+  const stateDir = fs.mkdtempSync(path.join(demoRoot, "crash-"));
+  const configPath = path.relative(REPO, writeFixture(stateDir));
   const temporalExe = await findTemporalExe();
   if (!temporalExe) throw new Error("temporal.exe not found: winget install Temporal.TemporalCLI");
 
@@ -100,7 +107,7 @@ async function main(): Promise<number> {
   }
 
   const connection = await Connection.connect({ address: "127.0.0.1:7233" });
-  const client = new Client({ connection });
+  const client = new Client({ connection, identity: "twotoe-crash-test" });
   const workflowId = `twotoe-crash-${new Date().toISOString().replace(/[:.]/g, "-")}`;
   const journalDir = path.join(stateDir, "cache", workflowId);
   const journal = () => readJournal(journalDir);
@@ -186,7 +193,7 @@ async function main(): Promise<number> {
     line("canary hits in cache, logs, briefs", String(leaked));
     line("history", `temporal workflow show --workflow-id ${workflowId}`);
     line("timeline", `${TEMPORAL_UI}/namespaces/default/workflows/${workflowId}`);
-    line("artifacts", stateDir);
+    line("artifacts", path.relative(REPO, stateDir));
     return summary.executedTwice.count === 0 && modelTwice === 0 && leaked === 0 ? 0 : 1;
   } finally {
     if (worker2?.pid) await killTree(worker2.pid);

@@ -1,7 +1,7 @@
 import path from "node:path";
 import { ApplicationFailure, Context } from "@temporalio/activity";
 import {
-  collectForConfig, loadConfig, loadKevSnapshot, loadPack, matchAll, refreshKev,
+  collectForConfig, expandHome, loadConfig, loadKevSnapshot, loadPack, matchAll, redactPath, redactText, refreshKev,
   type AdvisoryPack, type Brief, type EgressEntry, type Finding, type Inventory, type KevEntry, type Ledger, type ScanStats,
 } from "@twotoe/core";
 import { buildBrief, localDate, resolveModel, writeDraft, type ModelClient, type WriteResult } from "@twotoe/writer";
@@ -11,8 +11,10 @@ import { persistBrief, type PersistedRun } from "./persist";
 
 // SPEC 11.3 activities. Each one is idempotent: its output is cached on disk
 // keyed by a hash of its input, per workflow run. Large data (inventory, pack)
-// moves between activities as cache references, so env key names and paths
-// never land in Temporal's history database and payloads stay small.
+// moves between activities as cache references, so env key names never land in
+// Temporal's history database and payloads stay small. Values that do travel
+// through history (roots, finding evidence, the saved brief path) are redacted
+// to ~ first: the Temporal UI shows them, and temporal.db keeps them.
 
 export interface ActivityDeps {
   stateDir: string;                 // ~/.twotoe
@@ -87,13 +89,14 @@ export function createActivities(deps: ActivityDeps) {
   return {
     async collectInventory(configPath: string): Promise<CollectedRef> {
       return cached("collectInventory", { configPath }, async (s) => {
-        const config = loadConfig(configPath);
-        const scan = await collectForConfig(config, { configDir: path.dirname(configPath) });
+        const file = expandHome(configPath);   // schedules pass the ~ form
+        const config = loadConfig(file);
+        const scan = await collectForConfig(config, { configDir: path.dirname(file) });
         const inventoryRef = inputHash(scan.inventory);
         s.write("inventory", inventoryRef, { inventory: scan.inventory, stats: scan.stats });
         return {
           inventoryRef,
-          roots: scan.inventory.roots,
+          roots: scan.inventory.roots.map((r) => redactPath(r)),
           checksRun: scan.inventory.checksRun,
           items: scan.inventory.items.length,
           region: config.region ?? null,
@@ -128,7 +131,11 @@ export function createActivities(deps: ActivityDeps) {
       return cached("matchAdvisories", { inv: collected.inventoryRef, pack: pack.packRef, region: collected.region }, async () => {
         const { inventory } = blob<{ inventory: Inventory }>("inventory", collected.inventoryRef);
         const p = blob<PackBlob>("pack", pack.packRef);
-        return matchAll(inventory, p.pack, { region: collected.region, now: now(), kev: p.kev });
+        // Ids are computed from the real paths before this, so they stay stable.
+        return matchAll(inventory, p.pack, { region: collected.region, now: now(), kev: p.kev }).map((f) => ({
+          ...f,
+          evidence: f.evidence.map((e) => ({ ...e, location: redactPath(e.location), detail: redactText(e.detail) })),
+        }));
       });
     },
 
@@ -189,7 +196,7 @@ export function createActivities(deps: ActivityDeps) {
         const { latestPath } = persistBrief(deps.stateDir, input.brief, input.findings, input.run);
         let notified = false;
         if (input.notify && deps.notify) notified = Boolean(await deps.notify(input.brief).catch(() => false));
-        return { latestPath, notified };
+        return { latestPath: redactPath(latestPath), notified };
       });
     },
   };
