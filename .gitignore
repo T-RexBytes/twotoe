@@ -11,3 +11,11 @@ coverage/
 Thumbs.db
 eval/out/
 .twotoe-demo/
+
+# Synthetic eval fixtures: their .env files hold only the canary and fake values,
+# and the eval, the tests and CI need them (a clone without them loses findings).
+!eval/fixtures/**/.env
+!eval/fixtures/**/.env.*
+
+# Scratch output of scripts/blog (Chrome profiles, frames, captured text)
+scripts/blog/.work/
