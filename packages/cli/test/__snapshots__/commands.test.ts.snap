@@ -1,0 +1,15 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`e2e: twotoe brief --fixture f22-kitchen-sink --no-llm (SPEC 15) > matches the snapshot 1`] = `
+"  twotoe  Fri Oct 23, 07:00
+
+  4 things need you today: update Plex to 1.43.3.10861; rebuild your litellm env on 1.106.2; +2 more in the checklist.
+  Everything else: you're fine. Checked 14 things in <T>s, 0 secrets left this machine.
+
+  [ ] 1  Update Plex Media Server from 1.43.3.10860 ...  definite  Plex Media Server
+  [ ] 2  Rebuild the env with litellm 1.106.2 and ro...  definite  .venv
+  [ ] 3  Roll every env var, API key, and registry c...  likely    railway.toml, .env (RAILWAY_TOKEN)
+  [ ] 4  Upgrade Node from 24.22.0 to 24.22.1            definite  node --version
+
+  card: twotoe card   model: none (template)   validator: not needed"
+`;

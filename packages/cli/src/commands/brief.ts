@@ -9,6 +9,7 @@ import {
   type ModelClient, type WriteResult,
 } from "@twotoe/writer";
 import { ingestHostOf, NO_TELEMETRY, persistBrief, startTelemetry, type Telemetry } from "@twotoe/worker";
+import { speak, speechText } from "../speak";
 import { collect, warnIfSelfUnpatched, type CollectOptions } from "./scan";
 
 export const EXIT_NOTHING = 0;
@@ -25,6 +26,8 @@ export interface BriefCommandOptions extends CollectOptions {
   telemetry?: boolean;          // --telemetry (also needs config.telemetry.dsn)
   traceContent?: "off" | "demo";
   forceRejectFirst?: boolean;   // demo trace on fixtures
+  speak?: boolean;              // read line 1 and line 2 aloud, local speech engine
+  open?: boolean;               // save, then serve the card (index.ts starts it)
   now?: Date;
   client?: ModelClient;         // tests inject a fake
   userConfig?: TwotoeConfig;    // tests inject; default ~/.twotoe/config.json
@@ -206,7 +209,7 @@ export async function runBrief(rootsArg: string[], opts: BriefCommandOptions): P
   const now = opts.now ?? new Date();
   let res: BriefResult;
   try {
-    res = await makeBrief(rootsArg, { ...opts, now });
+    res = await makeBrief(rootsArg, { ...opts, now, save: opts.save === true || opts.open === true });
   } catch (err) {
     // Only our own config errors carry a safe message; anything else gets a fixed one.
     const name = (err as Error).name;
@@ -219,5 +222,6 @@ export async function runBrief(rootsArg: string[], opts: BriefCommandOptions): P
     : renderBrief(res, now, process.stdout.isTTY === true);
   process.stdout.write(redactText(text) + "\n");
   if (res.traceId && !opts.json) process.stdout.write(`  trace: ${res.traceId} (search it in Sentry, Explore > Traces)\n`);
+  if (opts.speak && !(await speak(speechText(res.brief.line1, res.brief.line2)))) process.stderr.write("twotoe: could not read the brief aloud\n");
   return res.exitCode;
 }

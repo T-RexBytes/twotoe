@@ -116,8 +116,8 @@ export function powershellExe(): string | null {
 
 // PowerShell with -NoProfile -NonInteractive. User-derived values travel only
 // through `env`, never interpolated into the script text.
-export async function runPowerShell(script: string, env: Record<string, string>): Promise<RunResult> {
+export async function runPowerShell(script: string, env: Record<string, string>, timeoutMs?: number): Promise<RunResult> {
   const ps = powershellExe();
   if (!ps) return { ok: false, stdout: "", timedOut: false };
-  return runFile(ps, ["-NoProfile", "-NonInteractive", "-Command", script], { env });
+  return runFile(ps, ["-NoProfile", "-NonInteractive", "-Command", script], { env, ...(timeoutMs ? { timeoutMs } : {}) });
 }

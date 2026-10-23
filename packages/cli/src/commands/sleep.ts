@@ -4,11 +4,13 @@ import { defaultConfigPath, redactText, twotoeHome } from "@twotoe/core";
 import {
   devServerArgs, ensureSchedule, findTemporalExe, isPortOpen, localTimezone, parseAt, removeSchedule, TEMPORAL_UI, withClient,
 } from "@twotoe/worker";
+import { installLaunchAgents, plistFor, uninstallLaunchAgents } from "../launchd";
 import { plans, registerEnv, registerScript, registerTasks, unregisterTasks, type PlanContext } from "../taskScheduler";
 
 export interface SleepOptions {
   at?: string;
   taskscheduler?: boolean;
+  launchd?: boolean;       // macOS LaunchAgents (with --no-temporal: one daily agent)
   temporal?: boolean;      // commander sets false for --no-temporal
   uninstall?: boolean;
   dryRun?: boolean;
@@ -39,9 +41,22 @@ export async function runSleep(opts: SleepOptions): Promise<number> {
 
   if (opts.uninstall) {
     if (opts.dryRun) { out("would remove every scheduled task named TwoToe-* and the twotoe-nightly schedule"); return 0; }
-    const removed = await unregisterTasks();
-    out(removed.length ? `removed tasks: ${removed.join(", ")}` : "no TwoToe tasks found");
+    const removed = process.platform === "darwin" ? await uninstallLaunchAgents() : await unregisterTasks();
+    out(removed.length ? `removed ${process.platform === "darwin" ? "launch agents" : "tasks"}: ${removed.join(", ")}` : "no TwoToe tasks found");
     if (serverUp) out(await withClient(removeSchedule) ? "removed schedule twotoe-nightly" : "no Temporal schedule found");
+    return 0;
+  }
+
+  if (opts.launchd) {
+    const list = plans(opts.temporal === false ? "no-temporal" : "temporal", await planContext(at));
+    if (opts.dryRun) {
+      out("dry run: these launch agents would be installed in ~/Library/LaunchAgents (nothing changed)");
+      for (const p of list) out(plistFor(p));
+      return 0;
+    }
+    const labels = await installLaunchAgents(list);
+    out(`installed: ${labels.join(", ")}`);
+    out(opts.temporal === false ? `TwoToe will run daily at ${at}; a missed run starts when the Mac wakes.` : "The Temporal dev server and the worker start now and at every log in.");
     return 0;
   }
 
