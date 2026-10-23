@@ -8,7 +8,7 @@ A ready-to-edit sample post is next to this file: [`dummy-post.md`](dummy-post.m
 
 ## 1. Status at handover (Oct 23, 2026)
 
-- The code is done and green: 412 tests pass, typecheck clean, line coverage 90.5% (core) and 98.0% (writer). CI on GitHub was failing on Oct 23 because the eval fixtures' `.env` files were gitignored; that is fixed in the commit that adds this file (they are synthetic and now committed).
+- The code is done and green, locally and on GitHub CI (both jobs, Oct 23): 422 tests pass, typecheck clean, line coverage 94.0% (core) and 98.0% (writer). Three CI failures on Oct 23, all fixed: the eval fixtures' synthetic `.env` files were gitignored (now committed); the RealProbe smoke test hit the 5 s exec limit on a busy runner (it now retries and names the failing step); and core coverage was 89.98% on CI because RealProbe was only tested against the host (now covered by machine-independent tests: 92.8% even without the host test).
 - All screenshots, GIFs, clips and the eval chart exist in [`docs/post/images/`](../post/images/) (section 8).
 - A structured draft with real numbers is [`docs/post/draft.md`](../post/draft.md); a full sample post is [`dummy-post.md`](dummy-post.md).
 - **Not done yet** (section 10): stopwatch baseline, blind readability check, the author's own voice, repo made public, live demo link, tag, publish.
@@ -106,7 +106,7 @@ Source links (all fetched Oct 23):
 | Crash test (Oct 23 run) | workflow 89.9 s; model answered at 53.2 s; worker killed at +61.2 s (8 s into a 20 s delay); 3 activities done before the crash; 1 retried; **0 executed twice**; model result reused from cache (1 call, 1 reuse) | `terminal-crash-test.png`; script `packages/worker/scripts/crash-test.ts` |
 | Real nightly scan (owner's PC) | 9,246 files, 1.3 s, 49 checks | measured Oct 23; aggregate only, no paths |
 | Dogfood | TwoToe's first real run warned it was itself on an unpatched Node (24.11.0; fix is 24.22.1), and that Node trusted the eMudhra root | build log "The dogfood moment" |
-| Tests | 412 passing (core 228, writer 77, worker 14, cli 47, card 15, eval 31) | `pnpm test` |
+| Tests | 422 passing (core 238, writer 77, worker 14, cli 47, card 15, eval 31) | `pnpm test` |
 
 Eval history per model (share of drafts rejected): gemma4:e4b 43% / 48% / 26% / 0%; gemma4:e2b 96% / 63% / 37% / 24.5%; qwen3:4b 55% / 61% / 63% / 0% (v1 to v4). Chart: `eval-rejections-by-round.png`.
 
@@ -168,7 +168,7 @@ These are gitignored, live on the original machine, or sit in someone's account.
 
 | Item | Where it lives | Needed for | What to do |
 |---|---|---|---|
-| Raw Claude Code session file | Original machine (`~\.claude\projects\<project-id>\*.jsonl`) | Nothing: a redacted export is committed | **Committed:** `docs/blog/agent-session.md` (conversation) and `docs/blog/agent-session-full.md` (every tool call, results trimmed), made by `scripts/blog/export-session.ts` with home paths, user and host names, emails, DSNs and keys redacted. Only the owner can re-export (the raw file stays on their machine). |
+| Raw Claude Code session file | Original machine (`~\.claude\projects\<project-id>\*.jsonl`) | Nothing: a redacted export is committed | **Committed:** `docs/blog/agent-session.md` (conversation) and `docs/blog/agent-session-full.md` (every tool call, results trimmed), made by `scripts/blog/export-session.ts` with home paths, user and host names, emails, DSNs (including any fragment of the key, org id or ingest host) and keys redacted. Only the owner can re-export (the raw file stays on their machine). |
 | `~/.twotoe/config.json` (Sentry DSN, telemetry switch, scan roots) | Original machine, user home | New Sentry traces | Not needed for the post: the Sentry screenshots are committed. For new traces, create your own Sentry project and put `{"telemetry": {"sentry": true, "dsn": "<your DSN>"}}` in your own `~/.twotoe/config.json`. Never commit a DSN. |
 | Sentry account and org `none-0un` | Owner's Sentry login | Opening the trace link | Ask the owner for access, or use the committed `sentry-*.png`. |
 | GitHub repo admin | Owner | Making the repo public, CI logs | The repo was **private** on Oct 23 (404 when signed out). It must be public before submitting. |
