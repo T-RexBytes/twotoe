@@ -1,0 +1,43 @@
+{
+  "model": "qwen3:4b",
+  "fixture": "f10-node-old-24",
+  "run": 2,
+  "seed": 43,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 15429,
+      "evalCount": 164,
+      "evalDurationMs": 14624,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"bump Node to 24.22.1\"\n  ],\n  \"line2Tail\": \"go back to sleep\",\n  \"checklist\": [\n    {\n      \"findingId\": \"nodejs-2026-10-21:22619b27\",\n      \"action\": \"Upgrade Node from 24.22.0 to 24.22.1\",\n      \"why\": \"Node.js 24.22.1 fixes 10 CVEs, including a Brotli decoder out-of-bounds write (CVE-2026-111497) and TLS vulnerabilities.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 15430,
+  "totalMs": 15433,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: bump Node to 24.22.1.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: bump Node to 24.22.1.",
+    "line2": "Everything else: go back to sleep. Checked 10 things in 15.4s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "nodejs-2026-10-21:22619b27",
+        "action": "Upgrade Node from 24.22.0 to 24.22.1",
+        "why": "Node.js 24.22.1 fixes 10 CVEs, including a Brotli decoder out-of-bounds write (CVE-2026-111497) and TLS vulnerabilities."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "qwen3:4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 15433,
+      "egress": []
+    }
+  }
+}

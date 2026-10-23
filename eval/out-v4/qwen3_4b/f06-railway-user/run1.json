@@ -1,0 +1,43 @@
+{
+  "model": "qwen3:4b",
+  "fixture": "f06-railway-user",
+  "run": 1,
+  "seed": 42,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 8409,
+      "evalCount": 122,
+      "evalDurationMs": 7973,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"roll your Railway env vars\"\n  ],\n  \"line2Tail\": \"go back to sleep\",\n  \"checklist\": [\n    {\n      \"findingId\": \"railway-2026-10-21:e66a6986\",\n      \"action\": \"Roll every env var, API key, and registry credential stored in Railway\",\n      \"why\": \"Railway said an unauthorized party may have accessed encrypted environment variables and obtained decrypted contents for some.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 8409,
+  "totalMs": 8413,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: roll your Railway env vars.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: roll your Railway env vars.",
+    "line2": "Everything else: go back to sleep. Checked 11 things in 8.4s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "railway-2026-10-21:e66a6986",
+        "action": "Roll every env var, API key, and registry credential stored in Railway",
+        "why": "Railway said an unauthorized party may have accessed encrypted environment variables and obtained decrypted contents for some."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "qwen3:4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 8413,
+      "egress": []
+    }
+  }
+}

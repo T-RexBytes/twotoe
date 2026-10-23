@@ -1,0 +1,43 @@
+{
+  "model": "gemma4:e2b",
+  "fixture": "f10-node-old-24",
+  "run": 5,
+  "seed": 46,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 2727,
+      "evalCount": 152,
+      "evalDurationMs": 2225,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"bump Node to 24.22.1\"\n  ],\n  \"line2Tail\": \"that should get you back to work\",\n  \"checklist\": [\n    {\n      \"findingId\": \"nodejs-2026-10-21:22619b27\",\n      \"action\": \"Upgrade Node from 24.22.0 to 24.22.1\",\n      \"why\": \"Node.js releases fix several issues including a Brotli decoder out-of-bounds write and TLS issues.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 2727,
+  "totalMs": 2730,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: bump Node to 24.22.1.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: bump Node to 24.22.1.",
+    "line2": "Everything else: that should get you back to work. Checked 10 things in 2.7s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "nodejs-2026-10-21:22619b27",
+        "action": "Upgrade Node from 24.22.0 to 24.22.1",
+        "why": "Node.js releases fix several issues including a Brotli decoder out-of-bounds write and TLS issues."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "gemma4:e2b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 2730,
+      "egress": []
+    }
+  }
+}

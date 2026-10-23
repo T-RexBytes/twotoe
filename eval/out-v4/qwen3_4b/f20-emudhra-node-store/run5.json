@@ -1,0 +1,43 @@
+{
+  "model": "qwen3:4b",
+  "fixture": "f20-emudhra-node-store",
+  "run": 5,
+  "seed": 46,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 8440,
+      "evalCount": 113,
+      "evalDurationMs": 7864,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"update Node\"\n  ],\n  \"line2Tail\": \"go back to sleep\",\n  \"checklist\": [\n    {\n      \"findingId\": \"emudhra-weak-ca-keys:02a62b81\",\n      \"action\": \"Update Node\",\n      \"why\": \"Eight eMudhra intermediate CA private keys were trivially recoverable; Mozilla distrusted emSign ECC Root CA - G3, but curl.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 8440,
+  "totalMs": 8443,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: update Node.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: update Node.",
+    "line2": "Everything else: go back to sleep. Checked 10 things in 8.4s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "emudhra-weak-ca-keys:02a62b81",
+        "action": "Update Node",
+        "why": "Eight eMudhra intermediate CA private keys were trivially recoverable; Mozilla distrusted emSign ECC Root CA - G3, but curl."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "qwen3:4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 8443,
+      "egress": []
+    }
+  }
+}

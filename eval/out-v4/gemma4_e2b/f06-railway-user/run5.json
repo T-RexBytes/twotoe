@@ -1,0 +1,60 @@
+{
+  "model": "gemma4:e2b",
+  "fixture": "f06-railway-user",
+  "run": 5,
+  "seed": 46,
+  "mode": "llm-fallback",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 2406,
+      "evalCount": 143,
+      "evalDurationMs": 2113,
+      "reasons": [
+        "line1 action over 60 characters"
+      ],
+      "content": "{\n  \"line1Actions\": [\n    \"roll every env var, API key, and registry credential stored in Railway\"\n  ],\n  \"line2Tail\": \"take a moment before starting work\",\n  \"checklist\": [\n    {\n      \"findingId\": \"railway-2026-10-21:e66a6986\",\n      \"action\": \"Roll every env var, API key, and registry credential stored in Railway\",\n      \"why\": \"An unauthorized party may have accessed encrypted environment variables and obtained decrypted contents for some.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    },
+    {
+      "attempt": 2,
+      "wallMs": 2337,
+      "evalCount": 144,
+      "evalDurationMs": 2158,
+      "reasons": [
+        "line1 action over 60 characters"
+      ],
+      "content": "{\n  \"line1Actions\": [\n    \"roll every env var, API key, and registry credential stored in Railway\"\n  ],\n  \"line2Tail\": \"take a moment to review those settings\",\n  \"checklist\": [\n    {\n      \"findingId\": \"railway-2026-10-21:e66a6986\",\n      \"action\": \"Roll every env var, API key, and registry credential stored in Railway\",\n      \"why\": \"An unauthorized party may have accessed encrypted environment variables and obtained decrypted contents for some.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 4745,
+  "totalMs": 4749,
+  "finalUngrounded": 0,
+  "fallbackParts": [
+    "line1Actions"
+  ],
+  "line1": "1 thing needs you today: roll your Railway env vars.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: roll your Railway env vars.",
+    "line2": "Everything else: take a moment to review those settings. Checked 11 things in 4.7s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "railway-2026-10-21:e66a6986",
+        "action": "Roll every env var, API key, and registry credential stored in Railway",
+        "why": "An unauthorized party may have accessed encrypted environment variables and obtained decrypted contents for some."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm-fallback",
+      "model": "gemma4:e2b",
+      "attempts": 2,
+      "validatorRejections": [
+        "attempt 1: line1 action over 60 characters",
+        "attempt 2: line1 action over 60 characters"
+      ],
+      "durationMs": 4749,
+      "egress": []
+    }
+  }
+}

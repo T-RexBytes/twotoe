@@ -1,0 +1,43 @@
+{
+  "model": "gemma4:e2b",
+  "fixture": "f02-litellm-ioc",
+  "run": 5,
+  "seed": 46,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 2180,
+      "evalCount": 130,
+      "evalDurationMs": 1810,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"treat this environment as compromised\"\n  ],\n  \"line2Tail\": \"rest now\",\n  \"checklist\": [\n    {\n      \"findingId\": \"litellm-1.107.0:22257542\",\n      \"action\": \"treat this environment as compromised\",\n      \"why\": \"LiteLLM 1.107.0 on PyPI and Docker shipped a credential stealer and a remote code loader.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 2180,
+  "totalMs": 2188,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: treat this environment as compromised.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: treat this environment as compromised.",
+    "line2": "Everything else: rest now. Checked 12 things in 2.2s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "litellm-1.107.0:22257542",
+        "action": "treat this environment as compromised",
+        "why": "LiteLLM 1.107.0 on PyPI and Docker shipped a credential stealer and a remote code loader."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "gemma4:e2b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 2188,
+      "egress": []
+    }
+  }
+}

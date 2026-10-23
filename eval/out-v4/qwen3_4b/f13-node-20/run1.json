@@ -1,0 +1,43 @@
+{
+  "model": "qwen3:4b",
+  "fixture": "f13-node-20",
+  "run": 1,
+  "seed": 42,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 14621,
+      "evalCount": 195,
+      "evalDurationMs": 13709,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"move off end-of-life Node 20.19.0\"\n  ],\n  \"line2Tail\": \"go back to sleep\",\n  \"checklist\": [\n    {\n      \"findingId\": \"nodejs-2026-10-21:e340a008\",\n      \"action\": \"Move off Node 20.19.0: its line is end-of-life; install 24.22.1\",\n      \"why\": \"Node.js 22.23.4, 24.22.1 and 26.12.1 fix 10 CVEs, 4 rated High, including a Brotli decoder out-of-bounds write (CVE-2026-111497) and TLS...\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 14621,
+  "totalMs": 14625,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: move off end-of-life Node 20.19.0.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: move off end-of-life Node 20.19.0.",
+    "line2": "Everything else: go back to sleep. Checked 10 things in 14.6s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "nodejs-2026-10-21:e340a008",
+        "action": "Move off Node 20.19.0: its line is end-of-life; install 24.22.1",
+        "why": "Node.js 22.23.4, 24.22.1 and 26.12.1 fix 10 CVEs, 4 rated High, including a Brotli decoder out-of-bounds write (CVE-2026-111497) and TLS..."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "qwen3:4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 14625,
+      "egress": []
+    }
+  }
+}

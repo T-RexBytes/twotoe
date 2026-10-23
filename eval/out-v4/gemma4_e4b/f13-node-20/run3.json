@@ -1,0 +1,43 @@
+{
+  "model": "gemma4:e4b",
+  "fixture": "f13-node-20",
+  "run": 3,
+  "seed": 44,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 9832,
+      "evalCount": 181,
+      "evalDurationMs": 8994,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"move off end-of-life Node 20.19.0\"\n  ],\n  \"line2Tail\": \"you are almost there\",\n  \"checklist\": [\n    {\n      \"findingId\": \"nodejs-2026-10-21:e340a008\",\n      \"action\": \"Move off Node 20.19.0: install 24.22.1\",\n      \"why\": \"Node.js 22.23.4, 24.22.1 and 26.12.1 fix 10 CVEs, including a Brotli decoder out-of-bounds write.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 9834,
+  "totalMs": 9838,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: move off end-of-life Node 20.19.0.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: move off end-of-life Node 20.19.0.",
+    "line2": "Everything else: you are almost there. Checked 10 things in 9.8s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "nodejs-2026-10-21:e340a008",
+        "action": "Move off Node 20.19.0: install 24.22.1",
+        "why": "Node.js 22.23.4, 24.22.1 and 26.12.1 fix 10 CVEs, including a Brotli decoder out-of-bounds write."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "gemma4:e4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 9838,
+      "egress": []
+    }
+  }
+}

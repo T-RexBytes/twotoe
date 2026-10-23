@@ -1,0 +1,58 @@
+{
+  "model": "gemma4:e4b",
+  "fixture": "f22-kitchen-sink",
+  "run": 4,
+  "seed": 45,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 27851,
+      "evalCount": 424,
+      "evalDurationMs": 24924,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"update Plex to 1.43.3.10861\",\n    \"rebuild your litellm env on 1.106.2\"\n  ],\n  \"line2Tail\": \"take a deep breath, things are handled\",\n  \"checklist\": [\n    {\n      \"findingId\": \"plex2shell-2026:651fd9b0\",\n      \"action\": \"Update Plex Media Server to 1.43.3.10861 or newer\",\n      \"why\": \"Plex Media Server has four actively exploited flaws that need immediate patching.\"\n    },\n    {\n      \"findingId\": \"litellm-1.107.0:b9a6310d\",\n      \"action\": \"Rebuild the env with litellm 1.106.2 and rotate every key it could read\",\n      \"why\": \"LiteLLM 1.107.0 shipped a credential stealer and a remote code loader.\"\n    },\n    {\n      \"findingId\": \"railway-2026-10-21:5c1dc4f4\",\n      \"action\": \"Roll every env var, API key, and registry credential stored in Railway\",\n      \"why\": \"An unauthorized party may have accessed encrypted environment variables and obtained decrypted contents.\"\n    },\n    {\n      \"findingId\": \"nodejs-2026-10-21:22619b27\",\n      \"action\": \"Upgrade Node from 24.22.0 to 24.22.1\",\n      \"why\": \"Node.js releases fix several CVEs, including one related to Brotli decoder out-of-bounds write.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 27851,
+  "totalMs": 27859,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "4 things need you today: update Plex to 1.43.3.10861; rebuild your litellm env on 1.106.2; +2 more in the checklist.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "4 things need you today: update Plex to 1.43.3.10861; rebuild your litellm env on 1.106.2; +2 more in the checklist.",
+    "line2": "Everything else: take a deep breath, things are handled. Checked 14 things in 27.9s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "plex2shell-2026:651fd9b0",
+        "action": "Update Plex Media Server to 1.43.3.10861 or newer",
+        "why": "Plex Media Server has four actively exploited flaws that need immediate patching."
+      },
+      {
+        "findingId": "litellm-1.107.0:b9a6310d",
+        "action": "Rebuild the env with litellm 1.106.2 and rotate every key it could read",
+        "why": "LiteLLM 1.107.0 shipped a credential stealer and a remote code loader."
+      },
+      {
+        "findingId": "railway-2026-10-21:5c1dc4f4",
+        "action": "Roll every env var, API key, and registry credential stored in Railway",
+        "why": "An unauthorized party may have accessed encrypted environment variables and obtained decrypted contents."
+      },
+      {
+        "findingId": "nodejs-2026-10-21:22619b27",
+        "action": "Upgrade Node from 24.22.0 to 24.22.1",
+        "why": "Node.js releases fix several CVEs, including one related to Brotli decoder out-of-bounds write."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "gemma4:e4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 27859,
+      "egress": []
+    }
+  }
+}

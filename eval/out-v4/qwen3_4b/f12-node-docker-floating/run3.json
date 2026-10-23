@@ -1,0 +1,43 @@
+{
+  "model": "qwen3:4b",
+  "fixture": "f12-node-docker-floating",
+  "run": 3,
+  "seed": 44,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 14797,
+      "evalCount": 174,
+      "evalDurationMs": 14603,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"rebuild your node images\"\n  ],\n  \"line2Tail\": \"go back to sleep\",\n  \"checklist\": [\n    {\n      \"findingId\": \"nodejs-2026-10-21:47339fba\",\n      \"action\": \"Rebuild images based on node:24-alpine to pull the patched Node\",\n      \"why\": \"Node.js 22.23.4, 24.22.1 and 26.12.1 fix 10 CVEs, 4 rated High, including a Brotli decoder out-of-bounds write (CVE-2026-111497) and TLS...\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 14797,
+  "totalMs": 14802,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: rebuild your node images.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: rebuild your node images.",
+    "line2": "Everything else: go back to sleep. Checked 11 things in 14.8s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "nodejs-2026-10-21:47339fba",
+        "action": "Rebuild images based on node:24-alpine to pull the patched Node",
+        "why": "Node.js 22.23.4, 24.22.1 and 26.12.1 fix 10 CVEs, 4 rated High, including a Brotli decoder out-of-bounds write (CVE-2026-111497) and TLS..."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "qwen3:4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 14802,
+      "egress": []
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "model": "gemma4:e2b",
+  "fixture": "f17-plex-old",
+  "run": 2,
+  "seed": 43,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 3225,
+      "evalCount": 167,
+      "evalDurationMs": 2759,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"update Plex Media Server to 1.43.3.10861 or newer\"\n  ],\n  \"line2Tail\": \"rest now\",\n  \"checklist\": [\n    {\n      \"findingId\": \"plex2shell-2026:651fd9b0\",\n      \"action\": \"Update Plex Media Server from 1.43.3.10860 to 1.43.3.10861 or newer\",\n      \"why\": \"Plex Media Server before 1.43.3.10861 has four actively exploited flaws.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 3225,
+  "totalMs": 3228,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: update Plex Media Server to 1.43.3.10861 or newer.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: update Plex Media Server to 1.43.3.10861 or newer.",
+    "line2": "Everything else: rest now. Checked 10 things in 3.2s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "plex2shell-2026:651fd9b0",
+        "action": "Update Plex Media Server from 1.43.3.10860 to 1.43.3.10861 or newer",
+        "why": "Plex Media Server before 1.43.3.10861 has four actively exploited flaws."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "gemma4:e2b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 3228,
+      "egress": []
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "model": "gemma4:e2b",
+  "fixture": "f21-region-in",
+  "run": 3,
+  "seed": 44,
+  "mode": "llm-fallback",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 3247,
+      "evalCount": 190,
+      "evalDurationMs": 2958,
+      "reasons": [
+        "FYI finding sbi-2026-10-21:68d332c3 placed in the checklist",
+        "fyi line over 160 characters"
+      ],
+      "content": "{\n  \"line1Actions\": [\n    \"expect targeted phishing; SBI never asks for your OTP or PIN\"\n  ],\n  \"line2Tail\": \"take a moment before starting work\",\n  \"checklist\": [\n    {\n      \"findingId\": \"sbi-2026-10-21:68d332c3\",\n      \"action\": \"Expect targeted phishing; SBI never asks for your OTP or PIN\",\n      \"why\": \"SBI told stock exchanges that records of customers were found on the dark web.\"\n    }\n  ],\n  \"fyi\": [\n    \"State Bank of India told stock exchanges on October 21, 2026, that records of 3,897 customers, including contact details and loan and lead metadata, were found on the dark web.\"\n  ]\n}"
+    },
+    {
+      "attempt": 2,
+      "wallMs": 3428,
+      "evalCount": 189,
+      "evalDurationMs": 3223,
+      "reasons": [
+        "FYI finding sbi-2026-10-21:68d332c3 placed in the checklist",
+        "fyi line over 160 characters"
+      ],
+      "content": "{\n  \"line1Actions\": [\n    \"expect targeted phishing; SBI never asks for your OTP or PIN\"\n  ],\n  \"line2Tail\": \"take a moment to rest\",\n  \"checklist\": [\n    {\n      \"findingId\": \"sbi-2026-10-21:68d332c3\",\n      \"action\": \"expect targeted phishing; SBI never asks for your OTP or PIN\",\n      \"why\": \"SBI told stock exchanges that records of customers were found on the dark web.\"\n    }\n  ],\n  \"fyi\": [\n    \"State Bank of India told stock exchanges on October 21, 2026, that records of 3,897 customers, including contact details and loan and lead metadata, were found on the dark web.\"\n  ]\n}"
+    }
+  ],
+  "writerMs": 6676,
+  "totalMs": 6679,
+  "finalUngrounded": 0,
+  "fallbackParts": [
+    "fyi"
+  ],
+  "line1": "Nothing needs you today.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "Nothing needs you today.",
+    "line2": "Everything else: take a moment to rest. Checked 10 things in 6.7s, 0 secrets left this machine.",
+    "checklist": [],
+    "fyi": [
+      "SBI disclosed that records of 3,897 customers were found on the dark web; expect phishing, SBI never asks for OTP or PIN."
+    ],
+    "meta": {
+      "mode": "llm-fallback",
+      "model": "gemma4:e2b",
+      "attempts": 2,
+      "validatorRejections": [
+        "attempt 1: FYI finding sbi-2026-10-21:68d332c3 placed in the checklist",
+        "attempt 1: fyi line over 160 characters",
+        "attempt 2: FYI finding sbi-2026-10-21:68d332c3 placed in the checklist",
+        "attempt 2: fyi line over 160 characters"
+      ],
+      "durationMs": 6679,
+      "egress": []
+    }
+  }
+}

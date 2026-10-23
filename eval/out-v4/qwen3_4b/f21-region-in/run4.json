@@ -1,0 +1,39 @@
+{
+  "model": "qwen3:4b",
+  "fixture": "f21-region-in",
+  "run": 4,
+  "seed": 45,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 4501,
+      "evalCount": 60,
+      "evalDurationMs": 4028,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [],\n  \"line2Tail\": \"sleep well\",\n  \"checklist\": [],\n  \"fyi\": [\n    \"State Bank of India found customer data on dark web; expect targeted phishing, SBI never asks for OTP or PIN\"\n  ]\n}"
+    }
+  ],
+  "writerMs": 4502,
+  "totalMs": 4505,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "Nothing needs you today.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "Nothing needs you today.",
+    "line2": "Everything else: sleep well. Checked 10 things in 4.5s, 0 secrets left this machine.",
+    "checklist": [],
+    "fyi": [
+      "State Bank of India found customer data on dark web; expect targeted phishing, SBI never asks for OTP or PIN"
+    ],
+    "meta": {
+      "mode": "llm",
+      "model": "qwen3:4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 4505,
+      "egress": []
+    }
+  }
+}

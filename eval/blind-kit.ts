@@ -15,7 +15,8 @@ import { buildBrief, templateDraft } from "@twotoe/writer";
 
 const EVAL = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES = path.join(EVAL, "fixtures");
-const OUT = path.join(EVAL, "out", "gemma4_e4b");
+// eval/out is rewritten by every eval run; eval/out-v4 is the committed snapshot the post uses.
+const OUT = [path.join(EVAL, "out", "gemma4_e4b"), path.join(EVAL, "out-v4", "gemma4_e4b")].find((d) => fs.existsSync(d)) ?? path.join(EVAL, "out", "gemma4_e4b");
 const BLIND = path.join(EVAL, "blind");
 const KEY = path.join(BLIND, ".key.json");
 const NOW = new Date(2026, 9, 23, 7, 0);

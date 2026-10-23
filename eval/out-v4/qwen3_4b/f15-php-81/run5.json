@@ -1,0 +1,43 @@
+{
+  "model": "qwen3:4b",
+  "fixture": "f15-php-81",
+  "run": 5,
+  "seed": 46,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 13349,
+      "evalCount": 155,
+      "evalDurationMs": 13158,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"take PHP 8.1.30 offline or upgrade\"\n  ],\n  \"line2Tail\": \"go back to sleep\",\n  \"checklist\": [\n    {\n      \"findingId\": \"php2shell-2026:d2c07977\",\n      \"action\": \"Take PHP 8.1.30 offline or move to 8.2.35\",\n      \"why\": \"PHP 8.5.12, 8.4.27, 8.3.36 and 8.2.35 fix unauthenticated RCE vulnerabilities rated 9.2.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 13349,
+  "totalMs": 13352,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: take PHP 8.1.30 offline or upgrade.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: take PHP 8.1.30 offline or upgrade.",
+    "line2": "Everything else: go back to sleep. Checked 10 things in 13.4s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "php2shell-2026:d2c07977",
+        "action": "Take PHP 8.1.30 offline or move to 8.2.35",
+        "why": "PHP 8.5.12, 8.4.27, 8.3.36 and 8.2.35 fix unauthenticated RCE vulnerabilities rated 9.2."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "qwen3:4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 13352,
+      "egress": []
+    }
+  }
+}

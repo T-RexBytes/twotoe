@@ -1,0 +1,43 @@
+{
+  "model": "gemma4:e4b",
+  "fixture": "f12-node-docker-floating",
+  "run": 3,
+  "seed": 44,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 8239,
+      "evalCount": 139,
+      "evalDurationMs": 7636,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"rebuild your node images\"\n  ],\n  \"line2Tail\": \"take a deep breath\",\n  \"checklist\": [\n    {\n      \"findingId\": \"nodejs-2026-10-21:47339fba\",\n      \"action\": \"Rebuild images based on node:24-alpine to pull the patched Node\",\n      \"why\": \"Node.js releases fix several issues, including a Brotli decoder out-of-bounds write and TLS problems.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 8239,
+  "totalMs": 8244,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: rebuild your node images.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: rebuild your node images.",
+    "line2": "Everything else: take a deep breath. Checked 11 things in 8.2s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "nodejs-2026-10-21:47339fba",
+        "action": "Rebuild images based on node:24-alpine to pull the patched Node",
+        "why": "Node.js releases fix several issues, including a Brotli decoder out-of-bounds write and TLS problems."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "gemma4:e4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 8244,
+      "egress": []
+    }
+  }
+}

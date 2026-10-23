@@ -1,0 +1,43 @@
+{
+  "model": "gemma4:e4b",
+  "fixture": "f14-php-83-old",
+  "run": 1,
+  "seed": 42,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 9559,
+      "evalCount": 160,
+      "evalDurationMs": 8056,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"upgrade PHP to 8.3.36\"\n  ],\n  \"line2Tail\": \"take a deep breath\",\n  \"checklist\": [\n    {\n      \"findingId\": \"php2shell-2026:db5495a7\",\n      \"action\": \"Upgrade PHP from 8.3.35 to 8.3.36\",\n      \"why\": \"PHP versions 8.5.12, 8.4.27, 8.3.36, and 8.2.35 fix unauthenticated RCE issues.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 9559,
+  "totalMs": 9562,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: upgrade PHP to 8.3.36.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: upgrade PHP to 8.3.36.",
+    "line2": "Everything else: take a deep breath. Checked 10 things in 9.6s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "php2shell-2026:db5495a7",
+        "action": "Upgrade PHP from 8.3.35 to 8.3.36",
+        "why": "PHP versions 8.5.12, 8.4.27, 8.3.36, and 8.2.35 fix unauthenticated RCE issues."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "gemma4:e4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 9562,
+      "egress": []
+    }
+  }
+}

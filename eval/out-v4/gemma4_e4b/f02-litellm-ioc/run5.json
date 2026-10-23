@@ -1,0 +1,43 @@
+{
+  "model": "gemma4:e4b",
+  "fixture": "f02-litellm-ioc",
+  "run": 5,
+  "seed": 46,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 9927,
+      "evalCount": 158,
+      "evalDurationMs": 8534,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"treat your litellm env as compromised\"\n  ],\n  \"line2Tail\": \"take a deep breath\",\n  \"checklist\": [\n    {\n      \"findingId\": \"litellm-1.107.0:22257542\",\n      \"action\": \"Treat this environment as compromised: delete it, rotate keys it could read\",\n      \"why\": \"LiteLLM 1.107.0 on PyPI and Docker shipped a credential stealer and a remote code loader; 1.106.2 is the last safe release.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 9927,
+  "totalMs": 9935,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: treat your litellm env as compromised.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: treat your litellm env as compromised.",
+    "line2": "Everything else: take a deep breath. Checked 12 things in 9.9s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "litellm-1.107.0:22257542",
+        "action": "Treat this environment as compromised: delete it, rotate keys it could read",
+        "why": "LiteLLM 1.107.0 on PyPI and Docker shipped a credential stealer and a remote code loader; 1.106.2 is the last safe release."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "gemma4:e4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 9935,
+      "egress": []
+    }
+  }
+}

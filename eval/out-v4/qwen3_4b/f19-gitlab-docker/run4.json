@@ -1,0 +1,48 @@
+{
+  "model": "qwen3:4b",
+  "fixture": "f19-gitlab-docker",
+  "run": 4,
+  "seed": 45,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 22314,
+      "evalCount": 302,
+      "evalDurationMs": 22087,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"upgrade GitLab to 19.4.3\",\n    \"upgrade GitLab to 19.4.2\"\n  ],\n  \"line2Tail\": \"your sleep is safe\",\n  \"checklist\": [\n    {\n      \"findingId\": \"gitlab-cve-2026-110264:9af40351\",\n      \"action\": \"Upgrade self-managed GitLab from 19.4.1 to 19.4.3\",\n      \"why\": \"GitLab CE/EE from 7.0 lets an unauthenticated user run code via a crafted regular expression (CVSS 10.0); fixed in 19.5.1, 19.4.3, 19.3.6.\"\n    },\n    {\n      \"findingId\": \"gitlab-cve-2026-97229:40a58b71\",\n      \"action\": \"Upgrade self-managed GitLab from 19.4.1 to 19.4.2\",\n      \"why\": \"GitLab CE/EE 19.2 to 19.4 lets an unauthenticated user run code via a crafted regular expression in CI/CD configuration (CVSS 10.0).\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 22314,
+  "totalMs": 22321,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "2 things need you today: upgrade GitLab to 19.4.3; upgrade GitLab to 19.4.2.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "2 things need you today: upgrade GitLab to 19.4.3; upgrade GitLab to 19.4.2.",
+    "line2": "Everything else: your sleep is safe. Checked 12 things in 22.3s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "gitlab-cve-2026-110264:9af40351",
+        "action": "Upgrade self-managed GitLab from 19.4.1 to 19.4.3",
+        "why": "GitLab CE/EE from 7.0 lets an unauthenticated user run code via a crafted regular expression (CVSS 10.0); fixed in 19.5.1, 19.4.3, 19.3.6."
+      },
+      {
+        "findingId": "gitlab-cve-2026-97229:40a58b71",
+        "action": "Upgrade self-managed GitLab from 19.4.1 to 19.4.2",
+        "why": "GitLab CE/EE 19.2 to 19.4 lets an unauthenticated user run code via a crafted regular expression in CI/CD configuration (CVSS 10.0)."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "qwen3:4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 22321,
+      "egress": []
+    }
+  }
+}

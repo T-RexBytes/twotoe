@@ -4,7 +4,8 @@
     "packages/*/src/**/*.ts",
     "packages/*/test/**/*.ts",
     "packages/*/scripts/**/*.ts",
-    "eval/**/*.ts"
+    "eval/**/*.ts",
+    "scripts/**/*.ts"
   ],
   "exclude": ["**/node_modules", "eval/fixtures"]
 }

@@ -1,0 +1,39 @@
+{
+  "model": "qwen3:4b",
+  "fixture": "f21-region-in",
+  "run": 3,
+  "seed": 44,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 4129,
+      "evalCount": 55,
+      "evalDurationMs": 3686,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [],\n  \"line2Tail\": \"sleep well\",\n  \"checklist\": [],\n  \"fyi\": [\n    \"SBI found customer data on dark web; expect targeted phishing, never share OTP or PIN\"\n  ]\n}"
+    }
+  ],
+  "writerMs": 4129,
+  "totalMs": 4132,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "Nothing needs you today.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "Nothing needs you today.",
+    "line2": "Everything else: sleep well. Checked 10 things in 4.1s, 0 secrets left this machine.",
+    "checklist": [],
+    "fyi": [
+      "SBI found customer data on dark web; expect targeted phishing, never share OTP or PIN"
+    ],
+    "meta": {
+      "mode": "llm",
+      "model": "qwen3:4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 4132,
+      "egress": []
+    }
+  }
+}

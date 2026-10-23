@@ -1,0 +1,43 @@
+{
+  "model": "gemma4:e2b",
+  "fixture": "f05-sitecustomize-only",
+  "run": 5,
+  "seed": 46,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 2069,
+      "evalCount": 131,
+      "evalDurationMs": 1736,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [],\n  \"line2Tail\": \"take a moment before starting\",\n  \"checklist\": [\n    {\n      \"findingId\": \"litellm-1.107.0:22f2d41a\",\n      \"action\": \"Confirm the unexpected sitecustomize.py is legitimate; inspect it in a sandbox\",\n      \"why\": \"LiteLLM 1.107.0 on PyPI and Docker shipped a credential stealer and a remote code loader.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 2069,
+  "totalMs": 2076,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "Nothing needs you today.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "Nothing needs you today.",
+    "line2": "Everything else: take a moment before starting. Checked 12 things in 2.1s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "litellm-1.107.0:22f2d41a",
+        "action": "Confirm the unexpected sitecustomize.py is legitimate; inspect it in a sandbox",
+        "why": "LiteLLM 1.107.0 on PyPI and Docker shipped a credential stealer and a remote code loader."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "gemma4:e2b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 2076,
+      "egress": []
+    }
+  }
+}

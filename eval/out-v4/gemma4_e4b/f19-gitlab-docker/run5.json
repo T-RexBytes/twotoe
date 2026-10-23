@@ -1,0 +1,48 @@
+{
+  "model": "gemma4:e4b",
+  "fixture": "f19-gitlab-docker",
+  "run": 5,
+  "seed": 46,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 16224,
+      "evalCount": 274,
+      "evalDurationMs": 14145,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"upgrade GitLab to 19.4.3\",\n    \"upgrade GitLab to 19.4.2\"\n  ],\n  \"line2Tail\": \"you are doing great work\",\n  \"checklist\": [\n    {\n      \"findingId\": \"gitlab-cve-2026-110264:9af40351\",\n      \"action\": \"Upgrade self-managed GitLab from 19.4.1 to 19.4.3\",\n      \"why\": \"GitLab CE/EE from 7.0 lets an unauthenticated user run code via a crafted regular expression.\"\n    },\n    {\n      \"findingId\": \"gitlab-cve-2026-97229:40a58b71\",\n      \"action\": \"Upgrade self-managed GitLab from 19.4.1 to 19.4.2\",\n      \"why\": \"GitLab CE/EE 19.2 to 19.4 lets an unauthenticated user run code via a crafted regular expression in CI/CD configuration.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 16224,
+  "totalMs": 16231,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "2 things need you today: upgrade GitLab to 19.4.3; upgrade GitLab to 19.4.2.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "2 things need you today: upgrade GitLab to 19.4.3; upgrade GitLab to 19.4.2.",
+    "line2": "Everything else: you are doing great work. Checked 12 things in 16.2s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "gitlab-cve-2026-110264:9af40351",
+        "action": "Upgrade self-managed GitLab from 19.4.1 to 19.4.3",
+        "why": "GitLab CE/EE from 7.0 lets an unauthenticated user run code via a crafted regular expression."
+      },
+      {
+        "findingId": "gitlab-cve-2026-97229:40a58b71",
+        "action": "Upgrade self-managed GitLab from 19.4.1 to 19.4.2",
+        "why": "GitLab CE/EE 19.2 to 19.4 lets an unauthenticated user run code via a crafted regular expression in CI/CD configuration."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "gemma4:e4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 16231,
+      "egress": []
+    }
+  }
+}

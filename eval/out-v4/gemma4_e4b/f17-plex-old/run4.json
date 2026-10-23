@@ -1,0 +1,43 @@
+{
+  "model": "gemma4:e4b",
+  "fixture": "f17-plex-old",
+  "run": 4,
+  "seed": 45,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 8552,
+      "evalCount": 151,
+      "evalDurationMs": 7572,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"update plex to 1.43.3.10861\"\n  ],\n  \"line2Tail\": \"take a deep breath\",\n  \"checklist\": [\n    {\n      \"findingId\": \"plex2shell-2026:651fd9b0\",\n      \"action\": \"Update Plex Media Server from 1.43.3.10860 to 1.43.3.10861 or newer\",\n      \"why\": \"Plex Media Server has four actively exploited flaws.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 8553,
+  "totalMs": 8556,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: update plex to 1.43.3.10861.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: update plex to 1.43.3.10861.",
+    "line2": "Everything else: take a deep breath. Checked 10 things in 8.6s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "plex2shell-2026:651fd9b0",
+        "action": "Update Plex Media Server from 1.43.3.10860 to 1.43.3.10861 or newer",
+        "why": "Plex Media Server has four actively exploited flaws."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "gemma4:e4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 8556,
+      "egress": []
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "model": "gemma4:e2b",
+  "fixture": "f20-emudhra-node-store",
+  "run": 1,
+  "seed": 42,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 1942,
+      "evalCount": 110,
+      "evalDurationMs": 1612,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"update Node\"\n  ],\n  \"line2Tail\": \"that should get you started\",\n  \"checklist\": [\n    {\n      \"findingId\": \"emudhra-weak-ca-keys:02a62b81\",\n      \"action\": \"Update Node\",\n      \"why\": \"Eight eMudhra intermediate CA private keys were trivially recoverable.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 1943,
+  "totalMs": 1946,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: update Node.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: update Node.",
+    "line2": "Everything else: that should get you started. Checked 10 things in 1.9s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "emudhra-weak-ca-keys:02a62b81",
+        "action": "Update Node",
+        "why": "Eight eMudhra intermediate CA private keys were trivially recoverable."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "gemma4:e2b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 1946,
+      "egress": []
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "model": "gemma4:e2b",
+  "fixture": "f12-node-docker-floating",
+  "run": 5,
+  "seed": 46,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 2577,
+      "evalCount": 153,
+      "evalDurationMs": 2456,
+      "reasons": [
+        "line1 action over 60 characters"
+      ],
+      "content": "{\n  \"line1Actions\": [\n    \"rebuild images based on node:24-alpine to pull the patched Node\"\n  ],\n  \"line2Tail\": \"hope this helps you start your day\",\n  \"checklist\": [\n    {\n      \"findingId\": \"nodejs-2026-10-21:47339fba\",\n      \"action\": \"Rebuild images based on node:24-alpine to pull the patched Node\",\n      \"why\": \"Node.js releases fix several issues, including a Brotli decoder out-of-bounds write and TLS issues.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    },
+    {
+      "attempt": 2,
+      "wallMs": 2426,
+      "evalCount": 142,
+      "evalDurationMs": 2239,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"rebuild images based on node:24-alpine\"\n  ],\n  \"line2Tail\": \"take a moment to review the changes\",\n  \"checklist\": [\n    {\n      \"findingId\": \"nodejs-2026-10-21:47339fba\",\n      \"action\": \"Rebuild images based on node:24-alpine\",\n      \"why\": \"Node.js releases fix several issues including a Brotli decoder out-of-bounds write and TLS issues.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 5003,
+  "totalMs": 5008,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: rebuild images based on node:24-alpine.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: rebuild images based on node:24-alpine.",
+    "line2": "Everything else: take a moment to review the changes. Checked 11 things in 5.0s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "nodejs-2026-10-21:47339fba",
+        "action": "Rebuild images based on node:24-alpine",
+        "why": "Node.js releases fix several issues including a Brotli decoder out-of-bounds write and TLS issues."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "gemma4:e2b",
+      "attempts": 2,
+      "validatorRejections": [
+        "attempt 1: line1 action over 60 characters"
+      ],
+      "durationMs": 5008,
+      "egress": []
+    }
+  }
+}

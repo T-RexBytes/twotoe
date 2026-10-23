@@ -1,0 +1,43 @@
+{
+  "model": "gemma4:e2b",
+  "fixture": "f01-litellm-bad-venv",
+  "run": 2,
+  "seed": 43,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 2906,
+      "evalCount": 156,
+      "evalDurationMs": 2516,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"rebuild your litellm env on 1.106.2\"\n  ],\n  \"line2Tail\": \"rest now\",\n  \"checklist\": [\n    {\n      \"findingId\": \"litellm-1.107.0:7beeb7ba\",\n      \"action\": \"Rebuild the env with litellm 1.106.2 and rotate every key it could read\",\n      \"why\": \"LiteLLM 1.107.0 on PyPI and Docker shipped a credential stealer and a remote code loader.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 2906,
+  "totalMs": 2927,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: rebuild your litellm env on 1.106.2.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: rebuild your litellm env on 1.106.2.",
+    "line2": "Everything else: rest now. Checked 12 things in 2.9s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "litellm-1.107.0:7beeb7ba",
+        "action": "Rebuild the env with litellm 1.106.2 and rotate every key it could read",
+        "why": "LiteLLM 1.107.0 on PyPI and Docker shipped a credential stealer and a remote code loader."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "gemma4:e2b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 2927,
+      "egress": []
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "model": "gemma4:e4b",
+  "fixture": "f15-php-81",
+  "run": 3,
+  "seed": 44,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 11221,
+      "evalCount": 165,
+      "evalDurationMs": 9804,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"take PHP 8.1.30 offline or upgrade\"\n  ],\n  \"line2Tail\": \"you are almost there\",\n  \"checklist\": [\n    {\n      \"findingId\": \"php2shell-2026:d2c07977\",\n      \"action\": \"Take PHP 8.1.30 offline or move to 8.2.35\",\n      \"why\": \"PHP versions 8.5.12, 8.4.27, 8.3.36, and 8.2.35 fix unauthenticated RCE issues.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 11222,
+  "totalMs": 11225,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: take PHP 8.1.30 offline or upgrade.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: take PHP 8.1.30 offline or upgrade.",
+    "line2": "Everything else: you are almost there. Checked 10 things in 11.2s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "php2shell-2026:d2c07977",
+        "action": "Take PHP 8.1.30 offline or move to 8.2.35",
+        "why": "PHP versions 8.5.12, 8.4.27, 8.3.36, and 8.2.35 fix unauthenticated RCE issues."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "gemma4:e4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 11225,
+      "egress": []
+    }
+  }
+}

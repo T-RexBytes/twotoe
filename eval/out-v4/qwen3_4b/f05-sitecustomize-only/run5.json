@@ -1,0 +1,43 @@
+{
+  "model": "qwen3:4b",
+  "fixture": "f05-sitecustomize-only",
+  "run": 5,
+  "seed": 46,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 10829,
+      "evalCount": 133,
+      "evalDurationMs": 10260,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [],\n  \"line2Tail\": \"go back to sleep\",\n  \"checklist\": [\n    {\n      \"findingId\": \"litellm-1.107.0:22f2d41a\",\n      \"action\": \"Confirm the unexpected sitecustomize.py is legitimate; inspect it in a sandbox\",\n      \"why\": \"LiteLLM 1.107.0 on PyPI and Docker shipped a credential stealer and a remote code loader; 1.106.2 is the last safe release.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 10829,
+  "totalMs": 10836,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "Nothing needs you today.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "Nothing needs you today.",
+    "line2": "Everything else: go back to sleep. Checked 12 things in 10.8s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "litellm-1.107.0:22f2d41a",
+        "action": "Confirm the unexpected sitecustomize.py is legitimate; inspect it in a sandbox",
+        "why": "LiteLLM 1.107.0 on PyPI and Docker shipped a credential stealer and a remote code loader; 1.106.2 is the last safe release."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "qwen3:4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 10836,
+      "egress": []
+    }
+  }
+}

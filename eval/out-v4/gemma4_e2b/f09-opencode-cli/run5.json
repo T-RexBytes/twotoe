@@ -1,0 +1,43 @@
+{
+  "model": "gemma4:e2b",
+  "fixture": "f09-opencode-cli",
+  "run": 5,
+  "seed": 46,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 2133,
+      "evalCount": 135,
+      "evalDurationMs": 1839,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [],\n  \"line2Tail\": \"take a moment to review these points\",\n  \"checklist\": [\n    {\n      \"findingId\": \"opencode-console-2026-10-17:fb74fe33\",\n      \"action\": \"Confirm whether you linked provider keys in OpenCode Console; if yes, revoke them\",\n      \"why\": \"A legacy system was accessed and provider API keys saved in Console by 1.4% of Console users may have been exposed.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 2133,
+  "totalMs": 2137,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "Nothing needs you today.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "Nothing needs you today.",
+    "line2": "Everything else: take a moment to review these points. Checked 10 things in 2.1s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "opencode-console-2026-10-17:fb74fe33",
+        "action": "Confirm whether you linked provider keys in OpenCode Console; if yes, revoke them",
+        "why": "A legacy system was accessed and provider API keys saved in Console by 1.4% of Console users may have been exposed."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "gemma4:e2b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 2137,
+      "egress": []
+    }
+  }
+}

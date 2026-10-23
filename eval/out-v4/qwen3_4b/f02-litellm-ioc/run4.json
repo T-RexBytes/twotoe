@@ -1,0 +1,43 @@
+{
+  "model": "qwen3:4b",
+  "fixture": "f02-litellm-ioc",
+  "run": 4,
+  "seed": 45,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 13167,
+      "evalCount": 148,
+      "evalDurationMs": 12711,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"treat your litellm env as compromised\"\n  ],\n  \"line2Tail\": \"go back to sleep\",\n  \"checklist\": [\n    {\n      \"findingId\": \"litellm-1.107.0:22257542\",\n      \"action\": \"Treat this environment as compromised: delete it, rotate keys it could read\",\n      \"why\": \"LiteLLM 1.107.0 on PyPI and Docker shipped a credential stealer and a remote code loader; 1.106.2 is the last safe release.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 13168,
+  "totalMs": 13176,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: treat your litellm env as compromised.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: treat your litellm env as compromised.",
+    "line2": "Everything else: go back to sleep. Checked 12 things in 13.2s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "litellm-1.107.0:22257542",
+        "action": "Treat this environment as compromised: delete it, rotate keys it could read",
+        "why": "LiteLLM 1.107.0 on PyPI and Docker shipped a credential stealer and a remote code loader; 1.106.2 is the last safe release."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "qwen3:4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 13176,
+      "egress": []
+    }
+  }
+}

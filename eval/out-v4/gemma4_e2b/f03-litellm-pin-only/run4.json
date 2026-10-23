@@ -1,0 +1,43 @@
+{
+  "model": "gemma4:e2b",
+  "fixture": "f03-litellm-pin-only",
+  "run": 4,
+  "seed": 45,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 2543,
+      "evalCount": 166,
+      "evalDurationMs": 2224,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"change the litellm pin from 1.107.0 to 1.106.2\"\n  ],\n  \"line2Tail\": \"rest now\",\n  \"checklist\": [\n    {\n      \"findingId\": \"litellm-1.107.0:5be730ee\",\n      \"action\": \"change the litellm pin from 1.107.0 to 1.106.2\",\n      \"why\": \"LiteLLM 1.107.0 on PyPI and Docker shipped a credential stealer and a remote code loader.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 2543,
+  "totalMs": 2548,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: change the litellm pin from 1.107.0 to 1.106.2.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: change the litellm pin from 1.107.0 to 1.106.2.",
+    "line2": "Everything else: rest now. Checked 11 things in 2.5s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "litellm-1.107.0:5be730ee",
+        "action": "change the litellm pin from 1.107.0 to 1.106.2",
+        "why": "LiteLLM 1.107.0 on PyPI and Docker shipped a credential stealer and a remote code loader."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "gemma4:e2b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 2548,
+      "egress": []
+    }
+  }
+}

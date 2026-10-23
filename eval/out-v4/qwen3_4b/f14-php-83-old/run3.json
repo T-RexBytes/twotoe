@@ -1,0 +1,43 @@
+{
+  "model": "qwen3:4b",
+  "fixture": "f14-php-83-old",
+  "run": 3,
+  "seed": 44,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 11229,
+      "evalCount": 132,
+      "evalDurationMs": 10989,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"upgrade PHP to 8.3.36\"\n  ],\n  \"line2Tail\": \"sleep now\",\n  \"checklist\": [\n    {\n      \"findingId\": \"php2shell-2026:db5495a7\",\n      \"action\": \"Upgrade PHP from 8.3.35 to 8.3.36\",\n      \"why\": \"PHP 8.3.36 fixes unauthenticated remote code execution vulnerabilities rated CVSS v4.0 9.2.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 11229,
+  "totalMs": 11232,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: upgrade PHP to 8.3.36.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: upgrade PHP to 8.3.36.",
+    "line2": "Everything else: sleep now. Checked 10 things in 11.2s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "php2shell-2026:db5495a7",
+        "action": "Upgrade PHP from 8.3.35 to 8.3.36",
+        "why": "PHP 8.3.36 fixes unauthenticated remote code execution vulnerabilities rated CVSS v4.0 9.2."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "qwen3:4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 11232,
+      "egress": []
+    }
+  }
+}

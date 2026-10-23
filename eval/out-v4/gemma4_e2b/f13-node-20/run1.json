@@ -1,0 +1,43 @@
+{
+  "model": "gemma4:e2b",
+  "fixture": "f13-node-20",
+  "run": 1,
+  "seed": 42,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 3665,
+      "evalCount": 211,
+      "evalDurationMs": 3104,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"move off Node 20.19.0: its line is end-of-life\",\n    \"install Node 24.22.1\"\n  ],\n  \"line2Tail\": \"a good start to the day\",\n  \"checklist\": [\n    {\n      \"findingId\": \"nodejs-2026-10-21:e340a008\",\n      \"action\": \"Move off Node 20.19.0: its line is end-of-life; install 24.22.1\",\n      \"why\": \"Node.js 22.23.4, 24.22.1 and 26.12.1 fix several CVEs, including a Brotli decoder out-of-bounds write and TLS issues.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 3665,
+  "totalMs": 3669,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: move off Node 20.19.0: its line is end-of-life.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: move off Node 20.19.0: its line is end-of-life.",
+    "line2": "Everything else: a good start to the day. Checked 10 things in 3.7s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "nodejs-2026-10-21:e340a008",
+        "action": "Move off Node 20.19.0: its line is end-of-life; install 24.22.1",
+        "why": "Node.js 22.23.4, 24.22.1 and 26.12.1 fix several CVEs, including a Brotli decoder out-of-bounds write and TLS issues."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "gemma4:e2b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 3669,
+      "egress": []
+    }
+  }
+}

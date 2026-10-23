@@ -1,0 +1,43 @@
+{
+  "model": "qwen3:4b",
+  "fixture": "f17-plex-old",
+  "run": 1,
+  "seed": 42,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 15246,
+      "evalCount": 206,
+      "evalDurationMs": 14430,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"update Plex to 1.43.3.10861\"\n  ],\n  \"line2Tail\": \"go back to sleep\",\n  \"checklist\": [\n    {\n      \"findingId\": \"plex2shell-2026:651fd9b0\",\n      \"action\": \"Update Plex Media Server from 1.43.3.10860 to 1.43.3.10861 or newer\",\n      \"why\": \"Plex Media Server before 1.43.3.10861 has four actively exploited flaws (CVE-2026-96652, CVE-2026-96654, CVE-2026-96655, CVE-2026-96656).\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 15247,
+  "totalMs": 15250,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: update Plex to 1.43.3.10861.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: update Plex to 1.43.3.10861.",
+    "line2": "Everything else: go back to sleep. Checked 10 things in 15.3s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "plex2shell-2026:651fd9b0",
+        "action": "Update Plex Media Server from 1.43.3.10860 to 1.43.3.10861 or newer",
+        "why": "Plex Media Server before 1.43.3.10861 has four actively exploited flaws (CVE-2026-96652, CVE-2026-96654, CVE-2026-96655, CVE-2026-96656)."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "qwen3:4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 15250,
+      "egress": []
+    }
+  }
+}

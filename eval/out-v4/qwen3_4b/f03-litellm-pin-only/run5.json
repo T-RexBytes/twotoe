@@ -1,0 +1,43 @@
+{
+  "model": "qwen3:4b",
+  "fixture": "f03-litellm-pin-only",
+  "run": 5,
+  "seed": 46,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 13649,
+      "evalCount": 164,
+      "evalDurationMs": 13090,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"fix the litellm 1.107.0 pin\"\n  ],\n  \"line2Tail\": \"go back to sleep\",\n  \"checklist\": [\n    {\n      \"findingId\": \"litellm-1.107.0:5be730ee\",\n      \"action\": \"Change the litellm pin from 1.107.0 to 1.106.2 before the next install\",\n      \"why\": \"LiteLLM 1.107.0 on PyPI and Docker shipped a credential stealer and a remote code loader; 1.106.2 is the last safe release.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 13649,
+  "totalMs": 13654,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: fix the litellm 1.107.0 pin.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: fix the litellm 1.107.0 pin.",
+    "line2": "Everything else: go back to sleep. Checked 11 things in 13.7s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "litellm-1.107.0:5be730ee",
+        "action": "Change the litellm pin from 1.107.0 to 1.106.2 before the next install",
+        "why": "LiteLLM 1.107.0 on PyPI and Docker shipped a credential stealer and a remote code loader; 1.106.2 is the last safe release."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "qwen3:4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 13654,
+      "egress": []
+    }
+  }
+}

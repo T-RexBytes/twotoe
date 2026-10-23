@@ -1,0 +1,43 @@
+{
+  "model": "gemma4:e2b",
+  "fixture": "f15-php-81",
+  "run": 5,
+  "seed": 46,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 2751,
+      "evalCount": 171,
+      "evalDurationMs": 2626,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [\n    \"take PHP 8.1.30 offline or move to 8.2.35\"\n  ],\n  \"line2Tail\": \"rest now\",\n  \"checklist\": [\n    {\n      \"findingId\": \"php2shell-2026:d2c07977\",\n      \"action\": \"Take PHP 8.1.30 offline or move to 8.2.35\",\n      \"why\": \"PHP versions 8.5.12, 8.4.27, 8.3.36, and 8.2.35 fix unauthenticated remote code execution.\"\n    }\n  ],\n  \"fyi\": []\n}"
+    }
+  ],
+  "writerMs": 2753,
+  "totalMs": 2756,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "1 thing needs you today: take PHP 8.1.30 offline or move to 8.2.35.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "1 thing needs you today: take PHP 8.1.30 offline or move to 8.2.35.",
+    "line2": "Everything else: rest now. Checked 10 things in 2.8s, 0 secrets left this machine.",
+    "checklist": [
+      {
+        "findingId": "php2shell-2026:d2c07977",
+        "action": "Take PHP 8.1.30 offline or move to 8.2.35",
+        "why": "PHP versions 8.5.12, 8.4.27, 8.3.36, and 8.2.35 fix unauthenticated remote code execution."
+      }
+    ],
+    "fyi": [],
+    "meta": {
+      "mode": "llm",
+      "model": "gemma4:e2b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 2756,
+      "egress": []
+    }
+  }
+}

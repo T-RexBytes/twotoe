@@ -1,0 +1,39 @@
+{
+  "model": "gemma4:e4b",
+  "fixture": "f21-region-in",
+  "run": 5,
+  "seed": 46,
+  "mode": "llm",
+  "attempts": [
+    {
+      "attempt": 1,
+      "wallMs": 4988,
+      "evalCount": 73,
+      "evalDurationMs": 4067,
+      "reasons": [],
+      "content": "{\n  \"line1Actions\": [],\n  \"line2Tail\": \"take a deep breath\",\n  \"checklist\": [],\n  \"fyi\": [\n    \"SBI reported that records for 3,897 customers, including contact details and loan and lead metadata, were found on the dark web.\"\n  ]\n}"
+    }
+  ],
+  "writerMs": 4988,
+  "totalMs": 4991,
+  "finalUngrounded": 0,
+  "fallbackParts": [],
+  "line1": "Nothing needs you today.",
+  "brief": {
+    "date": "2026-10-23",
+    "line1": "Nothing needs you today.",
+    "line2": "Everything else: take a deep breath. Checked 10 things in 5.0s, 0 secrets left this machine.",
+    "checklist": [],
+    "fyi": [
+      "SBI reported that records for 3,897 customers, including contact details and loan and lead metadata, were found on the dark web."
+    ],
+    "meta": {
+      "mode": "llm",
+      "model": "gemma4:e4b",
+      "attempts": 1,
+      "validatorRejections": [],
+      "durationMs": 4991,
+      "egress": []
+    }
+  }
+}
