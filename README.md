@@ -1,5 +1,7 @@
 # TwoToe
 
+[![ci](https://github.com/T-RexBytes/twotoe/actions/workflows/ci.yml/badge.svg)](https://github.com/T-RexBytes/twotoe/actions/workflows/ci.yml)
+
 Local overnight breach-week triage. TwoToe scans your machine while you sleep and at 7 a.m. hands you two lines and a short rotate or patch checklist.
 
 Code owns the facts. A local open-weight model (Gemma via Ollama) only phrases them. A validator throws out anything the model said that code did not establish. No secret value is read, and nothing leaves your machine except the CISA KEV feed request (and Sentry, only if you opt in).
@@ -8,7 +10,9 @@ Code owns the facts. A local open-weight model (Gemma via Ollama) only phrases t
 
 ## Status
 
-Phases 0 to 7 of the build plan in [docs/SPEC.md](docs/SPEC.md) are built: scanners, matcher, local-model writer with a grounding validator, egress guard, Temporal nightly workflow, morning card, eval harness ([eval/RESULTS.md](eval/RESULTS.md)) and opt-in Sentry tracing. The write-up is next.
+Phases 0 to 7 of the build plan in [docs/SPEC.md](docs/SPEC.md) are built: scanners, matcher, local-model writer with a grounding validator, egress guard, Temporal nightly workflow, morning card, eval harness ([eval/RESULTS.md](eval/RESULTS.md)) and opt-in Sentry tracing. Also built: every SPEC 12 command (`doctor`, `explain`, `pack`, `eval`, `ask`), a local read-aloud (`brief --speak`) and macOS LaunchAgents (`sleep --launchd`, untested on a Mac).
+
+Not built, on purpose: the Mastra version of `ask` (Mastra sends usage telemetry to PostHog by default, which this tool's network rules do not allow; `ask` uses the same local model and validator instead), the ElevenLabs voice (needs a cloud API key), and the Arduino desk sloth (needs hardware).
 
 ## Running TwoToe
 
@@ -39,8 +43,8 @@ Optional `~/.twotoe/config.json`:
 
 ```json
 {
-  "roots": ["~/code", "D:/work"],
-  "exclude": ["D:/work/some-repo-with-test-data"],
+  "roots": ["~/code", "D:/projects"],
+  "exclude": ["D:/projects/some-repo-with-test-data"],
   "region": "IN"
 }
 ```
@@ -59,13 +63,23 @@ TwoToe cannot wake a computer that is off, and neither can Temporal.
 ## Commands
 
 ```powershell
+pnpm tsx packages/cli/src/index.ts doctor --fix        # is everything in place? prints fixes, runs nothing
 pnpm tsx packages/cli/src/index.ts scan --json          # facts only: what is on this machine
 pnpm tsx packages/cli/src/index.ts brief --no-llm       # the two lines + checklist, no model
 pnpm tsx packages/cli/src/index.ts brief --save         # local model (Ollama), saved for the card
+pnpm tsx packages/cli/src/index.ts brief --open         # same, then opens the card
+pnpm tsx packages/cli/src/index.ts brief --speak        # reads the two lines aloud (Windows speech, offline)
+pnpm tsx packages/cli/src/index.ts explain nodejs       # evidence, advisory and sources for one finding
+pnpm tsx packages/cli/src/index.ts ask "why does the Node one matter?"   # answered only from the findings, validated
 pnpm tsx packages/cli/src/index.ts card                 # the morning card on http://127.0.0.1:4777
+pnpm tsx packages/cli/src/index.ts pack --refresh       # pack version, verifiedAt dates, fresh CISA KEV
 pnpm tsx packages/cli/src/index.ts sleep --dry-run      # what the nightly install would register
+pnpm tsx packages/cli/src/index.ts sleep --uninstall    # remove the nightly tasks
+pnpm tsx packages/cli/src/index.ts eval --no-llm        # eval harness on the 24 fixtures (add --models to run models)
 pnpm tsx packages/worker/scripts/crash-test.ts          # kill the worker mid-run, prove nothing ran twice
 ```
+
+On macOS, `sleep --launchd` installs LaunchAgents instead of scheduled tasks. It is built from the same plans as the Windows tasks but has not been run on a real Mac.
 
 The demo card with example briefs from synthetic fixtures: see [docs/DEPLOY.md](docs/DEPLOY.md).
 
@@ -101,6 +115,7 @@ corepack enable --install-directory (npm config get prefix) pnpm
 pnpm install
 pnpm typecheck
 pnpm -r test
+pnpm coverage        # line coverage for core and writer, fails under 90%
 pnpm tsx packages/cli/src/index.ts scan $HOME\code --json
 ```
 

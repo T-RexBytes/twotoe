@@ -114,7 +114,7 @@ What broke, honestly:
 - The Temporal CLI was missing from the "install before Phase 3/4" list; installed with winget when the phase started.
 
 Design notes for the post:
-- Inventory and pack move between activities as on-disk cache references, so Temporal's history database never contains env key names or file paths.
+- Inventory and pack move between activities as on-disk cache references, so Temporal's history database never contains env key names. (Corrected Oct 23: file paths and the PC name did reach it until the Phase 8 prep fix below.)
 - Laziness feature: `catchupWindow` runs a missed 3 a.m. job when the laptop is next awake. Honest caveat (RESEARCH): Temporal cannot wake the laptop; `--no-temporal` with Task Scheduler `WakeToRun` can, if wake timers are allowed.
 
 ## Gate 5 (Oct 22): the morning card
@@ -221,3 +221,36 @@ Three rounds, one lesson: each fix was right about the symptom; the drafts thems
 - How Microsoft's block of the eMudhra root shows up in the Windows store (no Microsoft source found).
 - Microsoft Store Python, pipx and uv tool layouts, and Plex's version string format: none installed on the dev machine.
 - Docker with an empty environment: untested (Docker not installed).
+
+## Gate 6d (Oct 23): eval v4 (eval/RESULTS.md; v3 kept as eval/RESULTS-v3.md)
+
+Same 24 fixtures, 3 models x 5 runs, prompt 2026-10-22.3, after the allowed-token fix (only a summary's extracted tokens, not the whole sentence). Wall time 39.1 minutes. Matcher 20/20, canary 0, egress 127.0.0.1 only. Commit e48cb5d plus uncommitted changes (none in the writer or matcher).
+
+| Model | Drafts rejected v1 / v2 / v3 / v4 | Briefs needing the template v4 | Median / p90 writer time v4 | Tokens/s v4 |
+|---|---|---|---|---|
+| gemma4:e4b | 43% / 48% / 26% / **0% (0 of 80)** | 0 of 80 | 9.0 s / 13.4 s | 19.0 |
+| gemma4:e2b | 96% / 63% / 37% / **24.5% (23 of 94)** | 9 of 80 | 2.9 s / 6.5 s | 65.0 |
+| qwen3:4b | 55% / 61% / 63% / **0% (0 of 80)** | 0 of 80 | 12.6 s / 22.7 s | 12.5 |
+
+Ungrounded tokens before the validator: 0 for every model (v1: 141 drafts). After: 0, as always. e2b's 23 rejections are all formatting: 14 line-1 actions over 60 characters, 9 FYI items placed in the checklist plus 9 FYI lines over 160.
+
+The honest cost of 0 rejections (measured over the 240 v4 briefs against the template for the same fixture):
+- gemma4:e4b copied the template's action word for word in 79 of 95 checklist items. It reworded the "why" in about two thirds of items (35 of 95 match the trimmed summary it was shown). Its own words are mostly the line-2 tail: "take a deep breath." in 46 of 80 briefs.
+- qwen3:4b copied more: 85 of 95 actions and 63 of 95 "why" lines word for word; tail "go back to sleep." in 51 of 80.
+- gemma4:e2b rewrote almost every "why" (1 of 95 copied) and is the only model the validator still rejects.
+- So the validator did not get looser; the models got closer to the facts they were handed. Whether that reads better than the template is what the blind check (eval/blind/sheet.md) is for.
+
+## Phase 8 prep (Oct 23): bugs found while taking the screenshots
+
+Taking real screenshots turned out to be a test suite of its own:
+- **The pre-warm did not warm.** `twotoe doctor` loaded the model with Ollama's default context size; the brief asks for `num_ctx` 8192, so Ollama reloaded the model on the first brief. Brief time after `doctor`: 45 s before the fix, 29.5 s after. Found because a screenshot said 45 s next to an eval median of 26.9 s.
+- **Nested egress guards left the process unguarded.** Installing a second guard replaced the first, and uninstalling it removed both. No shipped command nests guards (checked every caller), but a capture script did, and its ledger came back empty. Guards now stack: an inner guard can only narrow the allowlist, both ledgers record, and uninstalling restores the outer one. Two new tests.
+- **Temporal's history held the home path and the PC name.** The schedule passed the absolute config path as workflow input, activity results carried absolute evidence paths and the saved brief path, and the worker identity was `pid@hostname`. All of it shows in the Temporal UI and stays in `temporal.db`. Now: the schedule passes `~\.twotoe\config.json` and the activity expands it, values crossing history are redacted to `~`, and identities are `twotoe` / `twotoe-worker-<pid>`. The earlier line in this log ("Temporal's history database never contains env key names or file paths") was half wrong: key names, yes; paths, no, until this fix.
+- **A test that could not fail.** The workflow test checked `JSON.stringify(history)` for leaked data, but payloads are bytes, so their text was never searched. It now decodes every payload (and asserts the decoded text contains the brief, so a broken decoder cannot pass). The decoded check is what found the config-path leak.
+- **The crash test showed the user folder.** Its state lived under `%TEMP%`, so the Temporal UI showed `C:\Users\<name>\...` as workflow input. It now lives in `<repo>/.twotoe-demo` (gitignored, skipped by scans) with a relative path.
+- **The nightly tasks.** The hidden launcher died on the worker's first stderr line (PowerShell 5.1 turns redirected stderr into errors), and Windows Terminal ignored `-WindowStyle Hidden`, so two windows opened at log on. Fixed with OS-level redirection and `conhost.exe --headless`.
+- **Report bug:** the eval's "sample rejected drafts" printed empty quotes for line-1 and FYI reasons. Fixed and re-rendered from the saved results; only those three lines changed.
+
+Crash test re-run twice on the fixed code: 0 activities executed twice, 0 model requests computed twice, model result reused from cache after the kill, canary 0.
+
+Also built in this phase: `doctor`, `explain`, `pack`, `eval`, `ask` (grounded follow-up through the same validator; not Mastra, whose telemetry posts to PostHog by default), `brief --open`, `brief --speak` (Windows speech, offline), `sleep --launchd` (untested on a Mac). Coverage enforced at 90% lines (core 90.5%, writer 97.6%). Pack re-verified against every source on Oct 23; no fact changed.
