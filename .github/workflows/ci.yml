@@ -21,3 +21,6 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm -r test
+      # SPEC 15: 90% lines in core and writer, measured on the primary platform.
+      - if: matrix.os == 'windows-latest'
+        run: pnpm coverage
