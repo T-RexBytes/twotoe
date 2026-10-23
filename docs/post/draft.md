@@ -133,7 +133,11 @@ I killed the worker mid-thought. It finished anyway, and nothing ran twice:
 <!-- Re-read each category's text on the challenge page before claiming (SPEC 11.1). -->
 - **Gemma:** the local writer model; bake-off of gemma4:e4b vs gemma4:e2b vs qwen3:4b across four eval rounds.
 - **Temporal:** nightly workflow, schedule with a catch-up window, crash test with 0 duplicate executions.
-- **Sentry Agent Tracing:** one trace per run, each model attempt and validator verdict as spans. {{SENTRY_SCREENSHOT}}
+- **Sentry Agent Tracing:** one trace per run, each model attempt and validator verdict as spans.
+
+![Sentry trace: scan, match, two model attempts each checked by the validator, assemble](docs/post/images/sentry-trace-waterfall.png)
+
+*The first draft in this demo trace was rejected on purpose (`--force-reject-first`, labelled as forced in the brief itself) so the retry shows. Prompts and responses were attached only because it ran on a fixture in demo mode.* {{Optional: replace with a trace of a natural rejection, see docs/post/recording-plan.md; and/or add a second screenshot with the first groundingValidator span selected, so its rejection is visible.}}
 - {{.tech domain / DigitalOcean only if deployed}}
 
 ## Sources
