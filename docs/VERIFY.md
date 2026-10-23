@@ -2,6 +2,16 @@
 
 Every VERIFY item from SPEC sections 0 to 7 (plus later-phase items seen while reading), what was checked, and against which URL. Checked on 2026-10-22 unless noted. Re-check everything before tagging `v1.0-submission` and again on publish day.
 
+**Re-verified 2026-10-23 (pack 2026.10.23-1).** Every source URL in the pack was fetched again and every fact below still matches; `verifiedAt` is now 2026-10-23 on all 11 entries. Notes from the re-check:
+
+- Live CISA KEV feed (via `twotoe pack --refresh`): catalog still 2026.10.21. No entries for PHP, GitLab, Node.js or LiteLLM. Plex dates unchanged.
+- php.net posted an informational advisory on Oct 23 about a separate issue, **CVE-2026-115560** (session upload progress; mitigation `session.upload_progress.enabled=0`, no fixed release yet). Not added to the pack: no fixed version to match against and it was not part of the week's list. Your call whether it belongs as an FYI.
+- Plex's forum mentions a newer build, 1.43.3.10896; the fix line (1.43.3.10861 and later) is unchanged.
+- Wiz still calls `sitecustomize.py` a "loader with hourly backdoor loop" while saying it only runs on Linux and macOS and listing a Windows hash. The pack keeps the neutral "remote code loader" wording.
+- Railway posted two follow-ups on Oct 22 (check for anomalous GCP and AWS access). Not fetched; the pack's action (roll every env var) is unchanged.
+
+Re-check once more on publish day (SPEC 7.1).
+
 Status key: **confirmed** (value fetched and matches), **corrected** (fetched, the spec was wrong, the pack uses the source value), **open** (could not confirm; placeholder or caveat in the pack), **deferred** (belongs to a later phase; checked then).
 
 ## Open placeholders in advisories.json
@@ -60,7 +70,7 @@ Resolved in Phase 1: `opencode-console-2026-10-17.check.params.configDirCandidat
 | Temporal CLI on Windows (winget/scoop?) | confirmed | winget package `Temporal.TemporalCLI` 1.9.1, publisher Temporal Technologies, portable zip from the official GitHub release (latest, v1.9.1). Per-user install, no admin. Installed on the dev machine 2026-10-22: `temporal version 1.9.1 (Server 1.32.0, UI 2.54.1)`. | https://github.com/temporalio/cli/releases/latest, `winget show Temporal.TemporalCLI` |
 | Temporal TS SDK version | confirmed | All `@temporalio/*` pinned to 1.24.0. | npm |
 | Schedule timezone field name (SPEC 11.3) | confirmed | `spec.timezone` (IANA name) in `@temporalio/client` 1.24.0 `ScheduleSpec`. On this machine `Intl` reports `Asia/Calcutta`; the server accepted it and computed the next run as 21:30 UTC (03:00 IST). | SDK type definitions, dev server |
-| `conhost.exe --headless` for hidden tasks (SPEC 11.3) | open, not used | Tasks launch `powershell.exe -WindowStyle Hidden -File <launcher>`. A console may flash for a moment at log on; untested whether conhost --headless avoids it. | n/a |
+| `conhost.exe --headless` for hidden tasks (SPEC 11.3) | confirmed, used | With Windows Terminal as the default console, `powershell.exe -WindowStyle Hidden` still opened two visible windows at log on (2026-10-23). Tasks now run `conhost.exe --headless powershell.exe ... -File <launcher>`; started via Task Scheduler on Windows 11 26200, no terminal window or process appeared. Not yet seen across a real log on. | dev machine |
 | Heartbeat throttling | observed | The Temporal SDK sends heartbeats at most every 0.8 x heartbeatTimeout (24 s for 30 s), so the 10 s heartbeat interval reaches the server about every 24 s. Crash recovery time is set by the last heartbeat that got through, not the kill time. | crash test runs |
 | Sentry AI agent monitoring docs | confirmed | Span ops `gen_ai.invoke_agent`, `gen_ai.chat`, `gen_ai.execute_tool`; names `invoke_agent {agent}`, `chat {model}`, `execute_tool {tool}`; required `gen_ai.operation.name`, chat also `gen_ai.provider.name`, `gen_ai.request.model`, `gen_ai.response.model`; usage `gen_ai.usage.input_tokens` / `output_tokens` / `total_tokens`. SDK `@sentry/node` 11.8.0: `dataCollection` replaces `sendDefaultPii`; gen_ai spans are streamed as standalone items (since 10.61). | https://docs.sentry.io/platforms/javascript/guides/node/agent-tracing/manual-instrumentation/, https://docs.sentry.io/platforms/javascript/guides/node/tracing/instrumentation/ai-agents-module/ |
 | DigitalOcean category text allows a static deploy (SPEC 11.6) | confirmed from the research notes | "Build or deploy your project on DigitalOcean: host your app or agent, ...". Re-read on the live challenge page before claiming the category. | docs/research/research-challenge.md |
