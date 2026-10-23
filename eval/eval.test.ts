@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { collectInventory, FixtureProbe, loadConfig, loadPack, matchAll } from "@twotoe/core";
 import { afterAll, describe, expect, it } from "vitest";
 import { CANARY, generate } from "./gen-fixtures";
+import { blindText, score } from "./blind-kit";
 import { median, p90, reasonCategory } from "./lib";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -78,5 +79,20 @@ describe("eval helpers", () => {
     expect(median([1, 2, 3, 4])).toBe(2.5);
     expect(p90([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])).toBe(9);
     expect(Number.isNaN(median([]))).toBe(true);
+  });
+});
+
+describe("blind readability kit (SPEC 14.4)", () => {
+  it("removes timings from line 2 so speed does not reveal the writer", () => {
+    const text = blindText({ line1: "1 thing needs you today: x.", line2: "Everything else: you're fine. Checked 12 things in 9.6s, 0 secrets left this machine.", checklist: [{ findingId: "a", action: "Do x", why: "Because." }], fyi: [] });
+    expect(text).toContain("Checked 12 things, 0 secrets left this machine.");
+    expect(text).not.toMatch(/\d+\.\ds/);
+    expect(text).toContain("1. Do x");
+  });
+
+  it("scores picks against the hidden key", () => {
+    const key = [{ fixture: "f01", A: "model" as const, B: "template" as const, modelRun: 1 }, { fixture: "f06", A: "template" as const, B: "model" as const, modelRun: 1 }];
+    const s = score(key, { r1: ["A", "A"], r2: ["same", "b"] });
+    expect({ model: s.model, template: s.template, same: s.same }).toEqual({ model: 2, template: 1, same: 1 });
   });
 });

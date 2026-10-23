@@ -230,6 +230,10 @@ function sampleRejections(runs: WriterRun[], n: number): string[] {
         excerpt = highlight(field, m[1]!);
       } else if (/line2Tail/.test(reason)) {
         excerpt = draft.line2Tail ?? "";
+      } else if (/^line-?1/i.test(reason)) {
+        excerpt = (draft.line1Actions ?? []).join(" | ");
+      } else if (/^FYI/i.test(reason)) {
+        excerpt = /checklist/i.test(reason) ? (draft.checklist ?? []).map((c) => c.action).join(" | ") : (draft.fyi ?? []).join(" | ");
       } else if (/why over|action over/.test(reason)) {
         const id = reason.split(" in ").pop();
         const it = draft.checklist?.find((c) => c.findingId === id);
@@ -240,6 +244,8 @@ function sampleRejections(runs: WriterRun[], n: number): string[] {
     } catch {
       excerpt = a.content!.slice(0, 200);
     }
+    // Never print an empty quote: fall back to the raw draft.
+    if (!excerpt.trim()) excerpt = a.content!.slice(0, 200);
     out.push(`- **${r.model}**, ${r.fixture}, run ${r.run}, attempt ${a.attempt}. Rejected for: \`${reason}\`${a.reasons.length > 1 ? ` (+${a.reasons.length - 1} more)` : ""}.\n  > ${excerpt.replace(/\n/g, " ")}\n  Outcome: ${outcome(r, a)} (final mode \`${r.mode}\`).`);
   }
   return out;
