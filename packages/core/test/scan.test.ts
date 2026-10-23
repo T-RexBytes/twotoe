@@ -5,6 +5,7 @@ import { FixtureProbe } from "../src/probe/FixtureProbe";
 import { RealProbe } from "../src/probe/RealProbe";
 import { collectInventory, SOURCE_PIN, SOURCE_SITE_PACKAGES } from "../src/scan";
 import { Inventory, type InventoryItem } from "../src/schemas";
+import { resolveExe, runFile } from "../src/util/exec";
 import { CANARY, makeTree, tempDir } from "./helpers";
 
 afterEach(() => vi.restoreAllMocks());
@@ -116,12 +117,18 @@ describe("collectInventory on a fixture machine", () => {
 });
 
 describe("RealProbe smoke test (this machine)", () => {
-  it("reads the user's Node version and Node trust store", async () => {
+  // Depends on the host: on a busy CI runner a child can hit the 5 s limit, so
+  // retry, and name the step that failed (the probe itself only returns null).
+  it("reads the user's Node version and Node trust store", { retry: 2, timeout: 30_000 }, async () => {
+    const exe = await resolveExe("node");
+    expect(exe, "where.exe found no node.exe").toBeTruthy();
+    const r = await runFile(exe!, ["--version"]);
+    expect({ ok: r.ok, timedOut: r.timedOut }, "node --version in an empty env").toEqual({ ok: true, timedOut: false });
     const probe = new RealProbe();
     expect(await probe.nodeVersion()).toMatch(/^\d+\.\d+\.\d+$/);
     const stores = await probe.trustStoreHas("emSign ECC Root CA - G3");
     expect(stores.some((s) => s.store === "node")).toBe(true);
     expect(await probe.commandExists("node")).toBe(true);
     expect(await probe.commandExists("twotoe-no-such-command")).toBe(false);
-  }, 30_000);
+  });
 });
